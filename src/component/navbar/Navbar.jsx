@@ -8,8 +8,8 @@ import { Link as RouterLink } from 'react-router-dom';
 const pages = [
   { name: 'الرئيسية', link: '#home' },
   { name: 'من نحن', link: '#about' },
-  { name: 'الخدمات', link: '#services' },
-  { name: 'الطاقم', link: '#staff' },
+  { name: 'خدماتنا', link: '#services' },
+  { name: 'تواصل معنا', link: '#contact' },
 ];
 
 export default function Navbar() {
@@ -42,29 +42,53 @@ export default function Navbar() {
             >
               دار المحبة والوئام للمسنين
             </Typography>
-            <ElderlyIcon fontSize="large" sx={{ color: 'white' }} />
+            <ElderlyIcon
+  fontSize="large"
+  sx={{ color: 'white', display: { xs: 'none', md: 'block' } }}
+/>
           </Box>
 
           {/* أيقونة القائمة للـ mobile */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, justifyContent: 'flex-end' }}>
-            <IconButton size="large" color="inherit" onClick={handleOpenNavMenu}>
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              anchorEl={anchorElNav}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              sx={{ display: { xs: 'block', md: 'none' } }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page.name} onClick={handleCloseNavMenu} component={RouterLink} to={page.link}>
-                  <Typography sx={{ textAlign: 'center', fontFamily: 'Cairo' }}>{page.name}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, ml: 'auto' }}>
+  <IconButton size="large" color="inherit" onClick={handleOpenNavMenu}>
+    <MenuIcon />
+  </IconButton>
+
+  <Menu
+    anchorEl={anchorElNav}
+    open={Boolean(anchorElNav)}
+    onClose={handleCloseNavMenu}
+    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+  >
+    {pages.map((page) =>
+  page.link.startsWith('#') ? (
+    <MenuItem
+      key={page.name}
+      component="a"
+      href={page.link}
+      onClick={handleCloseNavMenu}
+    >
+      <Typography sx={{ textAlign: 'center', fontFamily: 'Cairo' }}>
+        {page.name}
+      </Typography>
+    </MenuItem>
+  ) : (
+    <MenuItem
+      key={page.name}
+      component={RouterLink}
+      to={page.link}
+      onClick={handleCloseNavMenu}
+    >
+      <Typography sx={{ textAlign: 'center', fontFamily: 'Cairo' }}>
+        {page.name}
+      </Typography>
+    </MenuItem>
+  )
+)}
+  </Menu>
+</Box>
+
 
           {/* الروابط للـ desktop */}
           {/* الروابط للـ desktop */}
