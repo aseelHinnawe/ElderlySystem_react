@@ -1,0 +1,87 @@
+.featuresWrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 32px; /* gap: 4 */
+}
+.featureItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 60px;
+  position: relative;
+}
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+.imageWrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.image {
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+}
+.iconCircle {
+  margin: 0 auto 20px auto;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 50px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+.iconCircle:hover {
+  transform: scale(1.2);
+}
+.contactFormWrapper {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 16px; /* borderRadius: 4 * 4px */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 24px; /* p:3 → 24px */
+}
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* gap:2 */
+  flex-grow: 1;
+  position: relative;
+  border-radius: 16px; /* نفس borderRadius للشفافية */
+  padding: 12px; /* p:1.5 */
+}
+.contactFormOverlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.79);
+  border-radius: 16px;
+  z-index: 0;
+}
+.contactInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.mapBox {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  margin-top: 20px; /* mt:5 → 20px */
+}
