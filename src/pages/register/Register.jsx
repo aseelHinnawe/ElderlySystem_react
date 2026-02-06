@@ -1,262 +1,211 @@
-import { Box, Button, FormControlLabel, Grid, Paper, Radio, RadioGroup, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react'
+import {
+  Box,
+  Button,
+  FormControlLabel,
+  Grid,
+  Paper,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useState } from "react";
+import style from "./Register.module.css";
+import { useForm } from "react-hook-form";
+import axios from "axios";
 
-function EmployeeForm({ data, handleChange }) {
+function EmployeeForm({ register }) {
   return (
     <Grid container spacing={2} mt={1}>
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="اسم الموظف"
-          name="name"
-          value={data.name}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12}}>
+        <TextField fullWidth label="اسم الموظف" {...register("name")} className={style.glassInput} />
       </Grid>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="البريد الإلكتروني"
-          name="email"
-          value={data.email}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12}}>
+        <TextField fullWidth label="البريد الإلكتروني" {...register("email")} className={style.glassInput} />
       </Grid>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="الرقم الوظيفي"
-          name="jobNumber"
-          value={data.jobNumber}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12}}>
+        <TextField fullWidth label="الرقم الوظيفي" {...register("jobNumber")} className={style.glassInput} />
       </Grid>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="القسم"
-          name="department"
-          value={data.department}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12}}>
+        <TextField fullWidth label="القسم" {...register("department")} className={style.glassInput} />
       </Grid>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          type="password"
-          label="كلمة المرور"
-          name="password"
-          value={data.password}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12}}>
+        <TextField fullWidth type="password" label="كلمة المرور" {...register("password")} className={style.glassInput} />
       </Grid>
     </Grid>
   );
 }
 
-
-
-// =====================================================
-// فورم الكفيل
-// =====================================================
-function SponsorForm({ data, handleChange }) {
+// =====================
+// Sponsor Form
+// =====================
+function SponsorForm({ register }) {
   return (
-    <Grid container spacing={2} mt={1}>
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="اسم الكفيل"
-          name="name"
-          value={data.name}
-          onChange={handleChange}
-        />
+    <Grid container spacing={2.5} mt={1}>
+      <Grid size={{ xs: 12}}>
+        <TextField  id="fullName" fullWidth label="الاسم الكامل" {...register("fullName")} autoComplete="name" className={style.glassInput} />
       </Grid>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="البريد الإلكتروني"
-          name="email"
-          value={data.email}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12}}> 
+        <TextField id="userName" fullWidth label="اسم المستخدم" {...register("userName")} autoComplete="username" className={style.glassInput} />
       </Grid>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="رقم الهوية"
-          name="nationalId"
-          value={data.nationalId}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12}}>
+        <TextField id="email" fullWidth label="البريد الإلكتروني" {...register("email")} autoComplete="email" className={style.glassInput} sx={{ input: { textAlign: "left", direction: "ltr" } }}/>
       </Grid>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="اسم المسن المكفول"
-          name="elderName"
-          value={data.elderName}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12, sm: 6}}>
+        <TextField id="phoneNumber" fullWidth label="رقم الهاتف" {...register("phoneNumber")} autoComplete="tel" className={style.glassInput} sx={{ input: { textAlign: "left", direction: "ltr" } }} />
       </Grid>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          type="password"
-          label="كلمة المرور"
-          name="password"
-          value={data.password}
-          onChange={handleChange}
-        />
+      <Grid size={{ xs: 12, sm: 6}}>
+        <TextField id="nationalId" fullWidth label="رقم الهوية" {...register("nationalId")} className={style.glassInput} sx={{ input: { textAlign: "left", direction: "ltr" } }} />
+      </Grid>
+
+      <Grid size={{ xs: 12}}>
+        <TextField id="city" fullWidth label="المدينة" {...register("city")} className={style.glassInput}  />
+      </Grid>
+
+      <Grid size={{ xs: 12}}>
+        <Typography sx={{ mb: 1, fontWeight: 500 }}>الجنس</Typography>
+        <RadioGroup row {...register("gender")}>
+          <FormControlLabel value="Female" control={<Radio />} label="أنثى" />
+          <FormControlLabel value="Male" control={<Radio />} label="ذكر" />
+        </RadioGroup>
+      </Grid>
+
+      <Grid size={{ xs: 12}}>
+        <TextField id="password" fullWidth  label="كلمة المرور" {...register("password")} autoComplete="new-password" className={style.glassInput} sx={{ input: { textAlign: "left", direction: "ltr" } }} />
       </Grid>
     </Grid>
   );
 }
 
 export default function Register() {
-    const [userType, setUserType] = useState("");
+  const [userType, setUserType] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [employeeData, setEmployeeData] = useState({
-    name: "",
-    email: "",
-    jobNumber: "",
-    department: "",
-    password: "",
+  const employeeForm = useForm();
+  const sponsorForm = useForm();
+
+  // Handle Employee Submit
+  const handleSubmitEmployee = employeeForm.handleSubmit(async (data) => {
+    setLoading(true);
+    try {
+      const response = await axios.post("", data);
+      alert("تم إنشاء حساب الموظف بنجاح");
+      employeeForm.reset();
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "حدث خطأ أثناء إنشاء الحساب");
+    } finally {
+      setLoading(false);
+    }
   });
 
-  const [sponsorData, setSponsorData] = useState({
-    name: "",
-    email: "",
-    nationalId: "",
-    elderName: "",
-    password: "",
+  // Handle Sponsor Submit
+  const handleSubmitSponsor = sponsorForm.handleSubmit(async (data) => {
+    setLoading(true);
+    try {
+      const response = await axios.post("https://localhost:7160/api/Identity/Account/register", data);
+      console.log(response)
+      if (response.status === 200 || response.status === 201) {
+        alert("تم إنشاء حساب الكفيل بنجاح");
+      }
+      sponsorForm.reset();
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "حدث خطأ أثناء إنشاء الحساب");
+    } finally {
+      setLoading(false);
+    }
   });
 
-  // تغيير بيانات الموظف
-  const handleEmployeeChange = (e) => {
-    setEmployeeData({
-      ...employeeData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // تغيير بيانات الكفيل
-  const handleSponsorChange = (e) => {
-    setSponsorData({
-      ...sponsorData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // إرسال البيانات
-  const handleSubmit = () => {
-    if (userType === "employee") {
-      console.log("Employee Data:", employeeData);
-    }
-
-    if (userType === "sponsor") {
-      console.log("Sponsor Data:", sponsorData);
-    }
-
-    alert("تم إنشاء الحساب بنجاح (تجريبي)");
-  };
   return (
-  <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#f5f5f5",
-        p: 2,
-      }}
-    >
+    <Box className={style.registerWrapper}>
       <Paper
-        elevation={4}
+        elevation={0}
         sx={{
           p: 4,
-          maxWidth: 500,
+          maxWidth: 600,
           width: "100%",
-          borderRadius: 3,
+          borderRadius: "20px",
+          background: "rgba(240, 240, 234, 0.25)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+          border: "1px solid rgba(106, 106, 87, 0.15)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
         }}
       >
-        {/* العنوان الرئيسي */}
         <Typography variant="h5" textAlign="center" mb={2}>
           إنشاء حساب جديد
         </Typography>
 
-        {/* النص الإضافي */}
-        <Typography
-          variant="h6"
-          textAlign="center"
-          sx={{ fontWeight: 600, mb: 1 }}
-        >
+        <Typography variant="h6" textAlign="center" sx={{ fontWeight: 600, mb: 1 }}>
           سجّل حسب هويتك
         </Typography>
 
-        <Typography
-          variant="body2"
-          textAlign="center"
-          sx={{ color: "text.secondary", mb: 3 }}
-        >
+        <Typography variant="body2" textAlign="center" sx={{ color: "text.secondary", mb: 3 }}>
           من أنت ؟ اختر نوع الحساب للمتابعة
         </Typography>
 
-        {/* اختيار النوع */}
-        <RadioGroup
-          row
-          value={userType}
-          onChange={(e) => setUserType(e.target.value)}
-          sx={{ justifyContent: "center", mb: 2 }}
-        >
-          <FormControlLabel
-            value="employee"
-            control={<Radio />}
-            label="موظف"
-          />
-
-          <FormControlLabel
-            value="sponsor"
-            control={<Radio />}
-            label="كفيل"
-          />
+        <RadioGroup row value={userType} onChange={(e) => setUserType(e.target.value)} sx={{ justifyContent: "center", mb: 2 }}>
+          <FormControlLabel value="employee" control={<Radio />} label="موظف" />
+          <FormControlLabel value="sponsor" control={<Radio />} label="كفيل" />
         </RadioGroup>
 
-        {/* عرض الفورم حسب الاختيار */}
         {userType === "employee" && (
-          <EmployeeForm
-            data={employeeData}
-            handleChange={handleEmployeeChange}
-          />
+          <form onSubmit={handleSubmitEmployee}>
+            <EmployeeForm register={employeeForm.register} />
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={loading}
+              sx={{
+                mt: 3,
+                py: 1.2,
+                borderRadius: "14px",
+                background: "linear-gradient(135deg, #6a6a57, #8a8a76)",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #5a5a4a, #7a7a66)",
+                },
+              }}
+            >
+              {loading ? "جارٍ الإرسال..." : "إنشاء الحساب"}
+            </Button>
+          </form>
         )}
 
         {userType === "sponsor" && (
-          <SponsorForm
-            data={sponsorData}
-            handleChange={handleSponsorChange}
-          />
-        )}
-
-        {/* زر الإنشاء */}
-        {userType && (
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{ mt: 3, py: 1.2 }}
-            onClick={handleSubmit}
-          >
-            إنشاء الحساب
-          </Button>
+          <form onSubmit={handleSubmitSponsor}>
+            <SponsorForm register={sponsorForm.register} />
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={loading}
+              sx={{
+                mt: 3,
+                py: 1.2,
+                borderRadius: "14px",
+                background: "linear-gradient(135deg, #6a6a57, #8a8a76)",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #5a5a4a, #7a7a66)",
+                },
+              }}
+            >
+              {loading ? "جارٍ الإرسال..." : "إنشاء الحساب"}
+            </Button>
+          </form>
         )}
       </Paper>
     </Box>
-
-  )
+  );
 }
