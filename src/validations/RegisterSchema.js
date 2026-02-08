@@ -40,7 +40,7 @@ const registerSchema = yup.object({
   gender: yup
     .string()
     .required("الجنس مطلوب")
-    .oneOf(["Male", "Female"], "قيمة الجنس غير صحيحة"),
+    .oneOf(["Male", "Female"], "الجنس مطلوب"),
 
 });
 

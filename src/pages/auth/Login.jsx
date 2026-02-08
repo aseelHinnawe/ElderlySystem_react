@@ -99,9 +99,9 @@ export default function Login() {
       if (response.status === 200) {
         reset();
         setSnackbarMessage("تم تسجيل الدخول بنجاح");
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", response.data.data.token);
         setSnackbarOpen(true);
-        const decodedToken = jwtDecode(response.data.token);
+        const decodedToken = jwtDecode(response.data.data.token);
         const roleClaim =
           "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
         const role = decodedToken[roleClaim];
