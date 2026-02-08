@@ -1,7 +1,8 @@
 import React from 'react'
+import { Outlet } from 'react-router'
 
 export default function NurseLayout() {
   return (
-    <div>NurseLayout</div>
+    <Outlet />
   )
 }

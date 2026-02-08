@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import Home from "./pages/home/Home";
 import Register from "./pages/auth/Register";
@@ -10,6 +10,7 @@ import AdminLayout from "./layout/AdminLayout";
 import SponsorLayout from "./layout/SponsorLayout";
 import NurseLayout from "./layout/NurseLayout";
 import CompleteProfile from "./pages/nurse/completeProfile/CompleteProfile";
+import HomeNurse from "./pages/nurse/homeNurse/HomeNurse";
 
 const router = createBrowserRouter([
   {
@@ -48,9 +49,13 @@ const router = createBrowserRouter([
     element: <NurseLayout />,
     children: [
       {
+        index: true,
+        element: <HomeNurse />,
+      },
+      {
         path:'completeProfile',
         element: <CompleteProfile />,
-      }
+      },
     ]
   },
   {
