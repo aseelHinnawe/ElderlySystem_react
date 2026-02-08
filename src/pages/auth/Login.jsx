@@ -110,7 +110,11 @@ export default function Login() {
         } else if (role === "Sponsor") {
           navigate("/Sponsor");
         } else if (role === "Nurse") {
-          navigate("/Nurse");
+          if (response.data.data.isProfileCompleted === true) {
+            navigate("/Nurse");
+          } else {
+            navigate("/Nurse/completeProfile");
+          }
         }
       }
     } catch (err) {

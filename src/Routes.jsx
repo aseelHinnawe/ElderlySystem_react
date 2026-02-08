@@ -9,6 +9,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import AdminLayout from "./layout/AdminLayout";
 import SponsorLayout from "./layout/SponsorLayout";
 import NurseLayout from "./layout/NurseLayout";
+import CompleteProfile from "./pages/nurse/completeProfile/CompleteProfile";
 
 const router = createBrowserRouter([
   {
@@ -43,16 +44,22 @@ const router = createBrowserRouter([
     ],
   },
   {
+    path:'/Nurse',
+    element: <NurseLayout />,
+    children: [
+      {
+        path:'completeProfile',
+        element: <CompleteProfile />,
+      }
+    ]
+  },
+  {
     path:'/Admin',
     element: <AdminLayout />,
   },
   {
     path:'/Sponsor',
     element: <SponsorLayout/>,
-  },
-  {
-    path:'/Nurse',
-    element: <NurseLayout />,
   },
 ]);
 
