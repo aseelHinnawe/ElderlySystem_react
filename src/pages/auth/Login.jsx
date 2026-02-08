@@ -15,12 +15,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import style from "./Auth.module.css";
 import LoginSchema from "../../validations/LoginSchema.js";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -61,6 +62,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
   const handleMouseDownPassword = (event) => event.preventDefault();
+  const navigate = useNavigate();
 
   const loginForm = useForm({
     resolver: yupResolver(LoginSchema),
@@ -94,11 +96,22 @@ export default function Login() {
         data
       );
 
-      if (response.status === 200 || response.status === 201) {
+      if (response.status === 200) {
+        reset();
         setSnackbarMessage("تم تسجيل الدخول بنجاح");
         localStorage.setItem("token", response.data.token);
         setSnackbarOpen(true);
-        reset();
+        const decodedToken = jwtDecode(response.data.token);
+        const roleClaim =
+          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+        const role = decodedToken[roleClaim];
+        if (role === "Admin") {
+          navigate("/Admin");
+        } else if (role === "Sponsor") {
+          navigate("/Sponsor");
+        } else if (role === "Nurse") {
+          navigate("/Nurse");
+        }
       }
     } catch (err) {
   setError(err.response?.data?.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة");

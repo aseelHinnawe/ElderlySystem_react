@@ -43,12 +43,15 @@ const router = createBrowserRouter([
     ],
   },
   {
+    path:'/Admin',
     element: <AdminLayout />,
   },
   {
+    path:'/Sponsor',
     element: <SponsorLayout/>,
   },
   {
+    path:'/Nurse',
     element: <NurseLayout />,
   },
 ]);
