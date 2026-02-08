@@ -3,13 +3,13 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Container,
   Grid,
-  Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import mainImg from "../../assets/mainImg.jpg";
 import aboutImg from "../../assets/aboutImg.jpg";
 import contactImg from "../../assets/contactImg.jpg";
@@ -29,6 +29,115 @@ import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import MedicationIcon from "@mui/icons-material/Medication";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import style from "./Home.module.css";
+const heroSectionStyle = {
+  height: { xs: "50vh", md: "80vh" },
+  backgroundImage: `url(${mainImg})`,
+  backgroundSize: { xs: "cover", md: "cover" },
+  backgroundPosition: { xs: "center top", md: "center" },
+  px: { xs: 3, md: 10 },
+};
+const featureItemSx = (index) => ({
+  display: { xs: index > 2 ? "none" : "flex", md: "flex" },
+
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    right: -50,
+    top: "10%",
+    height: "100%",
+    width: "1px",
+    backgroundColor: "rgba(84, 84, 66, 0.3)",
+    display: {
+      xs: index === 0 ? "none" : "block",
+      md: index === 0 ? "none" : "block",
+    },
+  },
+});
+const baseTitleStyle = {
+  fontSize: "30px",
+  fontWeight: 600,
+  color: "#8a8a6a",
+  letterSpacing: "2px",
+  position: "relative",
+  display: "inline-block",
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    bottom: "-6px",
+    height: "3px",
+    backgroundColor: "#545442",
+    borderRadius: "2px",
+  },
+};
+const aboutButtonStyle = {
+  mt: 4,
+  backgroundColor: "#6a6a57",
+  color: "#fff",
+  borderRadius: "20px",
+  fontFamily: "Cairo",
+  "&:hover": { backgroundColor: "#a5a590" },
+};
+const movingIconStyle = {
+  position: "absolute",
+  top: "30%",
+  right: { md: "-35px" },
+  transform: "translateY(-20%)",
+  fontSize: 70,
+  color: "#545442",
+  display: { xs: "none", md: "block" },
+};
+const serviceCardStyle = {
+  textAlign: "center",
+  py: 5,
+  px: 3,
+  borderRadius: "20px",
+  backgroundColor: "#6a6a57",
+  color: "#fff",
+  boxShadow: "0px 8px 25px rgba(0,0,0,0.25)",
+  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+  "&:hover": {
+    transform: "translateY(-10px) scale(1.02)",
+    boxShadow: "0px 15px 35px rgba(0,0,0,0.4)",
+  },
+};
+const contactFormBoxStyle = {
+  backgroundImage: `url('${contactImg}')`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  position: "relative",
+  "&::before": {
+    content: '""',
+    position: "absolute",
+    inset: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.79)",
+    borderRadius: 4,
+    zIndex: 0,
+  },
+  "& > *": {
+    position: "relative",
+    zIndex: 1,
+  },
+};
+const contactInputStyle = {
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#333",
+  },
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "20px",
+  },
+};
+const contactButtonStyle = {
+  mt: "auto",
+  background: "linear-gradient(135deg, #6a6a57, #8a8a6a)",
+  textTransform: "none",
+  fontSize: 16,
+  py: 1.2,
+  borderRadius: 5,
+  "&:hover": {
+    background: "linear-gradient(135deg, #7a7a65, #9a9a82)",
+  },
+};
 
 const services = [
   {
@@ -99,48 +208,26 @@ export default function Home() {
   return (
     <>
       <Box id="home">
-        {/* Hero Section */}
-        <Box
-          sx={{
-            height: { xs: "50vh", md: "80vh" }, // أصغر ارتفاع على الموبايل
-            backgroundImage: `url(${mainImg})`,
-            backgroundSize: { xs: "cover", md: "cover" }, // تغطية كاملة
-            backgroundPosition: { xs: "center top", md: "center" }, // تحكم أفضل على الموبايل
-            px: { xs: 3, md: 10 },
-          }}
-        ></Box>
+        <Box sx={heroSectionStyle}></Box>
       </Box>
 
+
       <Box sx={{ py: 5, backgroundColor: "#f0f0ea" }}>
-        <Container maxWidth="lg">
-          <Box className={`${style.featuresWrapper}`}>
-            {features.map((feature, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: { xs: index > 2 ? "none" : "flex", md: "flex" },
-                  "&::after": {
-                    content: '""',
-                    position: "absolute",
-                    right: -50,
-                    top: "10%",
-                    height: "100%",
-                    width: "1px",
-                    backgroundColor: "rgba(84, 84, 66, 0.3)",
-                    display: {
-                      xs: index === 0 ? "none" : "block",
-                      md: index === 0 ? "none" : "block",
-                    },
-                  },
-                }}
-                className={`${style.featureItem}`}
-              >
-                {feature.icon}
-              </Box>
-            ))}
-          </Box>
-        </Container>
-      </Box>
+  <Container maxWidth="lg">
+    <Box className={style.featuresWrapper}>
+      {features.map((feature, index) => (
+        <Box
+          key={index}
+          sx={featureItemSx(index)}
+          className={style.featureItem}
+        >
+          {feature.icon}
+        </Box>
+      ))}
+    </Box>
+  </Container>
+</Box>
+
 
       <Box
         id="about"
@@ -161,24 +248,14 @@ export default function Home() {
             <Typography
               component="h2"
               sx={{
+                ...baseTitleStyle,
                 fontFamily: "Cairo",
-                fontSize: "30px",
-                fontWeight: 600,
-                color: "#8a8a6a",
-                letterSpacing: "2px",
                 mb: 1,
                 mt: { xs: -2, md: -4 },
-                position: "relative",
-                display: "inline-block",
                 "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: "-6px",
+                  ...baseTitleStyle["&::after"],
                   right: 0,
                   width: "40px",
-                  height: "3px",
-                  backgroundColor: "#545442",
-                  borderRadius: "2px",
                 },
               }}
             >
@@ -208,36 +285,13 @@ export default function Home() {
               بالاهتمام.
             </Typography>
 
-            <Button
-              variant="contained"
-              sx={{
-                mt: 4,
-                backgroundColor: "#6a6a57",
-                color: "#fff",
-                borderRadius: "20px",
-                fontFamily: "Cairo",
-                "&:hover": { backgroundColor: "#a5a590" },
-              }}
-              href="#contact"
-            >
+            <Button variant="contained" sx={aboutButtonStyle} href="#contact">
               تواصل معنا
             </Button>
           </Box>
 
-          {/* الصورة */}
           <Box className={`${style.imageWrapper}`}>
-            <MovingIcon
-              sx={{
-                position: "absolute",
-                top: "30%",
-                right: { md: "-35px" },
-                transform: "translateY(-20%)",
-                fontSize: 70,
-                color: "#545442",
-                display: { xs: "none", md: "block" },
-              }}
-            />
-
+            <MovingIcon sx={movingIconStyle} />
             <Box
               component="img"
               src={aboutImg}
@@ -261,55 +315,27 @@ export default function Home() {
         }}
       >
         <Container maxWidth="lg">
-          {/* عنوان السكشن */}
           <Typography
             component="h2"
             sx={{
-              fontSize: "30px",
-              fontWeight: 600,
-              color: "#8a8a6a",
-              letterSpacing: "2px",
+              ...baseTitleStyle,
               mb: 5,
               textAlign: "center",
-              position: "relative",
-              display: "inline-block",
               "&::after": {
-                content: '""',
-                position: "absolute",
-                bottom: "-6px",
+                ...baseTitleStyle["&::after"],
                 left: "50%",
                 transform: "translateX(-50%)",
                 width: "60px",
-                height: "3px",
-                backgroundColor: "#545442",
-                borderRadius: "2px",
               },
             }}
           >
             خدماتنا
           </Typography>
 
-          {/* Grid للـ Cards */}
           <Grid container spacing={4} justifyContent="center">
             {services.map((service, index) => (
               <Grid key={index} size={{ xs: 12, sm: 6, md: 4 }}>
-                <Card
-                  sx={{
-                    textAlign: "center",
-                    py: 5,
-                    px: 3,
-                    borderRadius: "20px",
-                    backgroundColor: "#6a6a57", // بني غامق
-                    color: "#fff",
-                    boxShadow: "0px 8px 25px rgba(0,0,0,0.25)",
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                    "&:hover": {
-                      transform: "translateY(-10px) scale(1.02)",
-                      boxShadow: "0px 15px 35px rgba(0,0,0,0.4)",
-                    },
-                  }}
-                >
-                  {/* دائرة حول الأيقونة */}
+                <Card sx={serviceCardStyle}>
                   <Box
                     sx={{
                       background: [
@@ -317,7 +343,7 @@ export default function Home() {
                         "linear-gradient(135deg, #a5c67a, #8aa96c)",
                         "linear-gradient(135deg, #f4a261, #e76f51)",
                         "linear-gradient(135deg, #2a9d8f, #264653)",
-                        "linear-gradient(135deg, #e9c46a, #f4a261)",
+                        "linear-gradient(135deg, #e9c46a, #eab655)",
                         "linear-gradient(135deg, #f28ab2, #d95d39)",
                       ][index % 6],
                       margin: "0 auto",
@@ -356,7 +382,7 @@ export default function Home() {
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
               gap: 6,
-              alignItems: "stretch", // نفس الطول
+              alignItems: "stretch",
             }}
           >
             {/* الفورم */}
@@ -364,25 +390,15 @@ export default function Home() {
               <Typography
                 component="h2"
                 sx={{
+                  ...baseTitleStyle,
                   fontFamily: "Cairo",
-                  fontSize: "30px",
-                  fontWeight: 600,
-                  color: "#8a8a6a",
-                  letterSpacing: "2px",
                   mb: 3.5,
                   textAlign: "center",
-                  position: "relative",
-                  display: "inline-block",
                   "&::after": {
-                    content: '""',
-                    position: "absolute",
-                    bottom: "-6px",
+                    ...baseTitleStyle["&::after"],
                     left: "50%",
                     transform: "translateX(-50%)",
                     width: "60px",
-                    height: "3px",
-                    backgroundColor: "#545442",
-                    borderRadius: "2px",
                   },
                 }}
               >
@@ -395,91 +411,41 @@ export default function Home() {
 
               <Box
                 component="form"
-                sx={{
-                  backgroundImage: `url('${contactImg}')`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    inset: 0,
-                    backgroundColor: "rgba(255, 255, 255, 0.79)", 
-                    borderRadius: 4,
-                    zIndex: 0,
-                  },
-                  "& > *": {
-                    position: "relative",
-                    zIndex: 1,
-                  },
-                }}
+                sx={contactFormBoxStyle}
                 className={`${style.contactForm}`}
               >
                 <TextField
                   label="الاسم"
+                  id="name"
+                  name="name"
                   fullWidth
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#333", 
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "20px", 
-                    },
-                  }}
+                  sx={contactInputStyle}
                 />
                 <TextField
                   label="البريد الإلكتروني"
+                  id="email"
+                  name="email"
                   fullWidth
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#333",
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "20px", 
-                    },
-                  }}
+                  sx={contactInputStyle}
                 />
                 <TextField
                   label="الموضوع"
+                  id="subject"
+                  name="subject"
                   fullWidth
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#333", // أسود غامق
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "20px", 
-                    },
-                  }}
+                  sx={contactInputStyle}
                 />
                 <TextField
                   label="الرسالة"
+                  id="message"
+                  name="message"
                   multiline
                   rows={4}
                   fullWidth
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#333", // أسود غامق
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "20px", 
-                    },
-                  }}
+                  sx={contactInputStyle}
                 />
 
-                <Button
-                  variant="contained"
-                  sx={{
-                    mt: "auto",
-                    background: "linear-gradient(135deg, #6a6a57, #8a8a6a)",
-                    textTransform: "none",
-                    fontSize: 16,
-                    py: 1.2,
-                    borderRadius: 5,
-                    "&:hover": {
-                      background: "linear-gradient(135deg, #7a7a65, #9a9a82)",
-                    },
-                  }}
-                >
+                <Button variant="contained" sx={contactButtonStyle}>
                   إرسال
                 </Button>
               </Box>

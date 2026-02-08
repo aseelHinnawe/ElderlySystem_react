@@ -1,4 +1,4 @@
-.loginWrapper {
+.authWrapper {
   min-height: 91vh;
   display: flex;
   align-items: center;
@@ -13,4 +13,9 @@
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(6px);
+}
+.formBox{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
