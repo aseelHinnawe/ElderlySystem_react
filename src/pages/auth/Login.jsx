@@ -1,13 +1,17 @@
 import {
+  Alert,
   Box,
   Button,
+  CircularProgress,
   FormControl,
+  FormHelperText,
   Grid,
   IconButton,
   InputAdornment,
   InputLabel,
   OutlinedInput,
   Paper,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -18,6 +22,8 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { Link } from "react-router";
 import style from "./Auth.module.css";
+import LoginSchema from "../../validations/LoginSchema.js";
+import { yupResolver } from "@hookform/resolvers/yup";
 const paperStyle = {
   p: 4,
   maxWidth: 600,
@@ -42,12 +48,12 @@ export const buttonStyle = {
 const passwordInputStyles = {
   direction: "ltr",
   "& input": {
-    textAlign: "left", 
-    paddingRight: "48px", 
+    textAlign: "left",
+    paddingRight: "48px",
   },
   "& .MuiInputAdornment-root": {
     position: "absolute",
-    right: 8, 
+    right: 8,
   },
 };
 
@@ -56,28 +62,47 @@ export default function Login() {
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
   const handleMouseDownPassword = (event) => event.preventDefault();
 
-  const loginForm = useForm();
-  const { register, handleSubmit, reset } = loginForm;
+  const loginForm = useForm({
+    resolver: yupResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = loginForm;
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
+  const [error, setError] = useState("");
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
+  };
   const onSubmit = async (data) => {
     setLoading(true);
     setError("");
     try {
       const response = await axios.post(
         "https://localhost:7160/api/Identity/Account/login",
-        data,
+        data
       );
 
-      if (response.status === 200) {
-        alert("تم تسجيل الدخول بنجاح");
+      if (response.status === 200 || response.status === 201) {
+        setSnackbarMessage("تم تسجيل الدخول بنجاح");
+        localStorage.setItem("token", response.data.token);
+        setSnackbarOpen(true);
         reset();
       }
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "حدث خطأ أثناء تسجيل الدخول");
-    } finally {
+  setError(err.response?.data?.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+} finally {
       setLoading(false);
     }
   };
@@ -98,37 +123,49 @@ export default function Login() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 id="email"
-                label="البريد الإلكتروني"
                 fullWidth
+                label="البريد الإلكتروني"
+                {...register("email")}
                 autoComplete="email"
-                {...register("email", { required: true })}
                 className={style.glassInput}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                sx={{ input: { textAlign: "left", direction: "ltr" } }}
               />
             </Grid>
 
             <Grid size={{ xs: 12 }}>
-        <FormControl fullWidth variant="outlined" className={style.glassInput}>
-          <InputLabel htmlFor="password">كلمة المرور</InputLabel>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                className={style.glassInput}
+              >
+                <InputLabel htmlFor="password">كلمة المرور</InputLabel>
 
-          <OutlinedInput
-            id="password"
-            type={showPassword ? "text" : "password"}
-            label="كلمة المرور"
-            {...register("password")}
-            sx={passwordInputStyles}
-            autoComplete="current-password"
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            }
-          />
-        </FormControl>
+                <OutlinedInput
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  label="كلمة المرور"
+                  {...register("password")}
+                  sx={passwordInputStyles}
+                  autoComplete="current-password"
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+                {errors.password && (
+                  <FormHelperText error>
+                    {errors.password.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
             </Grid>
 
             {error && (
@@ -169,6 +206,22 @@ export default function Login() {
           </Grid>
         </Box>
       </Paper>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%", fontWeight: 600 }}
+          elevation={6}
+          variant="filled"
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

@@ -6,6 +6,9 @@ import Login from "./pages/auth/Login";
 import AuthLayout from "./layout/AuthLayout";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
+import AdminLayout from "./layout/AdminLayout";
+import SponsorLayout from "./layout/SponsorLayout";
+import NurseLayout from "./layout/NurseLayout";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +41,15 @@ const router = createBrowserRouter([
         element:<ResetPassword />
       },
     ],
+  },
+  {
+    element: <AdminLayout />,
+  },
+  {
+    element: <SponsorLayout/>,
+  },
+  {
+    element: <NurseLayout />,
   },
 ]);
 
