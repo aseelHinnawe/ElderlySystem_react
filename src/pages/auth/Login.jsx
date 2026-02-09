@@ -118,7 +118,7 @@ export default function Login() {
         }
       }
     } catch (err) {
-  setError(err.response?.data?.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+  setError(err.response?.data?.message || "حدث خطأ");
 } finally {
       setLoading(false);
     }

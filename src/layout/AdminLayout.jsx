@@ -55,7 +55,7 @@ const handleMenuClick = (option) => {
 
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', fontFamily: 'Arial, sans-serif' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'row', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
       {/* Sidebar */}
       <Box
         sx={{
@@ -70,7 +70,7 @@ const handleMenuClick = (option) => {
     left: isSmallScreen ? (open ? 0 : -220) : 0, // نتحكم بمكانه على الصغيرة
     top: 0,
     zIndex: 1200,
-    height: '100%',
+minHeight: '100vh',
   }}
       >
         {open && (
@@ -163,7 +163,7 @@ const handleMenuClick = (option) => {
         </AppBar>
 
         {/* Page Content */}
-        <Box sx={{ flexGrow: 1, p: 4, backgroundColor: '#f0f0ea' }}>
+        <Box sx={{ flexGrow: 1, p: 4, backgroundColor: '#f0f0ea'}}>
            <Outlet />
        </Box>
       </Box>

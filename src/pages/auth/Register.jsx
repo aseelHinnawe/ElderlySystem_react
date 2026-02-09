@@ -419,7 +419,7 @@ export default function Register() {
           onChange={handleUserTypeChange}
           sx={{ justifyContent: "center", mb: 2 }}
         >
-          <FormControlLabel value="employee" control={<Radio />} label="موظف" />
+          <FormControlLabel value="employee" control={<Radio />} label="ممرض" />
           <FormControlLabel value="sponsor" control={<Radio />} label="كفيل" />
         </RadioGroup>
 
