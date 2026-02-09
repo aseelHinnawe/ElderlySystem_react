@@ -201,7 +201,7 @@ export default function Login() {
                 disabled={loading}
                 sx={buttonStyle}
               >
-                {loading ? <CircularProgress size={24} /> : "تسجيل الدخول"}
+                {loading ? "جار الدخول..." : "تسجيل الدخول"}
               </Button>
             </Grid>
 
