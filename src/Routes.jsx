@@ -11,6 +11,9 @@ import SponsorLayout from "./layout/SponsorLayout";
 import NurseLayout from "./layout/NurseLayout";
 import CompleteProfile from "./pages/nurse/completeProfile/CompleteProfile";
 import HomeNurse from "./pages/nurse/homeNurse/HomeNurse";
+import AdminHome from "./pages/admin/AdminHome/AdminHome";
+import AdminProfile from "./pages/admin/AdminProfile/AdminProfile";
+import AdminUsers from "./pages/admin/AdminUsers/AdminUsers";
 
 const router = createBrowserRouter([
   {
@@ -61,6 +64,20 @@ const router = createBrowserRouter([
   {
     path:'/Admin',
     element: <AdminLayout />,
+    children: [
+    {
+      index: true,
+      element: <AdminHome />,
+    },
+    {
+      path: 'users',
+      element: <AdminUsers />,
+    },
+    {
+      path: 'profile',
+      element: <AdminProfile />,
+    },
+  ],
   },
   {
     path:'/Sponsor',
