@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Box,
   Grid,
@@ -7,7 +7,6 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import axios from "axios";
 import {
   ElderlyWoman,
   People,
@@ -16,34 +15,24 @@ import {
   Event,
   TrendingUp,
 } from "@mui/icons-material";
+import { useQuery } from "@tanstack/react-query";
+import AxiosUserInstance from "../../../api/AxiosUserInstance";
 
 export default function AdminHome() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-
+  // ==== Fetch البيانات باستخدام axiosUserInstance ====
   const fetchStats = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        "https://localhost:7160/api/Admin/dashboard/stats",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      console.log("Stats response:", res.data);
-      setStats(res.data.data);
-    } catch (err) {
-      console.error("Error fetching stats:", err);
-    } finally {
-      setLoading(false);
-    }
+    const res = await AxiosUserInstance.get("/Admin/dashboard/stats");
+    return res.data.data;
   };
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  const { data: stats, isLoading, isError, error } = useQuery({
+    queryKey: ["adminStats"],
+    queryFn: fetchStats,
+    staleTime: 1000 * 60 * 5, // cache لمدة 5 دقائق
+  });
 
-  if (loading) {
+  // ==== Loader ====
+  if (isLoading) {
     return (
       <Box
         sx={{
@@ -58,11 +47,12 @@ export default function AdminHome() {
     );
   }
 
-  if (!stats) {
+  // ==== Error ====
+  if (isError) {
     return (
       <Box sx={{ textAlign: "center", mt: 4 }}>
         <Typography variant="h6" color="error">
-          فشل في تحميل الإحصائيات
+          فشل في تحميل الإحصائيات: {error.message}
         </Typography>
       </Box>
     );
@@ -70,46 +60,43 @@ export default function AdminHome() {
 
   // ==== كومبوننت للكارد الواحد ====
   const StatCard = ({ Icon, label, value, color }) => (
-  <Card 
-  sx={{
-    borderRadius: 3,
-    boxShadow: 3,
-    background: `linear-gradient(135deg, ${color}20, ${color}50)`,
-    transition: "transform 0.3s, box-shadow 0.3s",
-    "&:hover": {
-      transform: "translateY(-5px)",
-      boxShadow: "0 8px 20px rgba(0,0,0,0.35)",
-    },
-  }}>
-    <CardContent sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-      
-      <Box
-  sx={{
-    width: 60,
-    height: 60,
-    borderRadius: "50%",
-    bgcolor: `${color}33`, // لون نصف شفاف من لون الأيقونة
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  }}
->
-  <Icon sx={{ fontSize: 40, color }} />
-</Box>
-
-
-      <Box>
-        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-          {value}
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          {label}
-        </Typography>
-      </Box>
-    </CardContent>
-  </Card>
-);
-
+    <Card
+      sx={{
+        borderRadius: 3,
+        boxShadow: 3,
+        background: `linear-gradient(135deg, ${color}20, ${color}50)`,
+        transition: "transform 0.3s, box-shadow 0.3s",
+        "&:hover": {
+          transform: "translateY(-5px)",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.35)",
+        },
+      }}
+    >
+      <CardContent sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+        <Box
+          sx={{
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            bgcolor: `${color}33`,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Icon sx={{ fontSize: 40, color }} />
+        </Box>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+            {value}
+          </Typography>
+          <Typography variant="h6" color="text.secondary">
+            {label}
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <Box sx={{ p: 3 }}>
@@ -133,7 +120,7 @@ export default function AdminHome() {
             gap: 2,
           }}
         >
-          <Box >
+          <Box>
             <Typography variant="h4" sx={{ fontWeight: "bold" }}>
               لوحة التحكم
             </Typography>
@@ -159,50 +146,50 @@ export default function AdminHome() {
 
       {/* Grid للكروت */}
       <Grid container spacing={3}>
-        <Grid size={{xs:12 , sm:6}}>
+        <Grid size={{sx:12 , sm:6}}>
           <StatCard
-  Icon={ElderlyWoman}
-  label="عدد المسنين"
-  value={stats.elderlyCount}
-  color="#999963"
-/>
+            Icon={ElderlyWoman}
+            label="عدد المسنين"
+            value={stats.elderlyCount}
+            color="#999963"
+          />
         </Grid>
 
- <Grid size={{ xs: 12, sm: 6 }}>
-    <StatCard
-      Icon={People}
-      label="عدد الكفلاء"
-      value={stats.sponsorsCount}
-      color="#f29a56"
-    />
-  </Grid>
+        <Grid size={{sx:12 , sm:6}}>
+          <StatCard
+            Icon={People}
+            label="عدد الكفلاء"
+            value={stats.sponsorsCount}
+            color="#f29a56"
+          />
+        </Grid>
 
-  <Grid size={{ xs: 12, sm: 6 }}>
-    <StatCard
-      Icon={LocalHospital}
-      label="عدد الممرضين"
-      value={stats.nursesCount}
-      color="#6b9ff8"
-    />
-  </Grid>
+        <Grid size={{sx:12 , sm:6}}>
+          <StatCard
+            Icon={LocalHospital}
+            label="عدد الممرضين"
+            value={stats.nursesCount}
+            color="#6b9ff8"
+          />
+        </Grid>
 
-  <Grid size={{ xs: 12, sm: 6 }}>
-    <StatCard
-      Icon={MonetizationOn}
-      label="عدد التبرعات"
-      value={stats.donationsCountToDate}
-      color="#7ac17d"
-    />
-  </Grid>
+        <Grid size={{sx:12 , sm:6}}>
+          <StatCard
+            Icon={MonetizationOn}
+            label="عدد التبرعات"
+            value={stats.donationsCountToDate}
+            color="#7ac17d"
+          />
+        </Grid>
 
-  <Grid size={{ xs: 12, sm: 6 }}>
-    <StatCard
-      Icon={Event}
-      label="عدد الفعاليات"
-      value={stats.eventsCountToDate}
-      color="#e388a7"
-    />
-  </Grid>       
+        <Grid size={{sx:12 , sm:6}} >
+          <StatCard
+            Icon={Event}
+            label="عدد الفعاليات"
+            value={stats.eventsCountToDate}
+            color="#e388a7"
+          />
+        </Grid>
       </Grid>
     </Box>
   );

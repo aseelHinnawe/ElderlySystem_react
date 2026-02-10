@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Box,
   Card,
   Typography,
-  Divider,
   CircularProgress,
   Avatar,
   Grid,
   Paper
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import {
   AccountCircle,
   LocationCity,
@@ -19,7 +18,9 @@ import {
   Email,
   Phone
 } from '@mui/icons-material';
+import AxiosUserInstance from '../../../api/AxiosUserInstance';
 
+// كومبوننت InfoItem زي ما عندك
 const InfoItem = ({ icon, label, value }) => (
   <Paper
     elevation={0}
@@ -52,37 +53,27 @@ const InfoItem = ({ icon, label, value }) => (
 );
 
 export default function AdminProfile() {
-  const [adminData, setAdminData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // ==== Fetch البيانات باستخدام AxiosUserInstance ====
   const fetchAdminData = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login', { replace: true });
-      return;
-    }
+    const res = await AxiosUserInstance.get('/Identity/Account/me');
+    return res.data.data;
+  };
 
-    try {
-      const res = await axios.get(
-        'https://localhost:7160/api/Identity/Account/me',
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setAdminData(res.data.data);
-    } catch (err) {
+  const { data: adminData, isLoading, isError } = useQuery({
+    queryKey: ['adminProfile'],
+    queryFn: fetchAdminData,
+    staleTime: 1000 * 60 * 5, // cache لمدة 5 دقائق
+    retry: 1, // إعادة محاولة واحدة فقط عند الفشل
+    onError: (err) => {
       if (err.response?.status === 401) {
         navigate('/login', { replace: true });
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
-  useEffect(() => {
-    fetchAdminData();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
         <CircularProgress />
@@ -90,7 +81,7 @@ export default function AdminProfile() {
     );
   }
 
-  if (!adminData) {
+  if (isError || !adminData) {
     return (
       <Typography color="error" align="center" mt={4}>
         فشل في تحميل بيانات الحساب
@@ -99,7 +90,7 @@ export default function AdminProfile() {
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center',mt:2 }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
       <Card
         sx={{
           width: '100%',
@@ -113,7 +104,7 @@ export default function AdminProfile() {
         <Box
           sx={{
             background:
-            "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
+              'linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))',
             color: '#fff',
             p: 4,
             textAlign: 'center',
@@ -142,44 +133,24 @@ export default function AdminProfile() {
         {/* Content */}
         <Box sx={{ p: 4 }}>
           <Grid container spacing={3}>
-            <Grid size={{xs:12 , sm:4}}>
-              <InfoItem
-                icon={<Email />}
-                label="البريد الإلكتروني"
-                value={adminData.email}
-              />
+            <Grid size={{xs:12 , sm:4}} >
+              <InfoItem icon={<Email />} label="البريد الإلكتروني" value={adminData.email} />
             </Grid>
 
             <Grid size={{xs:12 , sm:4}}>
-              <InfoItem
-                icon={<Phone />}
-                label="رقم الهاتف"
-                value={adminData.phoneNumber}
-              />
+              <InfoItem icon={<Phone />} label="رقم الهاتف" value={adminData.phoneNumber} />
             </Grid>
 
             <Grid size={{xs:12 , sm:4}}>
-              <InfoItem
-                icon={<LocationCity />}
-                label="المدينة"
-                value={adminData.city}
-              />
+              <InfoItem icon={<LocationCity />} label="المدينة" value={adminData.city} />
             </Grid>
 
             <Grid size={{xs:12 , sm:4}}>
-              <InfoItem
-                icon={<Fingerprint />}
-                label="رقم الهوية"
-                value={adminData.nationalId}
-              />
+              <InfoItem icon={<Fingerprint />} label="رقم الهوية" value={adminData.nationalId} />
             </Grid>
 
             <Grid size={{xs:12 , sm:4}}>
-              <InfoItem
-                icon={<Wc />}
-                label="الجنس"
-                value={adminData.genderValue}
-              />
+              <InfoItem icon={<Wc />} label="الجنس" value={adminData.genderValue} />
             </Grid>
           </Grid>
         </Box>
