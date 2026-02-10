@@ -41,21 +41,22 @@ const RegisterEmpSchema = yup.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,100}$/,
       "كلمة المرور يجب أن تحتوي على حرف كبير وحرف صغير ورقم ورمز (مثل !@#)"
     ),
-
   certificate: yup
-    .mixed()
-    .required("يجب رفع صورة الشهادة")
-    .test(
-      "fileSize",
-      "حجم الملف كبير جدًا (أقصى 2 ميغابايت)",
-      (value) => !value || (value && value[0]?.size <= 2_000_000)
-    )
-    .test(
-      "fileType",
-      "نوع الملف غير مدعوم (jpeg أو png فقط)",
-      (value) =>
-        !value || (value && ["image/jpeg", "image/png"].includes(value[0]?.type))
-    ),
+  .mixed()
+  .required("يجب رفع صورة الشهادة")
+  .test(
+    "fileSize",
+    "حجم الملف كبير جدًا (أقصى 10 ميغابايت)",
+    (value) => !value || (value && value[0]?.size <= 10_000_000)
+  )
+  .test(
+    "fileType",
+    "نوع الملف غير مدعوم (jpeg أو png فقط)",
+    (value) =>
+      !value ||
+      (value && ["image/jpeg", "image/png", "image/heic"].includes(value[0]?.type))
+  ),
+
 });
 
 export default RegisterEmpSchema;

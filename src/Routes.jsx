@@ -14,6 +14,7 @@ import HomeNurse from "./pages/nurse/homeNurse/HomeNurse";
 import AdminHome from "./pages/admin/AdminHome/AdminHome";
 import AdminProfile from "./pages/admin/AdminProfile/AdminProfile";
 import AdminUsers from "./pages/admin/AdminUsers/AdminUsers";
+import ProtectedRouter from "./component/protected/ProtectedRouter";
 
 const router = createBrowserRouter([
   {
@@ -63,7 +64,10 @@ const router = createBrowserRouter([
   },
   {
     path:'/Admin',
-    element: <AdminLayout />,
+    element: 
+    <ProtectedRouter>
+     <AdminLayout />
+     </ProtectedRouter>,
     children: [
     {
       index: true,

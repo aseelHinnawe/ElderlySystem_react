@@ -1,52 +1,90 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, Card, Typography, Divider, CircularProgress, Avatar, Grid 
+import {
+  Box,
+  Card,
+  Typography,
+  Divider,
+  CircularProgress,
+  Avatar,
+  Grid,
+  Paper
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { AccountCircle,LocationCity,Wc, Fingerprint, Email, Phone } from '@mui/icons-material';
+import {
+  AccountCircle,
+  LocationCity,
+  Wc,
+  Fingerprint,
+  Email,
+  Phone
+} from '@mui/icons-material';
+
+const InfoItem = ({ icon, label, value }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      p: 2,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 2,
+      borderRadius: 3,
+      border: '1px solid #eee',
+      transition: '0.3s',
+      '&:hover': {
+        boxShadow: 3,
+        transform: 'translateY(-2px)',
+      },
+    }}
+  >
+    <Avatar sx={{ bgcolor: '#6a6a57', width: 42, height: 42 }}>
+      {icon}
+    </Avatar>
+    <Box>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography variant="body1" fontWeight="bold">
+        {value || '-'}
+      </Typography>
+    </Box>
+  </Paper>
+);
 
 export default function AdminProfile() {
   const [adminData, setAdminData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-    // ==== فنكشن مستقلة لجلب البيانات ====
   const fetchAdminData = async () => {
-    const token = localStorage.getItem('token'); // جلب التوكن
-
+    const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login', { replace: true });
       return;
     }
+
     try {
-      const res = await axios.get('https://localhost:7160/api/Identity/Account/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      // طباعة الـ response
-      console.log('Full response:', res);
-      console.log('Data only:', res.data);
-
-      setAdminData(res.data);
+      const res = await axios.get(
+        'https://localhost:7160/api/Identity/Account/me',
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setAdminData(res.data.data);
     } catch (err) {
-      console.error('Error fetching admin data:', err);
-
-      if (err.response && err.response.status === 401) {
-        navigate('/login', { replace: true }); // إعادة توجيه إذا 401
+      if (err.response?.status === 401) {
+        navigate('/login', { replace: true });
       }
     } finally {
-      setLoading(false); // دائمًا نوقف الـ loading
+      setLoading(false);
     }
   };
 
-  // ==== useEffect ينادي الفنكشن فقط ====
   useEffect(() => {
     fetchAdminData();
-  }, []); // لا داعي لأي dependencies
+  }, []);
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
         <CircularProgress />
       </Box>
     );
@@ -54,94 +92,97 @@ export default function AdminProfile() {
 
   if (!adminData) {
     return (
-      <Box sx={{ textAlign: 'center', mt: 4 }}>
-        <Typography variant="h6" color="error">
-          فشل في تحميل بيانات الحساب
-        </Typography>
-      </Box>
+      <Typography color="error" align="center" mt={4}>
+        فشل في تحميل بيانات الحساب
+      </Typography>
     );
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 9 }}>
-      <Card sx={{ width: '100%', maxWidth: 800, p: 3, borderRadius: 4, boxShadow: 6 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-          <Avatar sx={{ width: 80, height: 80, bgcolor: '#6a6a57', mb: 2 }}>
-            <AccountCircle sx={{ fontSize: 60 }} />
+    <Box sx={{ display: 'flex', justifyContent: 'center',mt:2 }}>
+      <Card
+        sx={{
+          width: '100%',
+          maxWidth: 900,
+          borderRadius: 5,
+          overflow: 'hidden',
+          boxShadow: 6,
+        }}
+      >
+        {/* Header */}
+        <Box
+          sx={{
+            background:
+            "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
+            color: '#fff',
+            p: 4,
+            textAlign: 'center',
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 100,
+              height: 100,
+              bgcolor: '#fff',
+              color: '#6a6a57',
+              mx: 'auto',
+              mb: 2,
+            }}
+          >
+            <AccountCircle sx={{ fontSize: 70 }} />
           </Avatar>
-          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="h4" fontWeight="bold">
             {adminData.fullName}
           </Typography>
-          <Typography variant="subtitle1" color="text.secondary">
+          <Typography variant="body2" sx={{ opacity: 0.9 }}>
             الحساب الشخصي
           </Typography>
         </Box>
 
-        <Divider sx={{ mb: 3 }} />
+        {/* Content */}
+        <Box sx={{ p: 4 }}>
+          <Grid container spacing={3}>
+            <Grid size={{xs:12 , sm:4}}>
+              <InfoItem
+                icon={<Email />}
+                label="البريد الإلكتروني"
+                value={adminData.email}
+              />
+            </Grid>
 
-        <Grid container spacing={3}>
-         
-          <Grid size={{xs:12 , sm:6}}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Email sx={{ color: '#6a6a57', fontSize: 24}}/>
-              <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-  <strong>البريد الإلكتروني:</strong>
-  <span>{adminData.data.email}</span>
-</Typography>
-            </Box>
+            <Grid size={{xs:12 , sm:4}}>
+              <InfoItem
+                icon={<Phone />}
+                label="رقم الهاتف"
+                value={adminData.phoneNumber}
+              />
+            </Grid>
+
+            <Grid size={{xs:12 , sm:4}}>
+              <InfoItem
+                icon={<LocationCity />}
+                label="المدينة"
+                value={adminData.city}
+              />
+            </Grid>
+
+            <Grid size={{xs:12 , sm:4}}>
+              <InfoItem
+                icon={<Fingerprint />}
+                label="رقم الهوية"
+                value={adminData.nationalId}
+              />
+            </Grid>
+
+            <Grid size={{xs:12 , sm:4}}>
+              <InfoItem
+                icon={<Wc />}
+                label="الجنس"
+                value={adminData.genderValue}
+              />
+            </Grid>
           </Grid>
-
-          <Grid size={{xs:12 , sm:6}}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Phone sx={{ color: '#6a6a57', fontSize: 24 }}/>
-              <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-        <strong>رقم الهاتف:</strong>
-        <span>{adminData.data.phoneNumber}</span>
-      </Typography>
-            </Box>
-          </Grid>
-
-          <Grid size={{xs:12 , sm:6}}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <AccountCircle sx={{ color: '#6a6a57', fontSize: 24 }} />
-              <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-        <strong>الاسم الكامل:</strong>
-        <span>{adminData.data.fullName}</span>
-      </Typography>
-            </Box>
-          </Grid>
-          <Grid size={{xs:12 , sm:6}}>
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <LocationCity sx={{ color: '#6a6a57', fontSize: 24 }} />
-      <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-        <strong>المدينة:</strong>
-        <span>{adminData.data.city}</span>
-      </Typography>
-    </Box>
-  </Grid>
-
-  {/* الرقم الوطني */}
-  <Grid size={{xs:12 , sm:6}}>
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <Fingerprint sx={{ color: '#6a6a57', fontSize: 24 }} />
-      <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-        <strong>رقم الهوية :</strong>
-        <span>{adminData.data.nationalId}</span>
-      </Typography>
-    </Box>
-  </Grid>
-
-  {/* الجنس */}
-  <Grid size={{xs:12 , sm:6}}>
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <Wc sx={{ color: '#6a6a57', fontSize: 24 }} />
-      <Typography variant="body1" sx={{ display: 'flex', gap: 1 }}>
-        <strong>الجنس:</strong>
-        <span>{adminData.data.genderValue}</span>
-      </Typography>
-    </Box>
-  </Grid>
-        </Grid>
+        </Box>
       </Card>
     </Box>
   );

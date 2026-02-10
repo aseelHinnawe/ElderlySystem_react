@@ -21,12 +21,9 @@ export default function AdminHome() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ==== فنكشن لجلب البيانات من API ====
   const fetchStats = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     try {
+      const token = localStorage.getItem("token");
       const res = await axios.get(
         "https://localhost:7160/api/Admin/dashboard/stats",
         {
