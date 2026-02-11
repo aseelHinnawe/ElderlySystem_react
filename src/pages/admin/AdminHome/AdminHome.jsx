@@ -102,95 +102,102 @@ export default function AdminHome() {
     <Box sx={{ p: 3 }}>
       {/* بطاقة الترحيب */}
       <Card
-        sx={{
-          mb: 4,
-          borderRadius: 5,
-          background:
-            "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
-          color: "#fff",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-        }}
-      >
-        <CardContent
           sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 2,
+            mb: 4,
+            borderRadius: 5,
+            background: "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
+            color: "#fff",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
           }}
         >
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-              لوحة التحكم
-            </Typography>
-            <Typography sx={{ opacity: 0.9, mt: 1 }}>
-              أهلاً بك 👋 — نظرة شاملة على إحصائيات دار المسنين
-            </Typography>
-          </Box>
-          <Box
+          <CardContent
             sx={{
-              width: 70,
-              height: 70,
-              borderRadius: "50%",
-              bgcolor: "rgba(255,255,255,0.2)",
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 2,
             }}
           >
-            <TrendingUp sx={{ fontSize: 40, color: "#fff" }} />
-          </Box>
-        </CardContent>
-      </Card>
+            <Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: "bold", fontSize: { xs: 18, md: 28 } }}
+                >
+              لوحة التحكم
+                </Typography>
+              </Box>
+              <Typography
+                sx={{ opacity: 0.9, mt: { xs: 1, md: 2 }, fontSize: { xs: 12, md: 16 } }}
+              >
+ أهلاً بك 👋 — نظرة شاملة على إحصائيات دار المسنين              </Typography>
+            </Box>
+      
+            <Box
+              sx={{
+                width: { xs: 50, md: 70 },
+                height: { xs: 50, md: 70 },
+                borderRadius: "50%",
+                bgcolor: "rgba(255,255,255,0.2)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <TrendingUp sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }} />
+            </Box>
+          </CardContent>
+        </Card>
 
       {/* Grid للكروت */}
       <Grid container spacing={3}>
-        <Grid size={{sx:12 , sm:6}}>
-          <StatCard
-            Icon={ElderlyWoman}
-            label="عدد المسنين"
-            value={stats.elderlyCount}
-            color="#999963"
-          />
-        </Grid>
+  <Grid size={{xs:12 , sm:6}}>
+    <StatCard
+      Icon={ElderlyWoman}
+      label="عدد المسنين"
+      value={stats.elderlyCount}
+      color="#999963"
+    />
+  </Grid>
 
-        <Grid size={{sx:12 , sm:6}}>
-          <StatCard
-            Icon={People}
-            label="عدد الكفلاء"
-            value={stats.sponsorsCount}
-            color="#f29a56"
-          />
-        </Grid>
+  <Grid size={{xs:12 , sm:6}}>
+    <StatCard
+      Icon={People}
+      label="عدد الكفلاء"
+      value={stats.sponsorsCount}
+      color="#f29a56"
+    />
+  </Grid>
 
-        <Grid size={{sx:12 , sm:6}}>
-          <StatCard
-            Icon={LocalHospital}
-            label="عدد الممرضين"
-            value={stats.nursesCount}
-            color="#6b9ff8"
-          />
-        </Grid>
+  <Grid size={{xs:12 , sm:6}}>
+    <StatCard
+      Icon={LocalHospital}
+      label="عدد الممرضين"
+      value={stats.nursesCount}
+      color="#6b9ff8"
+    />
+  </Grid>
 
-        <Grid size={{sx:12 , sm:6}}>
-          <StatCard
-            Icon={MonetizationOn}
-            label="عدد التبرعات"
-            value={stats.donationsCountToDate}
-            color="#7ac17d"
-          />
-        </Grid>
+  <Grid size={{xs:12 , sm:6}}>
+    <StatCard
+      Icon={MonetizationOn}
+      label="عدد التبرعات"
+      value={stats.donationsCountToDate}
+      color="#7ac17d"
+    />
+  </Grid>
 
-        <Grid size={{sx:12 , sm:6}} >
-          <StatCard
-            Icon={Event}
-            label="عدد الفعاليات"
-            value={stats.eventsCountToDate}
-            color="#e388a7"
-          />
-        </Grid>
-      </Grid>
+  <Grid size={{xs:12 , sm:6}}>
+    <StatCard
+      Icon={Event}
+      label="عدد الفعاليات"
+      value={stats.eventsCountToDate}
+      color="#e388a7"
+    />
+  </Grid>
+</Grid>
+
     </Box>
   );
 }
