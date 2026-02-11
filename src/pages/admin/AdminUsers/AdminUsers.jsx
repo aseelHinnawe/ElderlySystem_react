@@ -24,6 +24,8 @@ import {
 import { Edit, TrendingUp } from "@mui/icons-material";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import GroupsIcon from "@mui/icons-material/Groups";
+import { Link } from "react-router";
+
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -330,6 +332,8 @@ export default function AdminUsers() {
                               <Button
                                 size="small"
                                 variant="contained"
+                                component={Link}               
+                                to={`/Admin/user/${user.id}`}       
                                 sx={{
                                   borderRadius: 2,
                                   textTransform: "none",
@@ -490,9 +494,9 @@ export default function AdminUsers() {
                             sx={{
                               borderRadius: 2,
                               textTransform: "none",
-                              backgroundColor: "#9d9d7a",
-                              boxShadow: "none",
-                              "&:hover": { backgroundColor: "#9d9d7a" },
+                              backgroundColor: "#FFF8E1",
+                                      color: "#8D6E63",
+                                      border: "1px solid rgba(141,110,99,0.35)",
                               fontWeight: 700,
                             }}
                             onClick={() =>
