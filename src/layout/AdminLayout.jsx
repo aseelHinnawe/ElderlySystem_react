@@ -24,6 +24,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -46,6 +47,7 @@ export default function AdminLayout() {
   const menuItems = [
     { text: 'الرئيسية', icon: <DashboardIcon />, path: '/Admin' },
     { text: 'المستخدمين', icon: <PeopleIcon />, path: '/Admin/users' },
+    { text: "طلبات الإضافة", icon: <PersonAddIcon />, path: "/Admin/requests" },
   ];
 
   const handleMenuClick = (option) => {

@@ -15,6 +15,7 @@ import AdminHome from "./pages/admin/AdminHome/AdminHome";
 import AdminProfile from "./pages/admin/AdminProfile/AdminProfile";
 import AdminUsers from "./pages/admin/AdminUsers/AdminUsers";
 import ProtectedRouter from "./component/protected/ProtectedRouter";
+import AdminRequest from "./pages/admin/AdminRequest/AdminRequest";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
     {
       path: 'profile',
       element: <AdminProfile />,
+    },
+    {
+      path: 'requests',
+      element: <AdminRequest />,
     },
   ],
   },

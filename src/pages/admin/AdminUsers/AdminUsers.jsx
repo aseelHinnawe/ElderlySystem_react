@@ -333,10 +333,11 @@ export default function AdminUsers() {
                                 sx={{
                                   borderRadius: 2,
                                   textTransform: "none",
+                                  fontWeight: 800,
                                   fontSize: { xs: 10, md: 13 },
-                                  backgroundColor: "#9d9d7a",
-                                  boxShadow: "none",
-                                  "&:hover": { backgroundColor: "#9d9d7a" },
+                                  backgroundColor: "#FFF8E1",
+                                      color: "#8D6E63",
+                                      border: "1px solid rgba(141,110,99,0.35)",
                                 }}
                                 onClick={() =>
                                   console.log("تفاصيل المستخدم:", user.id)
