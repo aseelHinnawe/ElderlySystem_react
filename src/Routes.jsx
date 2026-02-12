@@ -17,6 +17,8 @@ import AdminUsers from "./pages/admin/AdminUsers/AdminUsers";
 import ProtectedRouter from "./component/protected/ProtectedRouter";
 import AdminRequest from "./pages/admin/AdminRequest/AdminRequest";
 import UserDetail from "./pages/admin/UserDetail/UserDetail";
+import AdminElderlies from "./pages/admin/AdminElderlies/AdminElderlies";
+import AdminElderliesRequest from "./pages/admin/AdminElderliesRequest/AdminElderliesRequest";
 
 const router = createBrowserRouter([
   {
@@ -90,7 +92,15 @@ const router = createBrowserRouter([
     {
       path: "user/:id",      
       element: <UserDetail />,
-    }
+    },
+    {
+        path: "elderlies",
+        element: <AdminElderlies />,
+      },
+      {
+        path: "elderliesRequest",
+        element: <AdminElderliesRequest />,
+      },
   ],
   },
   {
