@@ -20,6 +20,7 @@ import {
 import ElderlyWomanIcon from "@mui/icons-material/ElderlyWoman";
 import ElderlyIcon from "@mui/icons-material/Elderly";
 import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -27,7 +28,6 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-
 
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
@@ -41,7 +41,6 @@ export default function AdminLayout() {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const [usersFolderOpen, setUsersFolderOpen] = useState(true);
-
   const [elderlyFolderOpen, setElderlyFolderOpen] = useState(true);
 
   const [activePage, setActivePage] = useState("الرئيسية");
@@ -139,7 +138,18 @@ export default function AdminLayout() {
         fontFamily: "Arial, sans-serif",
       }}
     >
-      {/* ================= Sidebar ================= */}
+      {isSmallScreen && open && (
+        <Box
+          onClick={() => setOpen(false)}
+          sx={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.25)",
+            zIndex: 1100, // أقل من السايدبار (1200)
+          }}
+        />
+      )}
+
       <Box
         sx={{
           width: open ? 260 : 68,
@@ -156,21 +166,39 @@ export default function AdminLayout() {
           minHeight: "100vh",
           direction: "rtl",
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         {open && (
           <>
-            <Typography
-              variant="h5"
-              sx={{ mb: 2.5, fontWeight: 800, textAlign: "center" }}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 1.5,
+              }}
             >
-              لوحة الإدارة
-            </Typography>
+              {/* العنوان يمين */}
+              <Typography variant="h5" sx={{ fontWeight: 800, m: 0 }}>
+                لوحة الإدارة
+              </Typography>
+
+              {/* X يسار (على الشاشات الصغيرة فقط) */}
+              {isSmallScreen && (
+                <IconButton
+                  onClick={() => setOpen(false)}
+                  sx={{ color: "white" }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              )}
+            </Box>
+
             <Divider sx={{ bgcolor: "rgba(255,255,255,0.25)", mb: 1.5 }} />
           </>
         )}
 
         <List sx={{ mt: 1 }}>
-          {/* الرئيسية */}
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => goTo("الرئيسية", "/Admin")}
@@ -214,7 +242,6 @@ export default function AdminLayout() {
             </ListItemButton>
           </ListItem>
 
-          {/* فولدر إدارة المستخدمين */}
           <ListItem disablePadding>
             <ListItemButton
               onClick={toggleUsersFolder}
@@ -253,10 +280,8 @@ export default function AdminLayout() {
             </ListItemButton>
           </ListItem>
 
-          {/* فروع إدارة المستخدمين */}
           <Collapse in={usersFolderOpen} timeout="auto" unmountOnExit>
             <Box sx={{ ml: open ? 4 : 0, mt: 0.5 }}>
-              {/* المستخدمين */}
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => goTo("المستخدمين", "/Admin/users")}
@@ -302,7 +327,6 @@ export default function AdminLayout() {
                 </ListItemButton>
               </ListItem>
 
-              {/* طلبات الإضافة */}
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => goTo("طلبات الإضافة", "/Admin/requests")}
@@ -350,7 +374,6 @@ export default function AdminLayout() {
             </Box>
           </Collapse>
 
-          {/* فولدر إدارة المسنين */}
           <ListItem disablePadding>
             <ListItemButton
               onClick={toggleElderlyFolder}
@@ -389,10 +412,8 @@ export default function AdminLayout() {
             </ListItemButton>
           </ListItem>
 
-          {/* فروع إدارة المسنين */}
           <Collapse in={elderlyFolderOpen} timeout="auto" unmountOnExit>
             <Box sx={{ ml: open ? 4 : 0, mt: 0.5 }}>
-              {/* المسنين */}
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => goTo("المسنين", "/Admin/elderlies")}
@@ -420,7 +441,7 @@ export default function AdminLayout() {
                       pl: 0,
                     }}
                   >
-                    <ElderlyIcon  fontSize="small" />
+                    <ElderlyIcon fontSize="small" />
                   </ListItemIcon>
 
                   {open && (
@@ -438,7 +459,6 @@ export default function AdminLayout() {
                 </ListItemButton>
               </ListItem>
 
-              {/* طلبات المسنين */}
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() =>
@@ -468,9 +488,7 @@ export default function AdminLayout() {
                       pl: 0,
                     }}
                   >
-                     <PersonAddIcon fontSize="small" />
-
-
+                    <PersonAddIcon fontSize="small" />
                   </ListItemIcon>
 
                   {open && (
@@ -492,7 +510,6 @@ export default function AdminLayout() {
         </List>
       </Box>
 
-      {/* ================= Main Content ================= */}
       <Box
         sx={{
           flexGrow: 1,
@@ -501,10 +518,8 @@ export default function AdminLayout() {
           position: "relative",
         }}
       >
-        {/* ================= Navbar ================= */}
         <AppBar position="static" sx={{ backgroundColor: "#6a6a57" }}>
           <Toolbar>
-            {/* زر فتح السايدبار */}
             <IconButton
               edge="start"
               color="inherit"
@@ -514,12 +529,10 @@ export default function AdminLayout() {
               <MenuIcon />
             </IconButton>
 
-            {/* اسم الصفحة */}
             <Typography variant="h6" sx={{ flexGrow: 1, mr: 2 }}>
               {activePage}
             </Typography>
 
-            {/* اسم الدار بالوسط */}
             <Box
               sx={{
                 position: "absolute",
@@ -544,12 +557,10 @@ export default function AdminLayout() {
               </Typography>
             </Box>
 
-            {/* الحساب */}
             <IconButton color="inherit" onClick={handleMenuOpen}>
               <AccountCircleIcon sx={{ fontSize: 40 }} />
             </IconButton>
 
-            {/* القائمة */}
             <Menu
               anchorEl={anchorEl}
               open={isMenuOpen}
@@ -567,7 +578,6 @@ export default function AdminLayout() {
           </Toolbar>
         </AppBar>
 
-        {/* ================= Page Content ================= */}
         <Box
           sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, backgroundColor: "#f0f0ea" }}
         >
