@@ -26,21 +26,12 @@ const CompleteNurseProfileSchema = yup.object({
     .required("سنة التخرج مطلوبة"),
 
   workExperiences: yup.array().of(
-    yup.object({
-      workName: yup
-        .string()
-        .max(100)
-        .required("اسم مكان العمل مطلوب"),
-      workLocation: yup
-        .string()
-        .max(100)
-        .required("موقع العمل مطلوب"),
-      jobTitle: yup
-        .string()
-        .max(50)
-        .required("المسمى الوظيفي مطلوب"),
-    })
-  ),
+  yup.object({
+    workName: yup.string().max(100),
+    workLocation: yup.string().max(100),
+    jobTitle: yup.string().max(50),
+  })
+)
 });
 
 export default CompleteNurseProfileSchema;

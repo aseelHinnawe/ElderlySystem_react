@@ -73,6 +73,14 @@ export default function CompleteProfile() {
     const onSubmit = async (data) => {
     setLoading(true);
     setErrorMessage(""); 
+
+      // إزالة أي عنصر خبرة فارغ تمامًا
+  if (data.workExperiences) {
+    data.workExperiences = data.workExperiences.filter(
+      (w) => w.workName || w.workLocation || w.jobTitle
+    );
+  }
+  
     try {
       const response = await axios.post(
         "https://localhost:7160/api/Nurse/complete",

@@ -186,7 +186,6 @@ export default function AdminUsers() {
               <MenuItem value="">الكل</MenuItem>
               <MenuItem value="Nurse">ممرض</MenuItem>
               <MenuItem value="Sponsor">كفيل</MenuItem>
-              <MenuItem value="Employee">موظف</MenuItem>
             </Select>
           </FormControl>
         </Grid>
