@@ -65,41 +65,302 @@ export default function UserDetail() {
     { label: "المدينة", value: user.city, icon: <LocationOnIcon /> },
     { label: "الرقم الوطني", value: user.nationalId, icon: <BadgeIcon /> },
     { label: "الجنس", value: user.gender, icon: <WcIcon /> },
-    { label: "الحالة الاجتماعية", value: user.maritalStatus, icon: <GroupIcon /> },
+    {
+      label: "الحالة الاجتماعية",
+      value: user.maritalStatus,
+      icon: <GroupIcon />,
+    },
   ];
 
   const nurseAcademicFields = [
-{ label: "المستوى التعليمي", value: user.educationLevel },
-{ label: "التخصص", value: user.fieldOfStudy },
-{ label: "عدد سنوات الدراسة", value: user.yearsOfStudy },
-{ label: "سنة التخرج", value: user.yearOfGraduation },
-];
+    { label: "المستوى التعليمي", value: user.educationLevel },
+    { label: "التخصص", value: user.fieldOfStudy },
+    { label: "عدد سنوات الدراسة", value: user.yearsOfStudy },
+    { label: "سنة التخرج", value: user.yearOfGraduation },
+  ];
 
   const isActive = user.status === "نشط";
 
-  // ======= HEADER موحد لكل المستخدمين =======
-  const Header = (
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg, #f4f5ef 0%, #e6e7dc 50%, #d4d6c8 100%)",
+        p: { xs: 2, md: 6 },
+      }}
+    >
+      <Grid container spacing={4} alignItems="stretch">
+        {user.roleUser === "ممرض" && (
+          <>
+            {/* ===== العمود الأيسر ===== */} 
+            <Grid size={{ xs: 12, lg: 5 }} sx={{ display: "flex" }}>
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 4,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 3,
+                  width: "100%",
+                }}
+              >
+                {/* الصورة والمعلومات الشخصية */}
+                <Box sx={{ textAlign: "center", position: "relative" }}>
+                  {/* ===== Avatar مع حالة ملتصقة ===== */}
+                  <Box sx={{ display: "inline-block", position: "relative" }}>
+                    <Avatar
+                      src={user.image}
+                      sx={{
+                        width: 100,
+                        height: 100,
+                        fontSize: 35,
+                        mx: "auto",
+                        border: "4px solid #6a6a57",
+                        boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+                      }}
+                    >
+                      {user.fullName?.charAt(0)}
+                    </Avatar>
+
+                    <Chip
+                      label={user.status}
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        bottom: 6,
+                        right: -8,
+                        fontWeight: 800,
+                        backgroundColor: isActive ? "#4CAF50" : "#D32F2F",
+                        color: "#fff",
+                      }}
+                    />
+                  </Box>
+
+                  {/* ===== الاسم والدور تحت الصورة ===== */}
+                  <Typography sx={{ mt: 2, fontSize: 28, fontWeight: 900 }}>
+                    {user.fullName}
+                  </Typography>
+                  <Typography
+                    sx={{ fontSize: 18, fontWeight: 700, opacity: 0.9 }}
+                  >
+                    {user.roleUser}
+                  </Typography>
+                </Box>
+
+                {/* المعلومات الشخصية */}
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 900,
+                      mb: 2,
+                      fontSize: 16,
+                      borderRight: "4px solid #6a6a57",
+                      pr: 1,
+                    }}
+                  >
+                    المعلومات الشخصية
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1.5,
+                    }}
+                  >
+                    {basicFields.map((item, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          p: 1.5,
+                          borderRadius: 2,
+                          background: "#f7f7f3",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 35,
+                            height: 35,
+                            borderRadius: "50%",
+                            background: "#6a6a57",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#fff",
+                          }}
+                        >
+                          {item.icon}
+                        </Box>
+
+                        <Typography sx={{ fontWeight: 700, fontSize: 14 }}>
+                          {item.value}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* ===== العمود الأيمن ===== */}
+            <Grid size={{ xs: 12, lg: 7 }} sx={{ display: "flex" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 3,
+                  width: "100%",
+                }}
+              >
+                {/* الأكاديمية */}
+                <Paper sx={{ p: 3, borderRadius: 4, flexGrow: 1 }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 900,
+                      mb: 2,
+                      fontSize: 16,
+                      borderRight: "4px solid #417d44",
+                      pr: 1,
+                    }}
+                  >
+                    المعلومات الأكاديمية
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    {nurseAcademicFields.map((item, index) => (
+                      <Grid size={{ xs: 12, sm: 6 }} key={index}>
+                        <Box
+                          sx={{
+                            p: 2,
+                            borderRadius: 2,
+                            background: "#f7f7f3",
+                          }}
+                        >
+                          <Typography sx={{ fontSize: 13, color: "#777" }}>
+                            {item.label}
+                          </Typography>
+                          <Typography sx={{ fontWeight: 800 }}>
+                            {item.value}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Paper>
+
+                {/* الشهادة */}
+                {user.imageCertificate && (
+                  <Paper
+                    sx={{
+                      p: 3,
+                      borderRadius: 4,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontWeight: 900,
+                        mb: 3,
+                        fontSize: 16,
+                        borderRight: "4px solid #6a6a57",
+                        pr: 1,
+                        alignSelf: "flex-start",
+                      }}
+                    >
+                      الشهادة
+                    </Typography>
+
+                    <Box
+                      component="img"
+                      src={user.imageCertificate}
+                      sx={{
+                        width: { xs: "100%", sm: "80%", md: "60%" },
+                        maxHeight: "80vh",
+                        objectFit: "contain",
+                        borderRadius: 3,
+                        border: "1px solid #e0e0e0",
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                        backgroundColor: "#fff",
+                        p: 1,
+                      }}
+                    />
+                  </Paper>
+                )}
+              </Box>
+            </Grid>
+          </>
+        )}
+        {/* ===== الخبرات العملية تحت كامل المحتوى ===== */}
+        {user.workExperiences?.length > 0 && (
+          <Grid size={{ xs: 12 }}>
+            <Paper sx={{ p: 3, borderRadius: 4 }}>
+              <Typography
+                sx={{
+                  fontWeight: 900,
+                  mb: 2,
+                  fontSize: 16,
+                  borderRight: "4px solid #6a6a57",
+                  pr: 1,
+                }}
+              >
+                الخبرات العملية
+              </Typography>
+
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                {user.workExperiences.map((work, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      background: "#f7f7f3",
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 800 }}>
+                      {work.workName}
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, color: "#777" }}>
+                      {work.workLocation}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          </Grid>
+        )}
+
+         {/* ======= شرط الحارس + عاملة النظافة ======= */}
+{(user.roleUser === "حارس" || user.roleUser === "عاملة نظافة") && (
+  <Box sx={{ mb: 4 }}>
+    {/* ===== Header Gradient ===== */}
     <Paper
       elevation={6}
       sx={{
-        py: 2.5,
+        py: 3,
         px: 3,
-        mb: 4,
+        mb: 3,
         borderRadius: 5,
-        background: "linear-gradient(135deg, #929979 0%, #636850 100%)",
+        background: "linear-gradient(135deg, rgb(106,106,87), rgb(160,160,120))",
         color: "#fff",
         position: "relative",
         overflow: "hidden",
       }}
     >
       <Grid container spacing={2} alignItems="center">
-        <Grid item sx={{ position: "relative" }}>
+        {/* ===== الصورة على اليمين ===== */}
+        <Grid  sx={{ position: "relative" }}>
           <Avatar
             src={user.image}
             sx={{
               width: 120,
               height: 120,
-              fontSize: 40,
+              fontSize: 50,
               border: "4px solid #fff",
               boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
             }}
@@ -121,196 +382,42 @@ export default function UserDetail() {
           />
         </Grid>
 
-        <Grid item xs>
-          <Typography sx={{ fontSize: 28, fontWeight: 900 }}>{user.fullName}</Typography>
-          <Typography sx={{ fontSize: 18, fontWeight: 700, opacity: 0.9 }}>{user.roleUser}</Typography>
+        {/* ===== الاسم والدور على اليسار ===== */}
+        <Grid>
+          <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
+            {user.fullName}
+          </Typography>
+          <Typography sx={{ fontSize: 18, fontWeight: 700, opacity: 0.9 }}>
+            {user.roleUser}
+          </Typography>
         </Grid>
       </Grid>
     </Paper>
-  );
 
-  // ======= المحتوى الرئيسي موحد للخلفية =======
-  return (
-    <Box
+    {/* ===== المربعات البيضاء أسفل Header ===== */}
+    <Paper
       sx={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #f4f5ef 0%, #e6e7dc 50%, #d4d6c8 100%)",
-        p: { xs: 2, md: 6 },
+        p: 3,
+        borderRadius: 4,
+        background: "#fff",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 2,
+        justifyContent: "center",
       }}
     >
-      {Header}
-
-      <Grid container spacing={4}>
-
-  {/* ======= شرط الممرض ======= */}
-  {user.roleUser === "ممرض" && (
-    <>
-      {/* العمود الأول */}
-      <Grid size={{xs:12,md:6}}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-
-          {/* المعلومات الشخصية */}
-          <Paper sx={{ p: 3, borderRadius: 4, backgroundColor: "#fff" }}>
-            <Typography
-              sx={{
-                fontWeight: 900,
-                mb: 3,
-                fontSize: 18,
-                borderRight: "4px solid #6a6a57",
-                pr: 1,
-              }}
-            >
-              المعلومات الشخصية
-            </Typography>
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {basicFields.map((item, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    p: 2,
-                    borderRadius: 3,
-                    backgroundColor: "#fafafa",
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 700, color: "#777" }}>
-                    {item.label}
-                  </Typography>
-                  <Typography sx={{ fontWeight: 800 }}>
-                    {item.value}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Paper>
-
-          {/* المعلومات الأكاديمية */}
-          <Paper sx={{ p: 3, borderRadius: 4, backgroundColor: "#fff" }}>
-            <Typography
-              sx={{
-                fontWeight: 900,
-                mb: 3,
-                fontSize: 18,
-                borderRight: "4px solid #417d44",
-                pr: 1,
-              }}
-            >
-              المعلومات الأكاديمية
-            </Typography>
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {nurseAcademicFields.map((item, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    p: 2,
-                    borderRadius: 3,
-                    backgroundColor: "#fafafa",
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 700, color: "#777" }}>
-                    {item.label}
-                  </Typography>
-                  <Typography sx={{ fontWeight: 800 }}>
-                    {item.value}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Paper>
-        </Box>
-      </Grid>
-
-      {/* العمود الثاني */}
-      <Grid size={{xs:12,md:6}}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-
-          {/* الشهادة */}
-          {user.imageCertificate && (
-            <Paper sx={{ p: 3, borderRadius: 4, backgroundColor: "#fff" }}>
-              <Typography sx={{ fontWeight: 900, mb: 2, fontSize: 18 }}>
-                الشهادة
-              </Typography>
-
-              <Box
-                component="img"
-                src={user.imageCertificate}
-                sx={{ width: "100%", maxHeight: 300, borderRadius: 3 }}
-              />
-            </Paper>
-          )}
-
-          {/* الخبرات */}
-          {user.workExperiences?.length > 0 && (
-            <Paper sx={{ p: 3, borderRadius: 4, backgroundColor: "#fff" }}>
-              <Typography sx={{ fontWeight: 900, mb: 2, fontSize: 18 }}>
-                الخبرات العملية
-              </Typography>
-
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {user.workExperiences.map((work, i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      p: 2,
-                      borderRadius: 3,
-                      backgroundColor: "#fafafa",
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: 800 }}>
-                      {work.workName}
-                    </Typography>
-                    <Typography sx={{ color: "#777", fontSize: 14 }}>
-                      {work.workLocation}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            </Paper>
-          )}
-        </Box>
-      </Grid>
-    </>
-  )}
-
-  {/* ======= شرط الحارس + عاملة النظافة ======= */}
-  {/* ======= شرط الحارس + عاملة النظافة ======= */}
-{(user.roleUser === "حارس" || user.roleUser === "عاملة نظافة") && (
-  <Paper
-    sx={{
-      p: 3,
-      borderRadius: 4,
-      background: "#fff",
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 2, // المسافة بين المربعات الصغيرة
-    }}
-  >
-    {basicFields.map((item, i) => (
-      <Box
-        key={i}
-        sx={{
-          flex: "1 1 30%", // كل مربع ياخد تقريباً ثلث المساحة، ويتغير حسب حجم الشاشة
-          minWidth: 200, // الحد الأدنى لحجم المربع
-          p: 2,
-          borderRadius: 3,
-          background: "#f9f9f9",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+      {basicFields.map((item, i) => (
         <Box
+          key={i}
           sx={{
+            flex: "1 1 30%",
+            minWidth: 200,
+            p: 2,
+            borderRadius: 3,
+            background: "#f9f9f9",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            gap: 2,
-            mb: 1,
           }}
         >
           <Box
@@ -321,8 +428,9 @@ export default function UserDetail() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: "linear-gradient(135deg,#6b705c,#636850)",
+              backgroundColor: "#7e7e67",
               color: "#fff",
+              mb: 1,
             }}
           >
             {item.icon}
@@ -331,21 +439,18 @@ export default function UserDetail() {
           <Typography sx={{ fontWeight: 800, color: "#555" }}>
             {item.label}
           </Typography>
-        </Box>
 
-        <Typography sx={{ fontWeight: 900, fontSize: 18, color: "#222" }}>
-          {item.value}
-        </Typography>
-      </Box>
-    ))}
-  </Paper>
+          <Typography sx={{ fontWeight: 900, fontSize: 18, color: "#222" }}>
+            {item.value}
+          </Typography>
+        </Box>
+      ))}
+    </Paper>
+  </Box>
 )}
 
+      </Grid>
 
-</Grid>
-
-
-      {/* SNACKBAR */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
