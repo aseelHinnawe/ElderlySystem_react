@@ -18,6 +18,25 @@ import {
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import style from './AdminRequest.module.css';
+const addRequestsCardStyles = {
+  mb: 4,
+  borderRadius: 5,
+  background: "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
+  color: "#fff",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+};
+const mobileUserCardStyles = {
+  mb: 2,
+  borderRadius: 3,
+  overflow: "hidden",
+  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+};
+const ButtonStyles = {
+  borderRadius: 2,
+  textTransform: "none",
+  fontWeight: 900,
+};
 
 export default function AdminRequest() {
   const [users, setUsers] = useState([]);
@@ -80,32 +99,14 @@ export default function AdminRequest() {
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* لوحة طلبات الإضافة */}
       <Card
-        sx={{
-          mb: 4,
-          borderRadius: 5,
-          background:
-            "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
-          color: "#fff",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-        }}
+        sx={addRequestsCardStyles}
       >
         <CardContent
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 2,
-          }}
+          className={style.cardContent}
         >
           <Box>
             <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                flexWrap: "wrap",
-              }}
+              className={style.titleWrapper}
             >
               <Typography
                 variant="h4"
@@ -134,12 +135,8 @@ export default function AdminRequest() {
             sx={{
               width: { xs: 50, md: 70 },
               height: { xs: 50, md: 70 },
-              borderRadius: "50%",
-              bgcolor: "rgba(255,255,255,0.2)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
             }}
+            className={style.iconCircle}
           >
             <PendingActionsIcon
               sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }}
@@ -181,7 +178,7 @@ export default function AdminRequest() {
                   <TableCell align="center">{user.fullName}</TableCell>
                   <TableCell align="center">{user.roleUser}</TableCell>
                   <TableCell align="center">
-                    <Box sx={{ display: "flex", justifyContent: "center", gap: 1, flexWrap: "wrap" }}>
+                    <Box className={style.actionsBox}>
                       <Button
                         size="small"
                         variant="contained"
@@ -236,12 +233,7 @@ export default function AdminRequest() {
     users.map((user) => (
       <Card
         key={user.id}
-        sx={{
-          mb: 2,
-          borderRadius: 3,
-          overflow: "hidden",
-          boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-        }}
+        sx={mobileUserCardStyles}
       >
         <CardContent sx={{ p: 2 }}>
           <Typography sx={{ fontWeight: 900, fontSize: 15 }}>
@@ -256,13 +248,11 @@ export default function AdminRequest() {
               fullWidth
               variant="contained"
               sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 900,
-                backgroundColor: "#417d44",
-                boxShadow: "none",
-                "&:hover": { backgroundColor: "#256427" },
-              }}
+              ...ButtonStyles,
+              backgroundColor: "#417d44",
+              "&:hover": { backgroundColor: "#256427" },
+            }}
+              
               onClick={() => handleStatusChange(user.id, "Active")}
             >
               قبول
@@ -272,12 +262,7 @@ export default function AdminRequest() {
               fullWidth
               variant="contained"
               color="error"
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 900,
-                boxShadow: "none",
-              }}
+              sx={ButtonStyles}
               onClick={() => handleStatusChange(user.id, "InActive")}
             >
               رفض

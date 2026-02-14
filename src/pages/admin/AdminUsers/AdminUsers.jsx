@@ -25,6 +25,31 @@ import { Edit, TrendingUp } from "@mui/icons-material";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { Link } from "react-router";
+import style from './AdminUsers.module.css';
+const addRequestsCardStyles = {
+  mb: 4,
+  borderRadius: 5,
+  background: "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
+  color: "#fff",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+};
+const userDetailsButtonStyles = {
+  borderRadius: 2,
+  textTransform: "none",
+  fontWeight: 800,
+};
+const cancelButtonStyles = {
+  borderRadius: 2,
+  fontSize: 11,
+  px: 1.5,
+  py: 0.5,
+};
+const userCardStyles = {
+  mb: 2,
+  borderRadius: 3,
+  overflow: "hidden",
+  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+};
 
 
 export default function AdminUsers() {
@@ -89,32 +114,14 @@ export default function AdminUsers() {
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* لوحة المستخدمين */}
       <Card
-        sx={{
-          mb: 4,
-          borderRadius: 5,
-          background:
-            "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
-          color: "#fff",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-        }}
+        sx={addRequestsCardStyles}
       >
         <CardContent
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 2,
-          }}
+         className={style.headerContent}
         >
           <Box>
             <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                flexWrap: "wrap",
-              }}
+             className={style.titleWrapper}
             >
               <Typography
                 variant="h4"
@@ -141,12 +148,9 @@ export default function AdminUsers() {
             sx={{
               width: { xs: 50, md: 70 },
               height: { xs: 50, md: 70 },
-              borderRadius: "50%",
-              bgcolor: "rgba(255,255,255,0.2)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+             
             }}
+            className={style.iconCircle}
           >
             <TrendingUp sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }} />
           </Box>
@@ -154,7 +158,7 @@ export default function AdminUsers() {
       </Card>
 
       {/* الفلاتر */}
-      <Grid container spacing={2} sx={{ mb: 4, alignItems: "center" }}>
+      <Grid container spacing={2} className={style.filtersGrid}>
         <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth>
             <InputLabel sx={{ color: "#6a6a57", fontWeight: 500 }}>
@@ -200,7 +204,10 @@ export default function AdminUsers() {
           <Box sx={{ display: { xs: "none", md: "block" } }}>
             <Card
               component={Paper}
-              sx={{ borderRadius: 3, overflow: "hidden" }}
+              sx={{
+    borderRadius: 3, // 3*8px = 24px
+    overflow: "hidden",
+  }}
             >
               <CardContent sx={{ p: 0 }}>
                 <Box sx={{ overflowX: "auto" }}>
@@ -282,21 +289,10 @@ export default function AdminUsers() {
                                 </Box>
                               ) : (
                                 <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: 1,
-                                    flexWrap: "wrap",
-                                  }}
+                                  className={style.centerFlexWrap}
                                 >
                                   <Box
-                                    sx={{
-                                      px: 2,
-                                      py: 0.5,
-                                      borderRadius: 5,
-                                      fontSize: 15,
-                                      fontWeight: "bold",
+                                    sx={{                                
                                       backgroundColor:
                                         user.statusUser === "نشط"
                                           ? "#E8F5E9"
@@ -306,6 +302,7 @@ export default function AdminUsers() {
                                           ? "#2E7D32"
                                           : "#C62828",
                                     }}
+                                    className={style.statusChip}
                                   >
                                     {user.statusUser === "نشط"
                                       ? "نشط"
@@ -334,9 +331,7 @@ export default function AdminUsers() {
                                 component={Link}               
                                 to={`/Admin/user/${user.id}`}       
                                 sx={{
-                                  borderRadius: 2,
-                                  textTransform: "none",
-                                  fontWeight: 800,
+                                  ...userDetailsButtonStyles,
                                   fontSize: { xs: 10, md: 13 },
                                   backgroundColor: "#FFF8E1",
                                       color: "#8D6E63",
@@ -374,22 +369,12 @@ export default function AdminUsers() {
                 return (
                   <Card
                     key={user.id}
-                    sx={{
-                      mb: 2,
-                      borderRadius: 3,
-                      overflow: "hidden",
-                      boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-                    }}
+                    sx={userCardStyles}
                   >
                     <CardContent sx={{ p: 2 }}>
                       {/* Header: Name + Status chip + Edit */}
                       <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          justifyContent: "space-between",
-                          gap: 1,
-                        }}
+                        className={style.flexSpaceBetween}
                       >
                         <Box sx={{ minWidth: 0 }}>
                           <Typography
@@ -399,12 +384,7 @@ export default function AdminUsers() {
                             الاسم : {user.fullName}
                           </Typography>
                           <Typography
-                            sx={{
-                              mt: 0.5,
-                              fontSize: 15, // أكبر
-                              fontWeight: 700, // أوضح
-                              color: "#4b4b3f", // أغمق
-                            }}
+                            className={style.roleText}
                           >
                             الدور : {user.roleUser}
                           </Typography>
@@ -415,12 +395,7 @@ export default function AdminUsers() {
                             size="small"
                             variant="outlined"
                             color="error"
-                            sx={{
-                              borderRadius: 2,
-                              fontSize: 11,
-                              px: 1.5,
-                              py: 0.5,
-                            }}
+                            sx={cancelButtonStyles}
                             onClick={() => setEditingUserId(null)}
                           >
                             إلغاء
@@ -435,11 +410,11 @@ export default function AdminUsers() {
                           >
                             <Box
                               sx={{
-    fontSize: { xs: 14, md: 16 },
-    fontWeight: 900,
-    color: isActive ? "#2E7D32" : "#C62828",
-    whiteSpace: "nowrap",
-  }}
+                              fontSize: { xs: 14, md: 16 },
+                              fontWeight: 900,
+                              color: isActive ? "#2E7D32" : "#C62828",
+                              whiteSpace: "nowrap",
+                            }}
 >
   {isActive ? "نشط" : "غير نشط"}
                             </Box>
@@ -472,11 +447,7 @@ export default function AdminUsers() {
                           <Button
                             fullWidth
                             variant="outlined"
-                            sx={{
-                              borderRadius: 2,
-                              textTransform: "none",
-                              fontWeight: 700,
-                            }}
+                            sx={userDetailsButtonStyles}
                             onClick={() =>
                               handleStatusChange(
                                 user.id,
@@ -491,12 +462,10 @@ export default function AdminUsers() {
                             fullWidth
                             variant="contained"
                             sx={{
-                              borderRadius: 2,
-                              textTransform: "none",
+                              ...userDetailsButtonStyles,
                               backgroundColor: "#FFF8E1",
                                       color: "#8D6E63",
                                       border: "1px solid rgba(141,110,99,0.35)",
-                              fontWeight: 700,
                             }}
                             onClick={() =>
                               console.log("تفاصيل المستخدم:", user.id)

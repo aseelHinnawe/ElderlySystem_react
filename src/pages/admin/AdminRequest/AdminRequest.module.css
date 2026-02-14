@@ -1,0 +1,28 @@
+.cardContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px; /* gap:2 -> 2*8=16px */
+}
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* gap:1.5 -> 1.5*8=12px */
+  flex-wrap: wrap;
+}
+.iconCircle {
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.actionsBox {
+  display: flex;
+  justify-content: center;
+  gap: 8px;       /* gap:1 -> 8px */
+  flex-wrap: wrap;
+}
+

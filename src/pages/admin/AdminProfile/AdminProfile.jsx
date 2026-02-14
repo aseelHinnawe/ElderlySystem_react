@@ -19,6 +19,15 @@ import {
   Phone
 } from '@mui/icons-material';
 import AxiosUserInstance from '../../../api/AxiosUserInstance';
+import style from './AdminProfile.module.css';
+const avatarStyles = {
+  width: 100,
+  height: 100,
+  bgcolor: '#fff',
+  color: '#6a6a57',
+  mx: 'auto',
+  mb: 2,
+};
 
 // كومبوننت InfoItem زي ما عندك
 const InfoItem = ({ icon, label, value }) => (
@@ -90,35 +99,16 @@ export default function AdminProfile() {
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+    <Box className={style.cardWrapper}>
       <Card
-        sx={{
-          width: '100%',
-          maxWidth: 900,
-          borderRadius: 5,
-          overflow: 'hidden',
-          boxShadow: 6,
-        }}
+        sx={{borderRadius: 5}} className={style.card} 
       >
         {/* Header */}
         <Box
-          sx={{
-            background:
-              'linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))',
-            color: '#fff',
-            p: 4,
-            textAlign: 'center',
-          }}
+          className={style.header}
         >
           <Avatar
-            sx={{
-              width: 100,
-              height: 100,
-              bgcolor: '#fff',
-              color: '#6a6a57',
-              mx: 'auto',
-              mb: 2,
-            }}
+            sx={avatarStyles}
           >
             <AccountCircle sx={{ fontSize: 70 }} />
           </Avatar>

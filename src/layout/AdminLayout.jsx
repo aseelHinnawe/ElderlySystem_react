@@ -17,18 +17,21 @@ import {
   useTheme,
   Collapse,
 } from "@mui/material";
-import ElderlyWomanIcon from "@mui/icons-material/ElderlyWoman";
-import ElderlyIcon from "@mui/icons-material/Elderly";
 import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-
+import {
+  ElderlyWoman,
+  Close,
+  Dashboard,
+  People,
+  AccountCircle,
+  PersonAdd,
+  ExpandLess,
+  ExpandMore,
+  ManageAccounts,
+  Bed,
+  RoomPreferences,
+  AddHome
+} from "@mui/icons-material";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 export default function AdminLayout() {
@@ -42,6 +45,8 @@ export default function AdminLayout() {
 
   const [usersFolderOpen, setUsersFolderOpen] = useState(true);
   const [elderlyFolderOpen, setElderlyFolderOpen] = useState(true);
+    const [roomsFolderOpen, setRoomsFolderOpen] = useState(true);
+
 
   const [activePage, setActivePage] = useState("الرئيسية");
 
@@ -84,6 +89,18 @@ export default function AdminLayout() {
       return;
     }
 
+    if (path.startsWith("/Admin/rooms")) {
+      setActivePage("الغرف");
+      setRoomsFolderOpen(true);
+      return;
+    }
+
+    if (path.startsWith("/Admin/add-room")) {
+      setActivePage("إضافة غرفة");
+      setRoomsFolderOpen(true);
+      return;
+    }
+
     if (path.startsWith("/Admin/profile")) {
       setActivePage("الحساب الشخصي");
       return;
@@ -121,6 +138,15 @@ export default function AdminLayout() {
       return;
     }
     setElderlyFolderOpen((prev) => !prev);
+  };
+
+   const toggleRoomsFolder = () => {
+    if (isSmallScreen && !open) {
+      setOpen(true);
+      setRoomsFolderOpen(true);
+      return;
+    }
+    setRoomsFolderOpen((prev) => !prev);
   };
 
   const goTo = (label, path) => {
@@ -189,7 +215,7 @@ export default function AdminLayout() {
                   onClick={() => setOpen(false)}
                   sx={{ color: "white" }}
                 >
-                  <CloseIcon />
+                  <Close />
                 </IconButton>
               )}
             </Box>
@@ -224,7 +250,7 @@ export default function AdminLayout() {
                   pl: 0,
                 }}
               >
-                <DashboardIcon />
+                <Dashboard />
               </ListItemIcon>
 
               {open && (
@@ -259,7 +285,7 @@ export default function AdminLayout() {
               }}
             >
               <ListItemIcon sx={{ color: "white", minWidth: 28 }}>
-                <ManageAccountsIcon />
+                <ManageAccounts />
               </ListItemIcon>
 
               {open && (
@@ -309,7 +335,7 @@ export default function AdminLayout() {
                       pl: 0,
                     }}
                   >
-                    <PeopleIcon fontSize="small" />
+                    <People fontSize="small" />
                   </ListItemIcon>
 
                   {open && (
@@ -354,7 +380,7 @@ export default function AdminLayout() {
                       pl: 0,
                     }}
                   >
-                    <PersonAddIcon fontSize="small" />
+                    <PersonAdd fontSize="small" />
                   </ListItemIcon>
 
                   {open && (
@@ -391,7 +417,7 @@ export default function AdminLayout() {
               }}
             >
               <ListItemIcon sx={{ color: "white", minWidth: 28 }}>
-                <ElderlyIcon />
+                <ElderlyWoman />
               </ListItemIcon>
 
               {open && (
@@ -441,7 +467,7 @@ export default function AdminLayout() {
                       pl: 0,
                     }}
                   >
-                    <ElderlyIcon fontSize="small" />
+                    <ElderlyWoman fontSize="small" />
                   </ListItemIcon>
 
                   {open && (
@@ -488,7 +514,7 @@ export default function AdminLayout() {
                       pl: 0,
                     }}
                   >
-                    <PersonAddIcon fontSize="small" />
+                    <PersonAdd fontSize="small" />
                   </ListItemIcon>
 
                   {open && (
@@ -507,6 +533,142 @@ export default function AdminLayout() {
               </ListItem>
             </Box>
           </Collapse>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={toggleRoomsFolder}
+              sx={{
+                px: open ? 2 : 0,
+                py: 1.2,
+                mx: 1,
+                mt: 1,
+                borderRadius: 2,
+                justifyContent: open ? "flex-start" : "center",
+                gap: 0.6,
+                backgroundColor: "transparent",
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
+                "&::before": { display: "none" },
+              }}
+            >
+              <ListItemIcon sx={{ color: "white", minWidth: 28 }}>
+                <RoomPreferences />
+              </ListItemIcon>
+
+              {open && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 700 }} noWrap>
+                    إدارة الغرف
+                  </Typography>
+                  {roomsFolderOpen ? <ExpandLess /> : <ExpandMore />}
+                </Box>
+              )}
+            </ListItemButton>
+          </ListItem>
+
+          <Collapse in={roomsFolderOpen} timeout="auto" unmountOnExit>
+            <Box sx={{ ml: open ? 4 : 0, mt: 0.5 }}>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => goTo("الغرف", "/Admin/rooms")}
+                  sx={{
+                    px: open ? 2 : 0,
+                    py: 1,
+                    mx: 4,
+                    borderRadius: 2,
+                    justifyContent: open ? "flex-start" : "center",
+                    gap: 0,
+                    backgroundColor: "transparent",
+                    border: "none",
+                    boxShadow: "none",
+                    "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
+                    "&::before": { display: "none" },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: "white",
+                      minWidth: 29,
+                      mr: 0,
+                      pr: 0,
+                      ml: 0,
+                      pl: 0,
+                    }}
+                  >
+                    <Bed fontSize="small" />
+                  </ListItemIcon>
+
+                  {open && (
+                    <ListItemText
+                      primary="الغرف"
+                      sx={{ flex: "0 0 auto", m: 0 }}
+                      slotProps={{
+                        primary: {
+                          noWrap: true,
+                          sx: { fontSize: 15, fontWeight: 600, m: 0 },
+                        },
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() =>
+                    goTo("اضافة الغرف", "/Admin/add-room")
+                  }
+                  sx={{
+                    px: open ? 2 : 0,
+                    py: 1,
+                    mx: 4,
+                    borderRadius: 2,
+                    justifyContent: open ? "flex-start" : "center",
+                    gap: 0,
+                    backgroundColor: "transparent",
+                    border: "none",
+                    boxShadow: "none",
+                    "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
+                    "&::before": { display: "none" },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: "white",
+                      minWidth: 29,
+                      mr: 0,
+                      pr: 0,
+                      ml: 0,
+                      pl: 0,
+                    }}
+                  >
+                    <AddHome fontSize="small" />
+                  </ListItemIcon>
+
+                  {open && (
+                    <ListItemText
+                      primary="اضافة الغرف"
+                      sx={{ flex: "0 0 auto", m: 0 }}
+                      slotProps={{
+                        primary: {
+                          noWrap: true,
+                          sx: { fontSize: 15, fontWeight: 600, m: 0 },
+                        },
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            </Box>
+          </Collapse>
+
+          
         </List>
       </Box>
 
@@ -545,7 +707,7 @@ export default function AdminLayout() {
                 textAlign: "center",
               }}
             >
-              <ElderlyWomanIcon
+              <ElderlyWoman
                 fontSize="large"
                 sx={{ pointerEvents: "auto" }}
               />
@@ -558,7 +720,7 @@ export default function AdminLayout() {
             </Box>
 
             <IconButton color="inherit" onClick={handleMenuOpen}>
-              <AccountCircleIcon sx={{ fontSize: 40 }} />
+              <AccountCircle sx={{ fontSize: 40 }} />
             </IconButton>
 
             <Menu

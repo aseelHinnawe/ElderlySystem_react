@@ -19,6 +19,8 @@ import AdminRequest from "./pages/admin/AdminRequest/AdminRequest";
 import UserDetail from "./pages/admin/UserDetail/UserDetail";
 import AdminElderlies from "./pages/admin/AdminElderlies/AdminElderlies";
 import AdminElderliesRequest from "./pages/admin/AdminElderliesRequest/AdminElderliesRequest";
+import AdminRooms from "./pages/admin/AdminRooms/AdminRooms";
+import AddRoom from "./pages/admin/AddRoom/AddRoom";
 
 const router = createBrowserRouter([
   {
@@ -100,6 +102,14 @@ const router = createBrowserRouter([
       {
         path: "elderliesRequest",
         element: <AdminElderliesRequest />,
+      },
+      {
+      path: "rooms",
+      element: <AdminRooms />,
+      },
+      {
+        path: "add-room",
+        element: <AddRoom />,
       },
   ],
   },

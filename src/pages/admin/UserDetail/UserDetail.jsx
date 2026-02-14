@@ -340,7 +340,6 @@ export default function UserDetail() {
           </>
         )}
         
-
          {/* ======= شرط الحارس + عاملة النظافة ======= */}
         {(user.roleUser === "حارس" || user.roleUser === "عاملة نظافة") && (
           <Box sx={{ mb: 4 }}>
@@ -659,7 +658,121 @@ export default function UserDetail() {
   </Box>
 )}
 
+      {user.roleUser === "كفيل" && (
+          <>
+           <Box sx={{ mb: 4 }}>
+            {/* ===== Header Gradient ===== */}
+            <Paper
+              elevation={6}
+              sx={{
+                py: 3,
+                px: 3,
+                mb: 3,
+                borderRadius: 5,
+                background: "linear-gradient(135deg, rgb(106,106,87), rgb(160,160,120))",
+                color: "#fff",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              <Grid container spacing={2} alignItems="center">
+                {/* ===== الصورة على اليمين ===== */}
+                <Grid  sx={{ position: "relative" }}>
+                  <Avatar
+                    src={user.image}
+                    sx={{
+                      width: 120,
+                      height: 120,
+                      fontSize: 50,
+                      border: "4px solid #fff",
+                      boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+                    }}
+                  >
+                    {user.fullName?.charAt(0)}
+                  </Avatar>
 
+                  <Chip
+                    label={user.status}
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      bottom: 6,
+                      right: -8,
+                      fontWeight: 800,
+                      backgroundColor: isActive ? "#4CAF50" : "#D32F2F",
+                      color: "#fff",
+                    }}
+                  />
+                </Grid>
+
+                {/* ===== الاسم والدور على اليسار ===== */}
+                <Grid>
+                  <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
+                    {user.fullName}
+                  </Typography>
+                  <Typography sx={{ fontSize: 18, fontWeight: 700, opacity: 0.9 }}>
+                    {user.roleUser}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* ===== المربعات البيضاء أسفل Header ===== */}
+            <Paper
+              sx={{
+                p: 3,
+                borderRadius: 4,
+                background: "#fff",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 2,
+                justifyContent: "center",
+              }}
+            >
+              {basicFields.map((item, i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    flex: "1 1 30%",
+                    minWidth: 200,
+                    p: 2,
+                    borderRadius: 3,
+                    background: "#f9f9f9",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 55,
+                      height: 55,
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#7e7e67",
+                      color: "#fff",
+                      mb: 1,
+                    }}
+                  >
+                    {item.icon}
+                  </Box>
+
+                  <Typography sx={{ fontWeight: 800, color: "#555" }}>
+                    {item.label}
+                  </Typography>
+
+                  <Typography sx={{ fontWeight: 900, fontSize: 18, color: "#222" }}>
+                    {item.value}
+                  </Typography>
+                </Box>
+              ))}
+            </Paper>
+      
+          </Box>     
+          </>
+        )}
 
 
       </Grid>

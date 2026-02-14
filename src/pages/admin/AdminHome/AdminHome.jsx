@@ -17,6 +17,15 @@ import {
 } from "@mui/icons-material";
 import { useQuery } from "@tanstack/react-query";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
+import style from "./AdminHome.module.css";
+const welcomeCardStyles = {
+  mb: 4,
+  borderRadius: 5,
+  background: "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
+  color: "#fff",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+};
+
 
 export default function AdminHome() {
   // ==== Fetch البيانات باستخدام axiosUserInstance ====
@@ -102,25 +111,13 @@ export default function AdminHome() {
     <Box sx={{ p: 3 }}>
       {/* بطاقة الترحيب */}
       <Card
-          sx={{
-            mb: 4,
-            borderRadius: 5,
-            background: "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
-            color: "#fff",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-          }}
+          sx={welcomeCardStyles}
         >
           <CardContent
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: 2,
-            }}
+            className={style.welcomeContent}
           >
             <Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+              <Box className={style.titleWrapper}>
                 <Typography
                   variant="h4"
                   sx={{ fontWeight: "bold", fontSize: { xs: 18, md: 28 } }}
@@ -138,12 +135,8 @@ export default function AdminHome() {
               sx={{
                 width: { xs: 50, md: 70 },
                 height: { xs: 50, md: 70 },
-                borderRadius: "50%",
-                bgcolor: "rgba(255,255,255,0.2)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
               }}
+              className={style.iconCircle}
             >
               <TrendingUp sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }} />
             </Box>
