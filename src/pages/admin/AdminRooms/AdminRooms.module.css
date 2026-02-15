@@ -1,0 +1,101 @@
+.pageWrapper {
+    padding: 16px;
+}
+
+
+
+
+.statusChip {
+    padding: 4px 16px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.roomCard {
+    margin-bottom: 16px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(8px);
+}
+
+.flexSpaceBetween {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.roomTitle {
+    font-weight: 900;
+    font-size: 16px;
+    color: #2f2f27;
+}
+
+.mobileStatusChip {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 13px;
+    line-height: 1;
+    white-space: nowrap;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.available {
+    background: rgba(46, 125, 50, 0.12);
+    color: #2e7d32;
+}
+
+.notAvailable {
+    background: rgba(198, 40, 40, 0.12);
+    color: #c62828;
+}
+
+.infoPill {
+    border: 1px solid rgba(106, 106, 87, 0.18);
+    background: rgba(240, 240, 234, 0.55);
+    border-radius: 16px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+    min-height: 68px;
+}
+
+.infoLabel {
+    font-size: 13px;
+    font-weight: 900;
+    color: #6a6a57;
+}
+
+.infoValue {
+    font-size: 15px;
+    font-weight: 900;
+    color: #2f2f27;
+}
+
+@media (max-width: 380px) {
+    .roomTitle {
+        font-size: 17px;
+    }
+
+    .infoLabel {
+        font-size: 13px;
+    }
+
+    .infoValue {
+        font-size: 16px;
+    }
+
+    .mobileStatusChip {
+        font-size: 14px;
+        padding: 7px 12px;
+    }
+}
