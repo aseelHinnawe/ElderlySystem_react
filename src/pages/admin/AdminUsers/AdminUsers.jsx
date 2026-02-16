@@ -234,7 +234,7 @@ export default function AdminUsers() {
                         users.map((user) => (
                           <TableRow key={user.id}>
                             <TableCell align="center">
-                              {user.fullName}
+                              {user.fullName} 
                             </TableCell>
                             <TableCell align="center">
                               {user.roleUser}
@@ -360,129 +360,149 @@ export default function AdminUsers() {
             </Card>
           </Box>
 
-          {/* ====== Mobile (xs/sm) : Cards ====== */}
-          <Box sx={{ display: { xs: "block", md: "none" } }}>
-            {users.length > 0 ? (
-              users.map((user) => {
-                const isActive = user.statusUser === "نشط";
+{/* ===== Mobile Cards ===== */}
+<Box sx={{ display: { xs: "block", md: "none" } }}>
+  {users.length > 0 ? (
+    users.map((user) => {
+      const isEditing = editingUserId === user.id;
+      const isActive = user.statusUser === "نشط";
+      const nextLabel = isActive ? "غير نشط" : "نشط";
 
-                return (
-                  <Card
-                    key={user.id}
-                    sx={userCardStyles}
+      return (
+        <Card key={user.id} sx={userCardStyles}>
+          <CardContent sx={{ p: 2 }}>
+            {/* الاسم والدور */}
+            <Typography sx={{ fontWeight: 800, fontSize: 14, mb: 0.5 }}>
+              الاسم: {user.fullName}
+            </Typography>
+            <Typography sx={{ fontSize: 13, mb: 1 }}>
+              الدور: {user.roleUser}
+            </Typography>
+
+            {/* صف الحالة + زر تعديل الحالة */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                mb: 1,
+                width: "100%",
+              }}
+            >
+              {!isEditing && (
+                <>
+                  {/* الحالة */}
+                  <Box
+                    sx={{
+                      flex: 1,
+                      px: 2,
+                      py: 0.9,
+                      borderRadius: 2,
+                      fontSize: 15,
+                      fontWeight: 800,
+                      backgroundColor: isActive ? "#E8F5E9" : "#FFEBEE",
+                      color: isActive ? "#2E7D32" : "#C62828",
+                      textAlign: "center",
+                    }}
                   >
-                    <CardContent sx={{ p: 2 }}>
-                      {/* Header: Name + Status chip + Edit */}
-                      <Box
-                        className={style.flexSpaceBetween}
-                      >
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography
-                            sx={{ fontWeight: 800, fontSize: 14 }}
-                            noWrap
-                          >
-                            الاسم : {user.fullName}
-                          </Typography>
-                          <Typography
-                            className={style.roleText}
-                          >
-                            الدور : {user.roleUser}
-                          </Typography>
-                        </Box>
+                    {isActive ? "نشط" : "غير نشط"}
+                  </Box>
 
-                        {editingUserId === user.id ? (
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="error"
-                            sx={cancelButtonStyles}
-                            onClick={() => setEditingUserId(null)}
-                          >
-                            إلغاء
-                          </Button>
-                        ) : (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 0.75,
-                            }}
-                          >
-                            <Box
-                              sx={{
-                              fontSize: { xs: 14, md: 16 },
-                              fontWeight: 900,
-                              color: isActive ? "#2E7D32" : "#C62828",
-                              whiteSpace: "nowrap",
-                            }}
->
-  {isActive ? "نشط" : "غير نشط"}
-                            </Box>
+                  {/* زر تعديل الحالة */}
+                  <Button
+                    onClick={() => setEditingUserId(user.id)}
+                    disabled={false}
+                    sx={{
+                      flex: 1,
+                      borderRadius: 2,
+                      textTransform: "none",
+                      fontSize: 12,
+                      fontWeight: 800,
+                      backgroundColor: "#f0f4f0",
+                      color: "#333",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 0.5,
+                      height: 36,
+                      "&:hover": {
+                        backgroundColor: "#dce3dc",
+                      },
+                    }}
+                  >
+                    تعديل الحالة
+                    <Edit fontSize="small" />
+                  </Button>
+                </>
+              )}
 
-                            <IconButton
-                              size="small"
-                              onClick={() => setEditingUserId(user.id)}
-                              sx={{
-                                backgroundColor: "#f0f4f0",
-                                "&:hover": { backgroundColor: "#dce3dc" },
-                                borderRadius: 2,
-                              }}
-                            >
-                              <Edit sx={{ fontSize: 16 }} />
-                            </IconButton>
-                          </Box>
-                        )}
-                      </Box>
+              {/* زر إلغاء عند التعديل */}
+              {isEditing && (
+                <Button
+                  fullWidth
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  onClick={() => setEditingUserId(null)}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontSize: 12,
+                    height: 36,
+                  }}
+                >
+                  إلغاء
+                </Button>
+              )}
+            </Box>
 
-                      {/* Actions */}
-                      <Box
-                        sx={{
-                          mt: 1.5,
-                          display: "flex",
-                          gap: 1,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        {editingUserId === user.id ? (
-                          <Button
-                            fullWidth
-                            variant="outlined"
-                            sx={userDetailsButtonStyles}
-                            onClick={() =>
-                              handleStatusChange(
-                                user.id,
-                                isActive ? "InActive" : "Active",
-                              )
-                            }
-                          >
-                            {isActive ? "تغيير الى غير نشط" : "تغيير الى نشط"}
-                          </Button>
-                        ) : (
-                          <Button
-                            fullWidth
-                            variant="contained"
-                            sx={{
-                              ...userDetailsButtonStyles,
-                              backgroundColor: "#FFF8E1",
-                                      color: "#8D6E63",
-                                      border: "1px solid rgba(141,110,99,0.35)",
-                            }}
-                            onClick={() =>
-                              console.log("تفاصيل المستخدم:", user.id)
-                            }
-                          >
-                            تفاصيل المستخدم
-                          </Button>
-                        )}
-                      </Box>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            ) : (
-              <Typography align="center">لا توجد بيانات</Typography>
+            {/* زر تغيير الحالة يظهر فقط عند التعديل */}
+            {isEditing && (
+              <Button
+                fullWidth
+                size="small"
+                variant="outlined"
+                onClick={() => handleStatusChange(user.id, isActive ? "InActive" : "Active")}
+                disabled={false}
+                sx={{
+                  borderRadius: 2,
+                  textTransform: "none",
+                  fontWeight: 800,
+                  mb: 1,
+                }}
+              >
+                {`تغيير الحالة إلى ${nextLabel}`}
+              </Button>
             )}
-          </Box>
+
+            {/* زر تفاصيل المستخدم يظهر فقط إذا ليس في وضع التعديل */}
+            {!isEditing && (
+              <Button
+                fullWidth
+                variant="contained"
+                component={Link}               
+                to={`/Admin/user/${user.id}`}   
+                sx={{
+                  ...userDetailsButtonStyles,
+                  backgroundColor: "#FFF8E1",
+                  color: "#8D6E63",
+                  border: "1px solid rgba(141,110,99,0.35)",
+                }}
+                onClick={() => console.log("تفاصيل المستخدم:", user.id)}
+              >
+                تفاصيل المستخدم
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      );
+    })
+  ) : (
+    <Typography align="center">لا توجد بيانات</Typography>
+  )}
+</Box>
+
+
         </>
       )}
 
