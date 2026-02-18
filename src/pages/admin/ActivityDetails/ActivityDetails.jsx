@@ -285,7 +285,7 @@ export default function() {
     try {
       await AxiosUserInstance.delete(`/Admin/Activity/${id}`);
       showSnack("success", "تم حذف النشاط بنجاح");
-      setTimeout(() => navigate("/Admin/activities"), 400);
+      setTimeout(() => navigate("/Admin/activites"), 400);
     } catch (e) {
       showSnack("error", e?.response?.data?.message || "فشل حذف النشاط");
     } finally {
@@ -444,26 +444,45 @@ export default function() {
 
 
             {/* الأزرار يمين */}
-            <Box sx={{ display: "flex", gap: 1.2, flexWrap: "wrap" }}>
-              <Button
-                startIcon={<EditOutlinedIcon />}
-                variant="contained"
-                onClick={() => setOpenEdit(true)}
-                sx={editBtnSx}
-              >
-                تعديل النشاط
-              </Button>
+            <Box
+  sx={{
+    display: "flex",
+    gap: 1.2,
+    flexWrap: { xs: "nowrap", sm: "wrap" }, // على الشاشات الصغيرة يبقوا جنب بعض
+    justifyContent: { xs: "center", sm: "flex-start" }, // وسط على xs
+  }}
+>
+  <Button
+    startIcon={<EditOutlinedIcon />}
+    variant="contained"
+    onClick={() => setOpenEdit(true)}
+    sx={{
+      ...editBtnSx,
+      fontSize: { xs: 13, sm: 15 }, // خط أصغر على xs
+      minWidth: { xs: 120, sm: 140 },
+      px: { xs: 1.2, sm: 2 },
+      py: { xs: 0.8, sm: 1.1 },
+    }}
+  >
+    تعديل النشاط
+  </Button>
 
+  <Button
+    startIcon={<DeleteOutlineIcon />}
+    variant="contained"
+    onClick={() => setOpenDelete(true)}
+    sx={{
+      ...deleteBtnSx,
+      fontSize: { xs: 13, sm: 15 }, // خط أصغر على xs
+      minWidth: { xs: 120, sm: 130 },
+      px: { xs: 1.2, sm: 2 },
+      py: { xs: 0.8, sm: 1.1 },
+    }}
+  >
+    حذف النشاط
+  </Button>
+</Box>
 
-              <Button
-                startIcon={<DeleteOutlineIcon />}
-                variant="contained"
-                onClick={() => setOpenDelete(true)}
-                sx={deleteBtnSx}
-              >
-                حذف النشاط
-              </Button>
-            </Box>
           </Box>
 
 
@@ -542,50 +561,7 @@ export default function() {
           </Box>
 
 
-          {/* الجهات المشاركة */}
-<Box sx={sectionTitleSx}>
-  <BusinessOutlinedIcon sx={{ color: "#6a6a57" }} />
-  <Typography sx={{ fontWeight: 900, color: "#6a6a57", fontSize: 19 }}>
-    الجهات المشاركة
-  </Typography>
-</Box>
-
-{orgs.length > 0 ? (
-  <Grid container spacing={2}>
-    {orgs.map((o) => (
-      <Grid item xs={12} sm={6} md={4} key={o.id}>
-        <Card
-          sx={{
-            borderRadius: 4,
-            border: "1px solid rgba(106,106,87,0.16)",
-            background: "rgba(255,255,255,0.72)",
-            boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
-            overflow: "hidden",
-            p: 2,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: 60,
-          }}
-        >
-          <Typography
-            sx={{
-              fontWeight: 600,
-              color: "#2f2f27",
-              fontSize: { xs: 15, md: 17 },
-              textAlign: "center",
-            }}
-          >
-            {o.organizationName}
-          </Typography>
-        </Card>
-      </Grid>
-    ))}
-  </Grid>
-) : (
-  <Typography sx={{ fontWeight: 900 }}>لا توجد جهات</Typography>
-)}
-
+          
         </Paper>
       )}
 
@@ -816,40 +792,42 @@ export default function() {
             هذا الإجراء لا يمكن التراجع عنه.
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ p: 2 ,gap:2}}>
-          <Button
-            onClick={() => setOpenDelete(false)}
-            variant="outlined"
-            sx={{
-              borderRadius: 3,
-              fontWeight: 900,
-              textTransform: "none",
-              minWidth: 140,
-              px: 2,
-              py: 1.1,
-              color: "#6a6a57",
-              borderColor: "rgba(106,106,87,0.45)",
-              background: "#fff",
-              "&:hover": { borderColor: "rgba(106,106,87,0.85)" },
-            }}
-          >
-            إلغاء
-          </Button>
+        <DialogActions sx={{ p: 2, gap: 2 }}>
+  <Button
+    onClick={() => setOpenDelete(false)}
+    variant="outlined"
+    sx={{
+      borderRadius: 3,
+      fontWeight: 900,
+      textTransform: "none",
+      color: "#6a6a57",
+      minWidth: { xs: 90, sm: 140 }, // أصغر على الشاشات الصغيرة
+      px: { xs: 1, sm: 2 },          // padding أصغر على xs
+      py: { xs: 0.6, sm: 1.1 },
+      borderColor: "rgba(106,106,87,0.45)",
+      background: "#fff",
+      "&:hover": { borderColor: "rgba(106,106,87,0.85)" },
+    }}
+  >
+    إلغاء
+  </Button>
 
+  <Button
+    onClick={handleDelete}
+    disabled={deleting}
+    variant="contained"
+    sx={{
+      ...deleteBtnSx,
+      minWidth: { xs: 90, sm: 130 }, // أصغر على xs
+      px: { xs: 1, sm: 2 },
+      py: { xs: 0.6, sm: 1.1 },
+      opacity: deleting ? 0.8 : 1,
+    }}
+  >
+    {deleting ? "جارٍ الحذف..." : "حذف"}
+  </Button>
+</DialogActions>
 
-          <Button
-            onClick={handleDelete}
-            disabled={deleting}
-            variant="contained"
-            sx={{
-              ...deleteBtnSx,
-              minWidth: 130,
-              opacity: deleting ? 0.8 : 1,
-            }}
-          >
-            {deleting ? "جارٍ الحذف..." : "حذف"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
 

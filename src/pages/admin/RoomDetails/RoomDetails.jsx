@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Grid,
@@ -22,6 +22,7 @@ import AxiosUserInstance from "../../../api/AxiosUserInstance";
 
 export default function RoomDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
 
   const [room, setRoom] = useState(null);
@@ -34,9 +35,8 @@ export default function RoomDetails() {
   const [deletedPublicIds, setDeletedPublicIds] = useState([]); // string[]
   const [savingImages, setSavingImages] = useState(false);
   // ===== Preview Image =====
-const [openPreview, setOpenPreview] = useState(false);
-const [previewImage, setPreviewImage] = useState(null);
-
+  const [openPreview, setOpenPreview] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
 
   const [snackbar, setSnackbar] = useState({
@@ -44,6 +44,9 @@ const [previewImage, setPreviewImage] = useState(null);
     severity: "success",
     message: "",
   });
+  // ===== Delete Room =====
+  const [openDelete, setOpenDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
 
   const closeSnackbar = (_, reason) => {
@@ -56,6 +59,7 @@ const [previewImage, setPreviewImage] = useState(null);
     setLoading(true);
     try {
       const res = await AxiosUserInstance.get(`/Admin/Room/${id}`);
+      console.log(res);
       setRoom(res.data?.rooms || res.data?.room || res.data);
     } catch (err) {
       setSnackbar({
@@ -151,6 +155,36 @@ const [previewImage, setPreviewImage] = useState(null);
   };
 
 
+  const handleDeleteRoom = async () => {
+    if (!id) return;
+
+
+    setDeleting(true);
+    try {
+      await AxiosUserInstance.delete(`/Admin/Room/${id}`);
+
+
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "تم حذف الغرفة بنجاح",
+      });
+
+
+      setOpenDelete(false);
+      navigate("/Admin/rooms");
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: err?.response?.data?.message || "فشل حذف الغرفة",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
   if (loading)
     return (
       <Box sx={{ textAlign: "center", mt: 10 }}>
@@ -191,7 +225,7 @@ const [previewImage, setPreviewImage] = useState(null);
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-               objectPosition: "center center",
+                objectPosition: "center center",
               }}
             />
 
@@ -232,7 +266,7 @@ const [previewImage, setPreviewImage] = useState(null);
               justifyContent: "space-evenly",
             }}
           >
-            <Box >
+            <Box>
               <Typography sx={{ fontWeight: 1000, fontSize: 22, mb: 2 }}>
                 معلومات الغرفة
               </Typography>
@@ -244,7 +278,6 @@ const [previewImage, setPreviewImage] = useState(null);
                   flexDirection: "column",
                   gap: 2,
                   fontSize: 16,
-                  
                 }}
               >
                 <Typography>
@@ -280,6 +313,7 @@ const [previewImage, setPreviewImage] = useState(null);
                 variant="contained"
                 color="error"
                 startIcon={<DeleteIcon />}
+                onClick={() => setOpenDelete(true)}
                 sx={{
                   borderRadius: 3,
                   "& .MuiButton-startIcon": { marginLeft: 0 },
@@ -339,9 +373,96 @@ const [previewImage, setPreviewImage] = useState(null);
           {room.description || "لا يوجد وصف"}
         </Typography>
       </Paper>
+    {Array.isArray(room.currentElderlies) && room.currentElderlies.length > 0 && (
+  <Paper
+    sx={{
+      mt: 2.5,
+      p: 3,
+      borderRadius: 6,
+      background: "#fff",
+      boxShadow: "0 8px 25px rgba(0,0,0,.05)",
+    }}
+  >
+    {/* Header */}
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        mb: 2,
+      }}
+    >
+      <Typography sx={{ fontWeight: 1000, fontSize: 18 }}>
+        المسنين المقيمين حالياً
+      </Typography>
+    </Box>
 
 
-      {/* ================= GALLERY ================= */}
+    {/* List */}
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
+      {room.currentElderlies.map((e) => (
+        <Box
+          key={e.id}
+          sx={{
+            p: 1.6,
+            borderRadius: 4,
+            border: "1px solid rgba(0,0,0,0.08)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            transition: "0.2s",
+            background: "linear-gradient(145deg,#ffffff,#fafaf7)",
+            "&:hover": {
+              transform: "translateY(-2px)",
+              boxShadow: "0 10px 28px rgba(0,0,0,0.08)",
+              borderColor: "rgba(106,106,87,0.35)",
+            },
+          }}
+        >
+          {/* Left: Avatar + Name */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.4, minWidth: 0 }}>
+           
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                sx={{
+                  fontWeight: 1000,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {e.name}
+              </Typography>
+            </Box>
+          </Box>
+
+
+          {/* Right: Action */}
+          <Button
+            variant="outlined"
+            onClick={() => navigate(`/Admin/Elderly/${e.id}`)}
+            sx={{
+              color: "#6a6a57",
+              borderRadius: 999,
+              borderColor: "#6a6a57",
+              fontWeight: 900,
+              textTransform: "none",
+              px: 2,
+              whiteSpace: "nowrap",
+              "&:hover": {
+                borderColor: "#4b4b3f",
+                backgroundColor: "rgba(106,106,87,0.08)",
+              },
+            }}
+          >
+            تفاصيل المسن
+          </Button>
+        </Box>
+      ))}
+    </Box>
+  </Paper>
+)}
       <Paper
         sx={{
           p: 3,
@@ -387,21 +508,21 @@ const [previewImage, setPreviewImage] = useState(null);
               <Grid size={{ xs: 12, sm: 6, md: 3 }} key={img.publicId || index}>
                 <Box
                   component="img"
-  src={img.url}
-  alt="room"
-  onClick={() => {
-    setPreviewImage(img.url);
-    setOpenPreview(true);
-  }}
-  sx={{
-    width: "100%",
-    height: 180,
-    objectFit: "cover",
-    borderRadius: 3,
-    transition: ".2s",
-    cursor: "pointer",
-    "&:hover": { transform: "scale(1.03)" },
-  }}
+                  src={img.url}
+                  alt="room"
+                  onClick={() => {
+                    setPreviewImage(img.url);
+                    setOpenPreview(true);
+                  }}
+                  sx={{
+                    width: "100%",
+                    height: 180,
+                    objectFit: "cover",
+                    borderRadius: 3,
+                    transition: ".2s",
+                    cursor: "pointer",
+                    "&:hover": { transform: "scale(1.03)" },
+                  }}
                 />
               </Grid>
             ))}
@@ -653,41 +774,85 @@ const [previewImage, setPreviewImage] = useState(null);
         </DialogActions>
       </Dialog>
 
-      {/* ================= Image Preview Dialog ================= */}
-<Dialog
-  open={openPreview}
-  onClose={() => setOpenPreview(false)}
-  maxWidth="lg"
-  fullWidth
-  PaperProps={{
-    sx: {
-      backgroundColor: "#000",
-      borderRadius: 4,
-    },
-  }}
->
-  <Box
-    sx={{
-      width: "100%",
-      height: "80vh", // 👈 ارتفاع ثابت
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}
-  >
-    <Box
-      component="img"
-      src={previewImage}
-      alt="preview"
-      sx={{
-        width: "100%",
-        height: "100%",
-        objectFit: "contain", // يحافظ على الصورة كاملة
-      }}
-    />
-  </Box>
-</Dialog>
 
+      {/* ================= Image Preview Dialog ================= */}
+      <Dialog
+        open={openPreview}
+        onClose={() => setOpenPreview(false)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            backgroundColor: "#000",
+            borderRadius: 4,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            height: "80vh", // 👈 ارتفاع ثابت
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box
+            component="img"
+            src={previewImage}
+            alt="preview"
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain", // يحافظ على الصورة كاملة
+            }}
+          />
+        </Box>
+      </Dialog>
+      {/* ================= Delete Confirm Dialog ================= */}
+      <Dialog
+        open={openDelete}
+        onClose={() => !deleting && setOpenDelete(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle sx={{ fontWeight: 900 }}>تأكيد الحذف</DialogTitle>
+
+
+        <DialogContent sx={{ pt: 1 }}>
+          <Typography sx={{ fontWeight: 700 }}>
+            هل أنت متأكد أنك تريد حذف الغرفة رقم{" "}
+            <strong>{room?.roomNumber}</strong>؟
+          </Typography>
+          <Typography sx={{ mt: 1, color: "#777", fontSize: 13 }}>
+            لا يمكن التراجع عن هذه العملية.
+          </Typography>
+        </DialogContent>
+
+
+        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+          <Button
+            variant="outlined"
+            onClick={() => setOpenDelete(false)}
+            color="inherit"
+            disabled={deleting}
+            sx={{ borderRadius: 999, fontWeight: 900, textTransform: "none" }}
+          >
+            إلغاء
+          </Button>
+
+
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteRoom}
+            disabled={deleting}
+            sx={{ borderRadius: 999, fontWeight: 900, textTransform: "none" }}
+          >
+            {deleting ? "جارٍ الحذف..." : "تأكيد الحذف"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
       {/* Snackbar */}

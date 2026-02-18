@@ -1,5 +1,4 @@
-// src/pages/Admin/Donations/Donation.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Card,
@@ -16,6 +15,13 @@ import {
   Paper,
   Button,
 } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
+import IconButton from "@mui/material/IconButton";
+
+
 import { TrendingUp } from "@mui/icons-material";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
@@ -133,6 +139,7 @@ const typeChipSx = (type) => {
 export default function Donation() {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchName, setSearchName] = useState("");
 
 
   const [snackbar, setSnackbar] = useState({
@@ -157,6 +164,15 @@ export default function Donation() {
       setLoading(false);
     }
   };
+  const filteredDonations = useMemo(() => {
+    const q = searchName.trim().toLowerCase();
+    if (!q) return donations;
+
+
+    return donations.filter((d) =>
+      (d?.donorName || "").toLowerCase().includes(q),
+    );
+  }, [donations, searchName]);
 
 
   useEffect(() => {
@@ -227,6 +243,39 @@ export default function Donation() {
           </Box>
         </CardContent>
       </Card>
+     <Box sx={{ mb: 3, width: { xs: "100%", md: "25%" } }}>
+  <TextField
+    fullWidth
+    label="اسم المتبرع"
+    value={searchName}
+    onChange={(e) => setSearchName(e.target.value)}
+    placeholder="ابحث عن اسم المتبرع..."
+    sx={{ backgroundColor: "#fefefe", borderRadius: 3 }}
+    InputProps={{
+      sx: { borderRadius: 3 },
+      startAdornment: (
+        <InputAdornment position="start">
+          <SearchIcon sx={{ color: "#6a6a57" }} />
+        </InputAdornment>
+      ),
+      endAdornment: searchName ? (
+        <InputAdornment position="end">
+          <IconButton
+            size="small"
+            onClick={() => setSearchName("")}
+            sx={{
+              color: "#6a6a57",
+              "&:hover": { backgroundColor: "rgba(106,106,87,0.08)" },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </InputAdornment>
+      ) : null,
+    }}
+  />
+</Box>
+
 
 
       {loading ? (
@@ -263,8 +312,8 @@ export default function Donation() {
 
 
                     <TableBody>
-                      {donations.length > 0 ? (
-                        donations.map((d, idx) => (
+                      {filteredDonations.length > 0 ? (
+                        filteredDonations.map((d, idx) => (
                           <TableRow key={d.id ?? idx}>
                             <TableCell align="center">{d.donorName}</TableCell>
                             <TableCell align="center">
@@ -317,8 +366,8 @@ export default function Donation() {
 
           {/* ===== Mobile Cards ===== */}
           <Box sx={{ display: { xs: "block", lg: "none" } }}>
-            {donations.length > 0 ? (
-              donations.map((d, idx) => (
+            {filteredDonations.length > 0 ? (
+              filteredDonations.map((d, idx) => (
                 <Card key={d.id ?? idx} sx={donationCardSx}>
                   <CardContent sx={{ p: 2.2 }}>
                     <Box sx={flexSpaceBetweenSx}>
@@ -417,3 +466,8 @@ export default function Donation() {
     </Box>
   );
 }
+
+
+
+
+

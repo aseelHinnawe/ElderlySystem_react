@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Card,
@@ -14,13 +14,16 @@ import {
   Alert,
   Paper,
   Button,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import { TrendingUp } from "@mui/icons-material";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import { Link } from "react-router-dom";
-
-
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
+import IconButton from "@mui/material/IconButton";
 const headerCardStyles = {
   mb: 4,
   borderRadius: 5,
@@ -117,6 +120,7 @@ const detailsButtonStyles = {
 export default function Activites() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchName, setSearchName] = useState("");
 
 
   const [snackbar, setSnackbar] = useState({
@@ -146,6 +150,15 @@ export default function Activites() {
   useEffect(() => {
     fetchActivities();
   }, []);
+  const filteredActivities = useMemo(() => {
+    const q = searchName.trim().toLowerCase();
+    if (!q) return activities;
+
+
+    return activities.filter((a) =>
+      (a?.activityName || "").toLowerCase().includes(q),
+    );
+  }, [activities, searchName]);
 
 
   return (
@@ -211,6 +224,41 @@ export default function Activites() {
       </Card>
 
 
+      <Box sx={{ mb: 3, width: { xs: "100%", md: "25%" } }}>
+  <TextField
+    fullWidth
+    label="اسم النشاط"
+    value={searchName}
+    onChange={(e) => setSearchName(e.target.value)}
+    placeholder="ابحث عن اسم النشاط..."
+    sx={{ backgroundColor: "#fefefe", borderRadius: 3 }}
+    InputProps={{
+      sx: { borderRadius: 3 },
+      startAdornment: (
+        <InputAdornment position="start">
+          <SearchIcon sx={{ color: "#6a6a57" }} />
+        </InputAdornment>
+      ),
+      endAdornment: searchName ? (
+        <InputAdornment position="end">
+          <IconButton
+            size="small"
+            onClick={() => setSearchName("")}
+            sx={{
+              color: "#6a6a57",
+              "&:hover": { backgroundColor: "rgba(106,106,87,0.08)" },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </InputAdornment>
+      ) : null,
+    }}
+  />
+</Box>
+
+
+
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
           <CircularProgress color="primary" />
@@ -248,8 +296,8 @@ export default function Activites() {
 
 
                     <TableBody>
-                      {activities.length > 0 ? (
-                        activities.map((a, idx) => (
+                      {filteredActivities.length > 0 ? (
+                        filteredActivities.map((a, idx) => (
                           <TableRow key={a.id ?? idx}>
                             <TableCell align="center">
                               {a.activityName}
@@ -301,8 +349,8 @@ export default function Activites() {
 
           {/* ===== Mobile Cards ===== */}
           <Box sx={{ display: { xs: "block", lg: "none" } }}>
-            {activities.length > 0 ? (
-              activities.map((a, idx) => (
+            {filteredActivities.length > 0 ? (
+              filteredActivities.map((a, idx) => (
                 <Card key={a.id ?? idx} sx={activityCardSx}>
                   <CardContent sx={{ p: 2.2 }}>
                     <Box sx={flexSpaceBetweenSx}>
@@ -399,6 +447,8 @@ export default function Activites() {
     </Box>
   );
 }
+
+
 
 
 

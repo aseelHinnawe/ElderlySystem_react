@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 
 
+
+
 import {
   Box,
   Typography,
@@ -19,12 +21,16 @@ import {
 } from "@mui/material";
 
 
+
+
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import BadgeIcon from "@mui/icons-material/Badge";
 import WcIcon from "@mui/icons-material/Wc";
 import GroupIcon from "@mui/icons-material/Group";
+
+
 
 
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
@@ -44,6 +50,8 @@ export default function UserDetail() {
   });
 
 
+
+
   const fetchUser = async () => {
     try {
       const res = await AxiosUserInstance.get(`/Admin/User/${id}`);
@@ -60,9 +68,13 @@ export default function UserDetail() {
   };
 
 
+
+
   useEffect(() => {
     fetchUser();
   }, [id]);
+
+
 
 
   if (loading) {
@@ -74,10 +86,16 @@ export default function UserDetail() {
   }
 
 
+
+
   if (!user) return null;
 
 
+
+
   const isActive = user.status === "نشط";
+
+
 
 
   // ✅ الحالة الاجتماعية لا تظهر للكفيل نهائياً
@@ -87,6 +105,8 @@ export default function UserDetail() {
     { label: "المدينة", value: user.city, icon: <LocationOnIcon /> },
     { label: "الرقم الوطني", value: user.nationalId, icon: <BadgeIcon /> },
     { label: "الجنس", value: user.gender, icon: <WcIcon /> },
+
+
 
 
     ...(user.roleUser !== "كفيل"
@@ -101,12 +121,16 @@ export default function UserDetail() {
   ];
 
 
+
+
   const nurseAcademicFields = [
     { label: "المستوى التعليمي", value: user.educationLevel },
     { label: "التخصص", value: user.fieldOfStudy },
     { label: "عدد سنوات الدراسة", value: user.yearsOfStudy },
     { label: "سنة التخرج", value: user.yearOfGraduation },
   ];
+
+
 
 
   return (
@@ -152,6 +176,8 @@ export default function UserDetail() {
                     </Avatar>
 
 
+
+
                     <Chip
                       label={user.status}
                       size="small"
@@ -167,6 +193,8 @@ export default function UserDetail() {
                   </Box>
 
 
+
+
                   <Typography sx={{ mt: 2, fontSize: 28, fontWeight: 900 }}>
                     {user.fullName}
                   </Typography>
@@ -176,6 +204,8 @@ export default function UserDetail() {
                     {user.roleUser}
                   </Typography>
                 </Box>
+
+
 
 
                 {/* المعلومات الشخصية */}
@@ -191,6 +221,8 @@ export default function UserDetail() {
                   >
                     المعلومات الشخصية
                   </Typography>
+
+
 
 
                   <Box
@@ -228,6 +260,8 @@ export default function UserDetail() {
                         </Box>
 
 
+
+
                         <Typography sx={{ fontWeight: 700, fontSize: 14 }}>
                           {item.value}
                         </Typography>
@@ -237,6 +271,8 @@ export default function UserDetail() {
                 </Box>
               </Paper>
             </Grid>
+
+
 
 
             {/* ===== العمود الأيمن ===== */}
@@ -263,6 +299,8 @@ export default function UserDetail() {
                   </Typography>
 
 
+
+
                   <Grid container spacing={2}>
                     {nurseAcademicFields.map((item, index) => (
                       <Grid size={{ xs: 12, sm: 6 }} key={index}>
@@ -284,6 +322,8 @@ export default function UserDetail() {
                     ))}
                   </Grid>
                 </Paper>
+
+
 
 
                 {user.imageCertificate && (
@@ -310,6 +350,8 @@ export default function UserDetail() {
                     </Typography>
 
 
+
+
                     <Box
                       component="img"
                       src={user.imageCertificate}
@@ -330,6 +372,8 @@ export default function UserDetail() {
             </Grid>
 
 
+
+
             {user.workExperiences?.length > 0 && (
               <Grid size={{ xs: 12 }}>
                 <Paper sx={{ p: 3, borderRadius: 4 }}>
@@ -344,6 +388,8 @@ export default function UserDetail() {
                   >
                     الخبرات العملية
                   </Typography>
+
+
 
 
                   <Box
@@ -369,6 +415,8 @@ export default function UserDetail() {
                         </Typography>
 
 
+
+
                         <Typography
                           sx={{ fontSize: 14, color: "#777", fontWeight: 700 }}
                         >
@@ -382,6 +430,8 @@ export default function UserDetail() {
             )}
           </>
         )}
+
+
 
 
         {/* ================== حارس + عاملة نظافة ================== */}
@@ -417,6 +467,8 @@ export default function UserDetail() {
                   </Avatar>
 
 
+
+
                   <Chip
                     label={user.status}
                     size="small"
@@ -432,6 +484,8 @@ export default function UserDetail() {
                 </Grid>
 
 
+
+
                 <Grid>
                   <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
                     {user.fullName}
@@ -444,6 +498,8 @@ export default function UserDetail() {
                 </Grid>
               </Grid>
             </Paper>
+
+
 
 
             <Paper
@@ -488,9 +544,13 @@ export default function UserDetail() {
                   </Box>
 
 
+
+
                   <Typography sx={{ fontWeight: 800, color: "#555" }}>
                     {item.label}
                   </Typography>
+
+
 
 
                   <Typography
@@ -503,6 +563,8 @@ export default function UserDetail() {
             </Paper>
           </Box>
         )}
+
+
 
 
         {/* ================== محاسب + سكرتيرة + مسؤولة طبخ ================== */}
@@ -538,6 +600,8 @@ export default function UserDetail() {
                   </Avatar>
 
 
+
+
                   <Chip
                     label={user.status}
                     size="small"
@@ -553,6 +617,8 @@ export default function UserDetail() {
                 </Grid>
 
 
+
+
                 <Grid>
                   <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
                     {user.fullName}
@@ -565,6 +631,8 @@ export default function UserDetail() {
                 </Grid>
               </Grid>
             </Paper>
+
+
 
 
             <Paper
@@ -609,9 +677,13 @@ export default function UserDetail() {
                   </Box>
 
 
+
+
                   <Typography sx={{ fontWeight: 800, color: "#555" }}>
                     {item.label}
                   </Typography>
+
+
 
 
                   <Typography
@@ -622,6 +694,8 @@ export default function UserDetail() {
                 </Box>
               ))}
             </Paper>
+
+
 
 
             <Paper sx={{ p: 3, mt: 3, borderRadius: 4, background: "#fff" }}>
@@ -636,6 +710,8 @@ export default function UserDetail() {
               >
                 المعلومات الأكاديمية
               </Typography>
+
+
 
 
               <Grid container spacing={2}>
@@ -661,6 +737,8 @@ export default function UserDetail() {
             </Paper>
 
 
+
+
             {user.workExperiences?.length > 0 && (
               <Paper sx={{ p: 3, mt: 3, borderRadius: 4, background: "#fff" }}>
                 <Typography
@@ -674,6 +752,8 @@ export default function UserDetail() {
                 >
                   الخبرات العملية
                 </Typography>
+
+
 
 
                 <Box
@@ -697,6 +777,8 @@ export default function UserDetail() {
                       </Typography>
 
 
+
+
                       <Typography
                         sx={{ fontSize: 14, color: "#777", fontWeight: 700 }}
                       >
@@ -709,6 +791,8 @@ export default function UserDetail() {
             )}
           </Box>
         )}
+
+
 
 
         {/* ================== كفيل ================== */}
@@ -744,6 +828,7 @@ export default function UserDetail() {
             {user.fullName?.charAt(0)}
           </Avatar>
 
+
           <Chip
             label={user.status}
             size="small"
@@ -758,6 +843,7 @@ export default function UserDetail() {
           />
         </Grid>
 
+
         <Grid>
           <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
             {user.fullName}
@@ -770,6 +856,7 @@ export default function UserDetail() {
         </Grid>
       </Grid>
     </Paper>
+
 
     {/* ===== مربعات البيانات ===== */}
     <Paper
@@ -809,6 +896,7 @@ export default function UserDetail() {
                 {item.icon}
               </Box>
 
+
               <Typography
                 sx={{
                   fontWeight: 800,
@@ -818,6 +906,7 @@ export default function UserDetail() {
               >
                 {item.label}
               </Typography>
+
 
               <Typography
                 sx={{
@@ -834,6 +923,7 @@ export default function UserDetail() {
         ))}
       </Grid>
     </Paper>
+
 
     {/* ===== أسماء المسنين ===== */}
     {/* ===== أسماء المسنين ===== */}
@@ -857,6 +947,7 @@ export default function UserDetail() {
     المسنّون المرتبطون بالكفيل
   </Typography>
 
+
   {Array.isArray(user.elderlyList) &&
   user.elderlyList.length > 0 ? (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
@@ -870,13 +961,14 @@ export default function UserDetail() {
           }}
         >
           <Grid container alignItems="center" spacing={2}>
-            
+           
             {/* الرقم */}
             <Grid size={{ xs: 1 }}>
               <Typography sx={{ fontWeight: 900, color: "#777" }}>
                 {idx + 1}
               </Typography>
             </Grid>
+
 
             {/* الاسم */}
             <Grid size={{ xs: 11, sm: 7 }}>
@@ -894,6 +986,7 @@ export default function UserDetail() {
                 {e.name}
               </Typography>
             </Grid>
+
 
             {/* الزر */}
             <Grid
@@ -929,6 +1022,7 @@ export default function UserDetail() {
               </Button>
             </Grid>
 
+
           </Grid>
         </Box>
       ))}
@@ -940,10 +1034,14 @@ export default function UserDetail() {
   )}
 </Paper>
 
+
   </Box>
 )}
 
+
       </Grid>
+
+
 
 
       <Snackbar
@@ -957,3 +1055,6 @@ export default function UserDetail() {
     </Box>
   );
 }
+
+
+
