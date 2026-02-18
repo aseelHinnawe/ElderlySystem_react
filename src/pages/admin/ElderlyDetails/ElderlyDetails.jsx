@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
-
 
 import {
   Box,
@@ -15,15 +14,19 @@ import {
   Chip,
   Button,
   Divider,
-  Tooltip,
   IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 
-
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BadgeIcon from "@mui/icons-material/Badge";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -32,10 +35,10 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import GroupsIcon from "@mui/icons-material/Groups";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
-import BedroomParentIcon from "@mui/icons-material/BedroomParent";
 import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
 import CloseIcon from "@mui/icons-material/Close";
-
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 const chipStatusSx = (isActive) => ({
   fontWeight: 900,
@@ -43,7 +46,6 @@ const chipStatusSx = (isActive) => ({
   backgroundColor: isActive ? "#2E7D32" : "#C62828",
   px: 1.5,
 });
-
 
 const cardTitleSx = (borderColor) => ({
   fontWeight: 900,
@@ -53,7 +55,6 @@ const cardTitleSx = (borderColor) => ({
   pr: 1,
 });
 
-
 const infoRowSx = {
   display: "flex",
   alignItems: "center",
@@ -62,7 +63,6 @@ const infoRowSx = {
   borderRadius: 2.5,
   background: "#f7f7f3",
 };
-
 
 const iconCircleSx = {
   width: 36,
@@ -76,13 +76,11 @@ const iconCircleSx = {
   flexShrink: 0,
 };
 
-
 const softBtnSx = {
   borderRadius: 2,
   textTransform: "none",
   fontWeight: 900,
 };
-
 
 function FieldRow({ icon, label, value }) {
   return (
@@ -110,12 +108,10 @@ function FieldRow({ icon, label, value }) {
   );
 }
 
-
 export default function ElderlyDetails() {
   const { id } = useParams();
   const [elderly, setElderly] = useState(null);
   const [loading, setLoading] = useState(true);
-
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -123,12 +119,10 @@ export default function ElderlyDetails() {
     severity: "error",
   });
 
-
-  // ✅ Preview Dialog (للشخيص/الهوية/التأمين/الفحص الشامل)
+  // ✅ Preview Dialog
   const [openPreview, setOpenPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-
 
   const openFilePreview = (url, title) => {
     if (!url) return;
@@ -137,13 +131,34 @@ export default function ElderlyDetails() {
     setOpenPreview(true);
   };
 
-
   const closeFilePreview = () => {
     setOpenPreview(false);
     setPreviewUrl("");
     setPreviewTitle("");
   };
 
+  // ==============================
+  // ✅ Stay
+  // ==============================
+  const [availableRooms, setAvailableRooms] = useState([]);
+  const [roomsLoading, setRoomsLoading] = useState(false);
+
+  // Add / Renew Stay form
+  const [addRoomId, setAddRoomId] = useState("");
+  const [addStartDate, setAddStartDate] = useState("");
+  const [addHasEndDate, setAddHasEndDate] = useState(false);
+  const [addEndDate, setAddEndDate] = useState("");
+
+  // Update EndDate (existing active stay)
+  const [editHasEndDate, setEditHasEndDate] = useState(false);
+  const [editEndDate, setEditEndDate] = useState("");
+
+  // ✅ Transfer UI when room is full on re-activate
+  const [needTransfer, setNeedTransfer] = useState(false);
+  const [transferRoomId, setTransferRoomId] = useState("");
+
+  // ✅ Dialog for editing end date
+  const [openEndDateDialog, setOpenEndDateDialog] = useState(false);
 
   const fetchElderly = async () => {
     setLoading(true);
@@ -162,14 +177,249 @@ export default function ElderlyDetails() {
     }
   };
 
+  const fetchAvailableRooms = async (excludeRoomId = null) => {
+    setRoomsLoading(true);
+    try {
+      const res = await AxiosUserInstance.get(`/Admin/Elderly/rooms/available`);
+      const rooms = res?.data?.data || [];
+
+      const filtered = excludeRoomId
+        ? rooms.filter((r) => Number(r.roomId) !== Number(excludeRoomId))
+        : rooms;
+
+      setAvailableRooms(filtered);
+    } catch (e) {
+      setAvailableRooms([]);
+      setSnackbar({
+        open: true,
+        message: "فشل جلب الغرف المتاحة",
+        severity: "error",
+      });
+    } finally {
+      setRoomsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchElderly();
   }, [id]);
 
+  // تجهيز الفورم حسب وجود/حالة الإقامة
+  useEffect(() => {
+    if (!elderly) return;
+
+    setNeedTransfer(false);
+    setTransferRoomId("");
+
+    // reset add form
+    setAddRoomId("");
+    setAddStartDate("");
+    setAddHasEndDate(false);
+    setAddEndDate("");
+
+    // إذا ما في إقامة => إضافة إقامة
+    if (!elderly.currentStay) {
+      fetchAvailableRooms();
+      return;
+    }
+
+    const stayStatus = elderly?.currentStay?.status || "";
+    const isStayFinishedLocal =
+      stayStatus === "Finish" ||
+      stayStatus === "منتهية" ||
+      stayStatus === "انتهت" ||
+      stayStatus.toString().toLowerCase().includes("finish");
+
+    // ✅ إذا Finish => فورم تجديد إقامة (جيب الغرف)
+    if (isStayFinishedLocal) {
+      fetchAvailableRooms();
+      // ما بدنا edit endDate هنا
+      setEditHasEndDate(false);
+      setEditEndDate("");
+      return;
+    }
+
+    const endLabel = elderly.currentStay?.endDate;
+    const isOngoing =
+      !endLabel ||
+      endLabel === "مستمر" ||
+      endLabel.toString().toLowerCase().includes("مستمر");
+
+    if (isOngoing) {
+      setEditHasEndDate(false);
+      setEditEndDate("");
+    } else {
+      setEditHasEndDate(true);
+      setEditEndDate(endLabel); // yyyy-MM-dd
+    }
+  }, [elderly]);
+
+  const addStay = async () => {
+    if (!addRoomId) {
+      setSnackbar({
+        open: true,
+        message: "اختر الغرفة أولاً",
+        severity: "error",
+      });
+      return;
+    }
+    if (!addStartDate) {
+      setSnackbar({
+        open: true,
+        message: "اختر تاريخ البداية",
+        severity: "error",
+      });
+      return;
+    }
+    if (addHasEndDate && !addEndDate) {
+      setSnackbar({
+        open: true,
+        message: "اختر تاريخ النهاية أو ألغِ تحديده",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      await AxiosUserInstance.post(`/Admin/Elderly/stay`, {
+        elderlyId: Number(id),
+        roomId: Number(addRoomId),
+        startDate: addStartDate, // yyyy-MM-dd
+        endDate: addHasEndDate ? addEndDate : null,
+      });
+
+      setSnackbar({
+        open: true,
+        message: "تم إضافة/تجديد الإقامة بنجاح",
+        severity: "success",
+      });
+
+      fetchElderly();
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: err?.response?.data?.message || "فشل إضافة/تجديد الإقامة",
+        severity: "error",
+      });
+    }
+  };
+
+  const updateStayEndDate = async () => {
+    const stayId = elderly?.currentStay?.stayId;
+    if (!stayId) return;
+
+    if (editHasEndDate && !editEndDate) {
+      setSnackbar({
+        open: true,
+        message: "اختر تاريخ النهاية أو ألغِ تحديده",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      await AxiosUserInstance.patch(`/Admin/Elderly/stay/${stayId}/endDate`, {
+        endDate: editHasEndDate ? editEndDate : null,
+      });
+
+      setSnackbar({
+        open: true,
+        message: "تم تعديل تاريخ النهاية بنجاح",
+        severity: "success",
+      });
+
+      setNeedTransfer(false);
+      setTransferRoomId("");
+      setOpenEndDateDialog(false);
+      fetchElderly();
+    } catch (err) {
+      const msg = err?.response?.data?.message || "فشل تعديل تاريخ النهاية";
+
+      // ✅ إذا رجعته مستمر/مستقبلي وكان الغرفة ممتلئة => افتح نقل
+      const shouldTransfer =
+        msg.includes("اختيار غرفة أخرى") ||
+        msg.includes("ممتلئة") ||
+        msg.includes("لا يمكنك الحجز") ||
+        msg.includes("لا توجد سعة");
+
+      if (shouldTransfer) {
+        setNeedTransfer(true);
+        const currentRoomId = elderly?.currentStay?.room?.roomId ?? null;
+        fetchAvailableRooms(currentRoomId);
+        // خلي الديالوج مفتوح ليظهر قسم النقل
+        setOpenEndDateDialog(true);
+      }
+
+      setSnackbar({ open: true, message: msg, severity: "error" });
+    }
+  };
+
+  const transferStay = async () => {
+    const stayId = elderly?.currentStay?.stayId;
+    if (!stayId) return;
+
+    if (!transferRoomId) {
+      setSnackbar({
+        open: true,
+        message: "اختر غرفة للنقل",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      await AxiosUserInstance.patch(`/Admin/Elderly/stay/${stayId}/transfer`, {
+        roomId: Number(transferRoomId),
+      });
+
+      setSnackbar({
+        open: true,
+        message: "تم نقل الغرفة بنجاح",
+        severity: "success",
+      });
+
+      setNeedTransfer(false);
+      setTransferRoomId("");
+      setOpenEndDateDialog(false);
+      fetchElderly();
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: err?.response?.data?.message || "فشل نقل الغرفة",
+        severity: "error",
+      });
+    }
+  };
+
+  // ✅ open/close endDate dialog
+  const openEndDateEdit = () => {
+    const endLabel = elderly?.currentStay?.endDate;
+
+    const isOngoing =
+      !endLabel ||
+      endLabel === "مستمر" ||
+      endLabel?.toString()?.toLowerCase()?.includes("مستمر");
+
+    if (isOngoing) {
+      setEditHasEndDate(false);
+      setEditEndDate("");
+    } else {
+      setEditHasEndDate(true);
+      setEditEndDate(endLabel);
+    }
+
+    setNeedTransfer(false);
+    setTransferRoomId("");
+    setOpenEndDateDialog(true);
+  };
+
+  const closeEndDateEdit = () => {
+    setOpenEndDateDialog(false);
+    setNeedTransfer(false);
+    setTransferRoomId("");
+  };
 
   const isActive = elderly?.status === "نشط";
-
 
   const basicFields = useMemo(() => {
     if (!elderly) return [];
@@ -202,7 +452,6 @@ export default function ElderlyDetails() {
     ];
   }, [elderly]);
 
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
@@ -211,20 +460,21 @@ export default function ElderlyDetails() {
     );
   }
 
-
   if (!elderly) return null;
 
-
-  const hasSponsors =
-    Array.isArray(elderly.sponsors) && elderly.sponsors.length > 0;
   const hasDiseases =
     Array.isArray(elderly.diseases) && elderly.diseases.length > 0;
   const hasReports =
     Array.isArray(elderly.medicalReports) && elderly.medicalReports.length > 0;
 
-
   const isPdf = (url = "") => url.toLowerCase().includes(".pdf");
 
+  const stayStatus = elderly?.currentStay?.status || "";
+  const isStayFinished =
+    stayStatus === "Finish" ||
+    stayStatus === "منتهية" ||
+    stayStatus === "انتهت" ||
+    stayStatus.toString().toLowerCase().includes("finish");
 
   return (
     <Box
@@ -235,9 +485,8 @@ export default function ElderlyDetails() {
         p: { xs: 2, md: 6 },
       }}
     >
-     
       <Grid container spacing={4} alignItems="stretch">
-        {/* ===== Left Column: Profile + IDs ===== */}
+        {/* ===== Left Column ===== */}
         <Grid size={{ xs: 12, lg: 5 }} sx={{ display: "flex" }}>
           <Paper
             sx={{
@@ -250,27 +499,25 @@ export default function ElderlyDetails() {
               boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
             }}
           >
-            {/* Header Card */}
             <Box sx={{ textAlign: "center", position: "relative" }}>
               <Box sx={{ display: "inline-block", position: "relative" }}>
                 <Avatar
                   sx={{
                     width: 110,
                     height: 110,
-                    bgcolor: "#bdbdbd", // رمادي مثل الصورة
-                    color: "#fff", // الحرف أبيض
+                    bgcolor: "#bdbdbd",
+                    color: "#fff",
                     fontSize: 42,
                     fontWeight: 900,
-                    border: "4px solid #fff", // إطار أبيض
+                    border: "4px solid #fff",
                     boxShadow: "0 10px 25px rgba(0,0,0,0.18)",
                   }}
                 >
                   {(elderly?.elderlyName || "").trim().charAt(0) || "؟"}
                 </Avatar>
 
-
                 <Chip
-                  label="نشط"
+                  label={isActive ? "نشط" : "غير نشط"}
                   size="small"
                   sx={{
                     position: "absolute",
@@ -279,27 +526,22 @@ export default function ElderlyDetails() {
                     height: 22,
                     fontWeight: 900,
                     fontSize: 12,
-                    bgcolor: "#2E7D32",
-                    color: "#fff",
+                    ...chipStatusSx(isActive),
                     "& .MuiChip-label": { px: 1 },
                     boxShadow: "0 6px 14px rgba(0,0,0,0.12)",
                   }}
                 />
               </Box>
 
-
               <Typography sx={{ mt: 2, fontSize: 26, fontWeight: 1000 }}>
                 {elderly.elderlyName}
               </Typography>
             </Box>
 
-
-            {/* Basic Info */}
             <Box sx={{ flexGrow: 1 }}>
               <Typography sx={cardTitleSx("#6a6a57")}>
                 البيانات الأساسية
               </Typography>
-
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
                 {basicFields.map((f, i) => (
@@ -313,11 +555,8 @@ export default function ElderlyDetails() {
               </Box>
             </Box>
 
-
-            {/* Diseases */}
             <Box>
               <Typography sx={cardTitleSx("#417d44")}>الأمراض</Typography>
-
 
               {hasDiseases ? (
                 <Grid container spacing={1.5}>
@@ -343,7 +582,6 @@ export default function ElderlyDetails() {
                           },
                         }}
                       >
-                        {/* left: icon + name */}
                         <Box
                           sx={{
                             display: "flex",
@@ -369,7 +607,6 @@ export default function ElderlyDetails() {
                             <HealingIcon />
                           </Box>
 
-
                           <Box sx={{ minWidth: 0 }}>
                             <Typography
                               sx={{
@@ -385,7 +622,6 @@ export default function ElderlyDetails() {
                               {d}
                             </Typography>
 
-
                             <Typography
                               sx={{
                                 fontSize: 12,
@@ -398,8 +634,6 @@ export default function ElderlyDetails() {
                           </Box>
                         </Box>
 
-
-                        {/* right: number badge */}
                         <Chip
                           label={idx + 1}
                           sx={{
@@ -437,8 +671,7 @@ export default function ElderlyDetails() {
           </Paper>
         </Grid>
 
-
-        {/* ===== Right Column: Stay + Sponsors + Reports ===== */}
+        {/* ===== Right Column ===== */}
         <Grid size={{ xs: 12, lg: 7 }} sx={{ display: "flex" }}>
           <Box
             sx={{
@@ -448,7 +681,7 @@ export default function ElderlyDetails() {
               width: "100%",
             }}
           >
-            {/* Current Stay */}
+            {/* ✅ Current Stay */}
             <Paper
               sx={{
                 p: 3,
@@ -460,61 +693,39 @@ export default function ElderlyDetails() {
                 الإقامة الحالية
               </Typography>
 
-
               {elderly.currentStay ? (
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Box
-                      sx={{ p: 2, borderRadius: 2.5, background: "#f7f7f3" }}
-                    >
-                      <Typography
-                        sx={{ fontSize: 12, color: "#777", fontWeight: 800 }}
-                      >
-                        تاريخ البداية
-                      </Typography>
-                      <Typography sx={{ fontWeight: 1000 }}>
-                        {elderly.currentStay.startDate ?? "-"}
-                      </Typography>
-                    </Box>
-                  </Grid>
-
-
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Box
-                      sx={{ p: 2, borderRadius: 2.5, background: "#f7f7f3" }}
-                    >
-                      <Typography
-                        sx={{ fontSize: 12, color: "#777", fontWeight: 800 }}
-                      >
-                        تاريخ النهاية
-                      </Typography>
-                      <Typography sx={{ fontWeight: 1000 }}>
-                        {elderly.currentStay.endDate ?? "-"}
-                      </Typography>
-                    </Box>
-                  </Grid>
-
-
-                  <Grid size={{ xs: 12 }}>
-                    <Box
-                      sx={{
-                        p: 2,
-                        borderRadius: 2.5,
-                        background: "#f7f7f3",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: 2,
-                        flexWrap: "wrap",
-                      }}
-                    >
+                <Box>
+                  <Grid container spacing={2}>
+                    {/* ✅ تاريخ البداية */}
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1.2 }}
+                        sx={{ p: 2, borderRadius: 2.5, background: "#f7f7f3" }}
                       >
-                        <Box sx={iconCircleSx}>
-                          <BedroomParentIcon />
-                        </Box>
-                        <Box>
+                        <Typography
+                          sx={{ fontSize: 12, color: "#777", fontWeight: 800 }}
+                        >
+                          تاريخ البداية
+                        </Typography>
+                        <Typography sx={{ fontWeight: 1000 }}>
+                          {elderly.currentStay.startDate ?? "-"}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    {/* ✅ تاريخ النهاية (عرض + زر تعديل) */}
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2.5,
+                          background: "#f7f7f3",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 1.5,
+                        }}
+                      >
+                        <Box sx={{ minWidth: 0 }}>
                           <Typography
                             sx={{
                               fontSize: 12,
@@ -522,24 +733,366 @@ export default function ElderlyDetails() {
                               fontWeight: 800,
                             }}
                           >
-                            الغرفة
+                            تاريخ النهاية
                           </Typography>
-                          <Typography sx={{ fontWeight: 1000 }}>
-                            رقم {elderly.currentStay.room?.roomNumber ?? "-"} —{" "}
-                            {elderly.currentStay.room?.roomTypeName ?? "-"}
+                          <Typography
+                            sx={{
+                              fontWeight: 1000,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {elderly.currentStay.endDate ?? "-"}
                           </Typography>
                         </Box>
+
+                        {!isStayFinished && (
+                          <Button
+                            onClick={openEndDateEdit}
+                            variant="contained"
+                            size="small"
+                            sx={{
+                              ...softBtnSx,
+                              minWidth: 96,
+                              background:
+                                "linear-gradient(135deg, #636316, #6a6a11)",
+                              boxShadow: "0 10px 18px rgba(0,0,0,0.10)",
+                              "&:hover": {
+                                boxShadow: "0 14px 24px rgba(0,0,0,0.14)",
+                              },
+                            }}
+                          >
+                            تعديل
+                          </Button>
+                        )}
+                      </Box>
+                    </Grid>
+
+                    {/* ✅ الغرفة */}
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2.5,
+                          background: "#f7f7f3",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 2,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.2,
+                          }}
+                        >
+                          <Box sx={iconCircleSx}>
+                            <MeetingRoomIcon />
+                          </Box>
+                          <Box>
+                            <Typography
+                              sx={{
+                                fontSize: 12,
+                                color: "#777",
+                                fontWeight: 800,
+                              }}
+                            >
+                              الغرفة
+                            </Typography>
+                            <Typography sx={{ fontWeight: 1000 }}>
+                              رقم {elderly.currentStay.room?.roomNumber ?? "-"}{" "}
+                              —{" "}
+                              {elderly.currentStay.room?.roomTypeName ??
+                                elderly.currentStay.room?.roomType ??
+                                "-"}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Grid>
+
+                    {/* ✅ الحالة */}
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2.5,
+                          background: "#f7f7f3",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 2,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.2,
+                          }}
+                        >
+                          <Box sx={iconCircleSx}>
+                            <SwapHorizIcon />
+                          </Box>
+                          <Box>
+                            <Typography
+                              sx={{
+                                fontSize: 12,
+                                color: "#777",
+                                fontWeight: 800,
+                              }}
+                            >
+                              الحالة
+                            </Typography>
+                            <Typography sx={{ fontWeight: 1000 }}>
+                              {elderly.currentStay.status ?? "-"}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  {/* ✅ إذا Finish => تجديد إقامة */}
+                  {isStayFinished && (
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: 3,
+                        background: "rgba(65,125,68,0.06)",
+                        border: "1px dashed rgba(65,125,68,0.25)",
+                      }}
+                    >
+                      <Typography
+                        sx={{ fontWeight: 1000, color: "#2f5f33", mb: 1.5 }}
+                      >
+                        الإقامة منتهية — تجديد إقامة للمسن
+                      </Typography>
+
+                      <FormControl
+                        fullWidth
+                        sx={{ mb: 1.6, background: "#fff", borderRadius: 2 }}
+                      >
+                        <InputLabel sx={{ fontWeight: 900 }}>
+                          اختر الغرفة
+                        </InputLabel>
+                        <Select
+                          value={addRoomId}
+                          label="اختر الغرفة"
+                          onChange={(e) => setAddRoomId(e.target.value)}
+                          sx={{ fontWeight: 900 }}
+                          disabled={roomsLoading}
+                        >
+                          {availableRooms.map((r) => (
+                            <MenuItem
+                              key={r.roomId}
+                              value={r.roomId}
+                              sx={{ fontWeight: 900 }}
+                            >
+                              {r.roomNumber} —{" "}
+                              {r.roomTypeName ?? r.roomType ?? ""}
+                            </MenuItem>
+                          ))}
+                          {!roomsLoading && availableRooms.length === 0 && (
+                            <MenuItem disabled sx={{ fontWeight: 900 }}>
+                              لا توجد غرف متاحة حالياً
+                            </MenuItem>
+                          )}
+                        </Select>
+                      </FormControl>
+
+                      <TextField
+                        label="تاريخ البداية"
+                        type="date"
+                        fullWidth
+                        value={addStartDate}
+                        onChange={(e) => setAddStartDate(e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ mb: 1.2, background: "#fff", borderRadius: 2 }}
+                        inputProps={{ style: { fontWeight: 900 } }}
+                      />
+
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={addHasEndDate}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setAddHasEndDate(checked);
+                              if (!checked) setAddEndDate("");
+                            }}
+                          />
+                        }
+                        label="تحديد تاريخ نهاية؟"
+                        sx={{
+                          "& .MuiFormControlLabel-label": {
+                            fontWeight: 900,
+                            color: "#4a4a3d",
+                          },
+                        }}
+                      />
+
+                      {addHasEndDate && (
+                        <TextField
+                          label="تاريخ النهاية"
+                          type="date"
+                          fullWidth
+                          value={addEndDate}
+                          onChange={(e) => setAddEndDate(e.target.value)}
+                          InputLabelProps={{ shrink: true }}
+                          sx={{ mt: 1, background: "#fff", borderRadius: 2 }}
+                          inputProps={{ style: { fontWeight: 900 } }}
+                        />
+                      )}
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          mt: 2,
+                        }}
+                      >
+                        <Button
+                          onClick={addStay}
+                          variant="contained"
+                          sx={{
+                            ...softBtnSx,
+                            background:
+                              "linear-gradient(135deg, #417d44, #6a6a57)",
+                            boxShadow: "0 10px 22px rgba(0,0,0,0.12)",
+                            "&:hover": {
+                              boxShadow: "0 14px 28px rgba(0,0,0,0.16)",
+                            },
+                          }}
+                          disabled={roomsLoading || availableRooms.length === 0}
+                        >
+                          تجديد الإقامة
+                        </Button>
                       </Box>
                     </Box>
-                  </Grid>
-                </Grid>
+                  )}
+                </Box>
               ) : (
-                <Typography sx={{ fontWeight: 900, color: "#777" }}>
-                  لا يوجد إقامة حالية مسجلة.
-                </Typography>
+                // ✅ Add Stay (no current stay)
+                <Box
+                  sx={{
+                    mt: 1.5,
+                    p: 2,
+                    borderRadius: 3,
+                    background: "rgba(65,125,68,0.06)",
+                    border: "1px dashed rgba(65,125,68,0.25)",
+                  }}
+                >
+                  <Typography
+                    sx={{ fontWeight: 1000, color: "#2f5f33", mb: 1.5 }}
+                  >
+                    لا يوجد إقامة حالياً — أدخل إقامة للمسن
+                  </Typography>
+
+                  <FormControl
+                    fullWidth
+                    sx={{ mb: 1.6, background: "#fff", borderRadius: 2 }}
+                  >
+                    <InputLabel sx={{ fontWeight: 900 }}>
+                      اختر الغرفة
+                    </InputLabel>
+                    <Select
+                      value={addRoomId}
+                      label="اختر الغرفة"
+                      onChange={(e) => setAddRoomId(e.target.value)}
+                      sx={{ fontWeight: 900 }}
+                      disabled={roomsLoading}
+                    >
+                      {availableRooms.map((r) => (
+                        <MenuItem
+                          key={r.roomId}
+                          value={r.roomId}
+                          sx={{ fontWeight: 900 }}
+                        >
+                          {r.roomNumber} — {r.roomTypeName ?? r.roomType ?? ""}
+                        </MenuItem>
+                      ))}
+                      {!roomsLoading && availableRooms.length === 0 && (
+                        <MenuItem disabled sx={{ fontWeight: 900 }}>
+                          لا توجد غرف متاحة حالياً
+                        </MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+
+                  <TextField
+                    label="تاريخ البداية"
+                    type="date"
+                    fullWidth
+                    value={addStartDate}
+                    onChange={(e) => setAddStartDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ mb: 1.2, background: "#fff", borderRadius: 2 }}
+                    inputProps={{ style: { fontWeight: 900 } }}
+                  />
+
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={addHasEndDate}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setAddHasEndDate(checked);
+                          if (!checked) setAddEndDate("");
+                        }}
+                      />
+                    }
+                    label="تحديد تاريخ نهاية؟"
+                    sx={{
+                      "& .MuiFormControlLabel-label": {
+                        fontWeight: 900,
+                        color: "#4a4a3d",
+                      },
+                    }}
+                  />
+
+                  {addHasEndDate && (
+                    <TextField
+                      label="تاريخ النهاية"
+                      type="date"
+                      fullWidth
+                      value={addEndDate}
+                      onChange={(e) => setAddEndDate(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      sx={{ mt: 1, background: "#fff", borderRadius: 2 }}
+                      inputProps={{ style: { fontWeight: 900 } }}
+                    />
+                  )}
+
+                  <Box
+                    sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}
+                  >
+                    <Button
+                      onClick={addStay}
+                      variant="contained"
+                      sx={{
+                        ...softBtnSx,
+                        background: "linear-gradient(135deg, #417d44, #6a6a57)",
+                        boxShadow: "0 10px 22px rgba(0,0,0,0.12)",
+                        "&:hover": {
+                          boxShadow: "0 14px 28px rgba(0,0,0,0.16)",
+                        },
+                      }}
+                      disabled={roomsLoading || availableRooms.length === 0}
+                    >
+                      إضافة إقامة
+                    </Button>
+                  </Box>
+                </Box>
               )}
             </Paper>
-
 
             {/* Medical Reports */}
             <Paper
@@ -552,7 +1105,6 @@ export default function ElderlyDetails() {
               <Typography sx={cardTitleSx("#417d44")}>
                 التقارير الطبية
               </Typography>
-
 
               {hasReports ? (
                 <Box
@@ -589,7 +1141,6 @@ export default function ElderlyDetails() {
                           </Box>
                         </Box>
 
-
                         {r.diagnosisUrl && (
                           <Button
                             onClick={() =>
@@ -615,9 +1166,7 @@ export default function ElderlyDetails() {
                         )}
                       </Box>
 
-
                       <Divider sx={{ my: 2 }} />
-
 
                       <Grid container spacing={2}>
                         <Grid size={{ xs: 12, sm: 6 }}>
@@ -639,7 +1188,6 @@ export default function ElderlyDetails() {
                           </Box>
                         </Grid>
 
-
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <Box
                             sx={{ p: 2, borderRadius: 2.5, background: "#fff" }}
@@ -658,7 +1206,6 @@ export default function ElderlyDetails() {
                             </Typography>
                           </Box>
                         </Grid>
-
 
                         <Grid size={{ xs: 12 }}>
                           <Box
@@ -711,7 +1258,6 @@ export default function ElderlyDetails() {
               )}
             </Paper>
 
-
             {/* Files */}
             <Paper
               sx={{
@@ -721,7 +1267,6 @@ export default function ElderlyDetails() {
               }}
             >
               <Typography sx={cardTitleSx("#6a6a57")}>الملفات</Typography>
-
 
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -750,7 +1295,6 @@ export default function ElderlyDetails() {
                         </Typography>
                       </Box>
                     </Box>
-
 
                     {elderly.nationalIdImage ? (
                       <Button
@@ -784,7 +1328,6 @@ export default function ElderlyDetails() {
                   </Box>
                 </Grid>
 
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Box
                     sx={{
@@ -813,7 +1356,6 @@ export default function ElderlyDetails() {
                         </Typography>
                       </Box>
                     </Box>
-
 
                     {elderly.healthInsurance ? (
                       <Button
@@ -848,15 +1390,12 @@ export default function ElderlyDetails() {
                 </Grid>
               </Grid>
 
-
-              {/* Comprehensive Exam */}
               <Box sx={{ mt: 2 }}>
                 <Typography
                   sx={{ fontSize: 12, color: "#777", fontWeight: 900, mb: 1 }}
                 >
                   الفحص الشامل
                 </Typography>
-
 
                 {elderly.comprehensiveExamination ? (
                   <Button
@@ -887,9 +1426,7 @@ export default function ElderlyDetails() {
         </Grid>
       </Grid>
 
-
-      {/* ✅ Dialog Preview (بنص الصفحة) */}
-      {/* ✅ Dialog Preview (بنص الصفحة) */}
+      {/* ✅ Dialog Preview */}
       <Dialog
         open={openPreview}
         onClose={closeFilePreview}
@@ -941,12 +1478,10 @@ export default function ElderlyDetails() {
               <PhotoLibraryOutlinedIcon fontSize="small" />
             </Box>
 
-
             <Typography sx={{ fontWeight: 1000, fontSize: 16 }}>
               {previewTitle}
             </Typography>
           </Box>
-
 
           <IconButton
             onClick={closeFilePreview}
@@ -960,13 +1495,7 @@ export default function ElderlyDetails() {
           </IconButton>
         </DialogTitle>
 
-
-        <DialogContent
-          sx={{
-            p: 2.2,
-            background: "transparent",
-          }}
-        >
+        <DialogContent sx={{ p: 2.2, background: "transparent" }}>
           {isPdf(previewUrl) ? (
             <Box
               component="iframe"
@@ -974,7 +1503,7 @@ export default function ElderlyDetails() {
               title="preview"
               sx={{
                 width: "100%",
-                height: "70vh", // ✅ أصغر من قبل
+                height: "70vh",
                 border: 0,
                 borderRadius: 3,
                 background: "#fff",
@@ -983,11 +1512,7 @@ export default function ElderlyDetails() {
             />
           ) : (
             <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-              }}
+              sx={{ width: "100%", display: "flex", justifyContent: "center" }}
             >
               <Box
                 component="img"
@@ -1009,6 +1534,200 @@ export default function ElderlyDetails() {
         </DialogContent>
       </Dialog>
 
+      {/* ✅ Dialog تعديل تاريخ النهاية (الصفحة اللي بتطلع عند كبسة تعديل) */}
+      <Dialog
+        open={openEndDateDialog}
+        onClose={closeEndDateEdit}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: "hidden",
+            boxShadow: "0 18px 45px rgba(0,0,0,0.25)",
+            border: "1px solid rgba(0,0,0,0.08)",
+            background: "linear-gradient(135deg, #ffffff 0%, #f6f6ef 100%)",
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backgroundColor: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(4px)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            py: 1.6,
+            px: 2.2,
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
+            color: "#4a4a3d",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 34,
+                height: 34,
+                borderRadius: 2,
+                background: "linear-gradient(135deg, #6a6a57, #417d44)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                boxShadow: "0 8px 18px rgba(0,0,0,0.12)",
+              }}
+            >
+              <CalendarMonthIcon fontSize="small" />
+            </Box>
+
+            <Typography sx={{ fontWeight: 1000, fontSize: 16 }}>
+              تعديل تاريخ النهاية
+            </Typography>
+          </Box>
+
+          <IconButton
+            onClick={closeEndDateEdit}
+            sx={{
+              border: "1px solid rgba(0,0,0,0.08)",
+              bgcolor: "#fff",
+              "&:hover": { bgcolor: "#f2f2ea" },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 2.2, background: "transparent" }}>
+          <Box
+            sx={{
+              p: 2,
+              borderRadius: 3,
+              background: "rgba(106,106,87,0.06)",
+              border: "1px solid rgba(106,106,87,0.12)",
+            }}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={editHasEndDate}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setEditHasEndDate(checked);
+                    if (!checked) setEditEndDate("");
+                  }}
+                />
+              }
+              label="تحديد تاريخ نهاية؟"
+              sx={{
+                "& .MuiFormControlLabel-label": {
+                  fontWeight: 900,
+                  color: "#4a4a3d",
+                },
+              }}
+            />
+
+            {editHasEndDate && (
+              <TextField
+                type="date"
+                fullWidth
+                value={editEndDate}
+                onChange={(e) => setEditEndDate(e.target.value)}
+                sx={{ mt: 1.2, background: "#fff", borderRadius: 2 }}
+                inputProps={{ style: { fontWeight: 900 } }}
+              />
+            )}
+
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+              <Button
+                onClick={updateStayEndDate}
+                variant="contained"
+                sx={{
+                  ...softBtnSx,
+                  background: "linear-gradient(135deg, #417d44, #6a6a57)",
+                  boxShadow: "0 10px 22px rgba(0,0,0,0.12)",
+                  "&:hover": { boxShadow: "0 14px 28px rgba(0,0,0,0.16)" },
+                }}
+              >
+                حفظ التعديل
+              </Button>
+            </Box>
+
+            {/* ✅ نقل غرفة إذا الغرفة ممتلئة */}
+            {needTransfer && (
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  borderRadius: 3,
+                  background: "rgba(198,40,40,0.06)",
+                  border: "1px dashed rgba(198,40,40,0.25)",
+                }}
+              >
+                <Typography sx={{ fontWeight: 1000, color: "#C62828", mb: 1 }}>
+                  لا يمكن تفعيل الإقامة في نفس الغرفة لأنها ممتلئة — اختر غرفة
+                  أخرى للنقل
+                </Typography>
+
+                <FormControl
+                  fullWidth
+                  sx={{ background: "#fff", borderRadius: 2 }}
+                >
+                  <InputLabel sx={{ fontWeight: 900 }}>
+                    اختر غرفة للنقل
+                  </InputLabel>
+                  <Select
+                    value={transferRoomId}
+                    label="اختر غرفة للنقل"
+                    onChange={(e) => setTransferRoomId(e.target.value)}
+                    sx={{ fontWeight: 900 }}
+                    disabled={roomsLoading}
+                  >
+                    {availableRooms.map((r) => (
+                      <MenuItem
+                        key={r.roomId}
+                        value={r.roomId}
+                        sx={{ fontWeight: 900 }}
+                      >
+                        {r.roomNumber} — {r.roomTypeName ?? r.roomType ?? ""}
+                      </MenuItem>
+                    ))}
+                    {!roomsLoading && availableRooms.length === 0 && (
+                      <MenuItem disabled sx={{ fontWeight: 900 }}>
+                        لا توجد غرف متاحة حالياً
+                      </MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+
+                <Box
+                  sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}
+                >
+                  <Button
+                    onClick={transferStay}
+                    variant="contained"
+                    startIcon={<SwapHorizIcon />}
+                    sx={{
+                      ...softBtnSx,
+                      background: "linear-gradient(135deg, #6a6a57, #417d44)",
+                      boxShadow: "0 10px 22px rgba(0,0,0,0.12)",
+                      "&:hover": { boxShadow: "0 14px 28px rgba(0,0,0,0.16)" },
+                    }}
+                    disabled={roomsLoading || availableRooms.length === 0}
+                  >
+                    نقل الغرفة
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+      </Dialog>
 
       <Snackbar
         open={snackbar.open}
@@ -1021,6 +1740,3 @@ export default function ElderlyDetails() {
     </Box>
   );
 }
-
-
-

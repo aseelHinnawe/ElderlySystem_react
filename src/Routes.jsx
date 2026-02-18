@@ -23,6 +23,12 @@ import AdminRooms from "./pages/admin/AdminRooms/AdminRooms";
 import AddRoom from "./pages/admin/AddRoom/AddRoom";
 import ElderlyDetails from "./pages/admin/ElderlyDetails/ElderlyDetails";
 import RoomDetails from "./pages/admin/RoomDetails/RoomDetails";
+import Activites from "./pages/admin/Activites/Activites";
+import AddActivity from "./pages/admin/AddActivity/AddActivity";
+import ActivityDetails from "./pages/admin/ActivityDetails/ActivityDetails";
+import Donation from "./pages/admin/Donation/Donation";
+import AddDonation from "./pages/admin/AddDonation/AddDonation";
+import DonationDetails from "./pages/admin/DonationDetails/DonationDetails";
 
 const router = createBrowserRouter([
   {
@@ -121,6 +127,30 @@ const router = createBrowserRouter([
       {
         path: "elderly/:id",
         element: <ElderlyDetails />,
+      },
+      {
+        path: "activites",
+        element: <Activites />,
+      },
+      {
+        path: "add-activity",
+        element: <AddActivity />,
+      },
+      {
+        path: "activity/:id",
+        element: <ActivityDetails />,
+      },
+      {
+        path: "Donations",
+        element: <Donation />,
+      },
+      {
+        path: "add-Donation",
+        element: <AddDonation />,
+      },
+       {
+        path: "Donation/:id",
+        element: <DonationDetails />,
       },
   ],
   },
