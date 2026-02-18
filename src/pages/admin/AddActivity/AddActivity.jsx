@@ -22,7 +22,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import AddActivitySchema from "../../../validations/AddActivitySchema.js";
 
-
+import EventIcon from "@mui/icons-material/Event";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EventNoteIcon from "@mui/icons-material/EventNote";
@@ -237,7 +237,7 @@ export default function AddActivity() {
                 alignItems: "center",
               }}
             >
-              <TrendingUp
+              <EventIcon
                 sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }}
               />
             </Box>
@@ -365,8 +365,7 @@ export default function AddActivity() {
                 <Box
                   sx={{
                     display: "flex",
-                    alignItems: "center",
-                    
+                    alignItems: "center",                 
                     gap: 2,
                     mb: 1.2,
                   }}

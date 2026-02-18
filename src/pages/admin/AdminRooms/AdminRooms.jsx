@@ -21,6 +21,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+
 import { TrendingUp } from "@mui/icons-material";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import BedIcon from "@mui/icons-material/Bed";
@@ -281,15 +282,11 @@ export default function AdminRooms() {
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           النوع
                         </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          السعة
-                        </TableCell>
+                       
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           السعة الحالية
                         </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          السعر
-                        </TableCell>
+                   
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           الحالة
                         </TableCell>
@@ -306,9 +303,7 @@ export default function AdminRooms() {
                           <TableRow key={r.id}>
                             <TableCell align="center">{r.roomNumber}</TableCell>
                             <TableCell align="center">{r.roomTypeName}</TableCell>
-                            <TableCell align="center">{r.capacity}</TableCell>
                             <TableCell align="center">{r.currentCapacity}</TableCell>
-                            <TableCell align="center">{r.price}</TableCell>
 
 
                             <TableCell align="center">

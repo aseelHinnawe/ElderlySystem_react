@@ -21,6 +21,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { TrendingUp } from "@mui/icons-material";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -126,14 +127,12 @@ const statCardSx = {
   overflow: "hidden",
 };
 
-
 const statInnerSx = {
   p: 2.2,
   display: "flex",
   alignItems: "center",
   gap: 1.6,
 };
-
 
 const statIconWrapSx = {
   width: 52,
@@ -380,6 +379,20 @@ export default function() {
             </Typography>
           </Box>
 
+          <Box
+            sx={{
+              width: { xs: 52, lg: 70 },
+              height: { xs: 52, lg: 70 },
+              borderRadius: "50%",
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <TrendingUp sx={{ fontSize: { xs: 28, lg: 40 }, color: "#fff" }} />
+          </Box>
+
 
         </CardContent>
       </Card>
@@ -404,23 +417,30 @@ export default function() {
               flexWrap: "wrap",
             }}
           >
-            <Typography
-              sx={{
-                direction: "rtl",
-                textAlign: "right",
-                fontWeight: 600,
-                fontSize: { xs: 18, md: 22 },
-                color: "#2f2f27",
-                flex: 1,
-                minWidth: 260,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-              title={activity?.activityName}
-            >
-              اسم النشاط : {activity?.activityName}
-            </Typography>
+           <Typography
+  sx={{
+    direction: "rtl",
+    textAlign: "right",
+    fontWeight: 600,
+    fontSize: { xs: 18, md: 22 },
+    color: "#2f2f27",
+    flex: 1,
+    minWidth: 260,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  }}
+  title={activity?.activityName}
+>
+  اسم النشاط :{" "}
+  <Box
+    component="span"
+    sx={{ display: { xs: "block", md: "inline" } }}
+  >
+    {activity?.activityName}
+  </Box>
+</Typography>
+
 
 
             {/* الأزرار يمين */}
@@ -522,25 +542,50 @@ export default function() {
           </Box>
 
 
-          <Box sx={sectionTitleSx}>
-            <BusinessOutlinedIcon sx={{ color: "#6a6a57" }} />
-            <Typography sx={{ fontWeight: 900, color: "#6a6a57" , fontSize: 19 }}>
-              الجهات المشاركة
-            </Typography>
-          </Box>
+          {/* الجهات المشاركة */}
+<Box sx={sectionTitleSx}>
+  <BusinessOutlinedIcon sx={{ color: "#6a6a57" }} />
+  <Typography sx={{ fontWeight: 900, color: "#6a6a57", fontSize: 19 }}>
+    الجهات المشاركة
+  </Typography>
+</Box>
 
+{orgs.length > 0 ? (
+  <Grid container spacing={2}>
+    {orgs.map((o) => (
+      <Grid item xs={12} sm={6} md={4} key={o.id}>
+        <Card
+          sx={{
+            borderRadius: 4,
+            border: "1px solid rgba(106,106,87,0.16)",
+            background: "rgba(255,255,255,0.72)",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
+            overflow: "hidden",
+            p: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 60,
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: 600,
+              color: "#2f2f27",
+              fontSize: { xs: 15, md: 17 },
+              textAlign: "center",
+            }}
+          >
+            {o.organizationName}
+          </Typography>
+        </Card>
+      </Grid>
+    ))}
+  </Grid>
+) : (
+  <Typography sx={{ fontWeight: 900 }}>لا توجد جهات</Typography>
+)}
 
-          {orgs.length > 0 ? (
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.2 }}>
-              {orgs.map((o) => (
-                <Box key={o.id} sx={orgChipSx} title={`ID: ${o.id}`}>
-                  {o.organizationName}
-                </Box>
-              ))}
-            </Box>
-          ) : (
-            <Typography sx={{ fontWeight: 900 }}>لا توجد جهات</Typography>
-          )}
         </Paper>
       )}
 
@@ -714,40 +759,42 @@ export default function() {
         </DialogContent>
 
 
-        <DialogActions sx={{ p: 2,gap:2 }}>
-          <Button
-            onClick={() => setOpenEdit(false)}
-            variant="outlined"
-            sx={{
-              borderRadius: 3,
-              fontWeight: 900,
-              textTransform: "none",
-              color: "#6a6a57",
-              minWidth: 140,
-              px: 2,
-              py: 1.1,
-              borderColor: "rgba(106,106,87,0.45)",
-              background: "#fff",
-              "&:hover": { borderColor: "rgba(106,106,87,0.85)" },
-            }}
-          >
-            إلغاء
-          </Button>
+        <DialogActions sx={{ p: 2, gap: 2 }}>
+  <Button
+    onClick={() => setOpenEdit(false)}
+    variant="outlined"
+    sx={{
+      borderRadius: 3,
+      fontWeight: 900,
+      textTransform: "none",
+      color: "#6a6a57",
+      minWidth: { xs: 100, sm: 140 }, // أصغر على الشاشات الصغيرة
+      px: { xs: 1.5, sm: 2 }, // padding أصغر على xs
+      py: { xs: 0.8, sm: 1.1 },
+      borderColor: "rgba(106,106,87,0.45)",
+      background: "#fff",
+      "&:hover": { borderColor: "rgba(106,106,87,0.85)" },
+    }}
+  >
+    إلغاء
+  </Button>
 
+  <Button
+    onClick={handleUpdate}
+    disabled={saving}
+    variant="contained"
+    sx={{
+      ...editBtnSx,
+      minWidth: { xs: 100, sm: 140 }, // أصغر على xs
+      px: { xs: 1.5, sm: 2 },
+      py: { xs: 0.8, sm: 1.1 },
+      opacity: saving ? 0.8 : 1,
+    }}
+  >
+    {saving ? "جارٍ الحفظ..." : "حفظ التعديل"}
+  </Button>
+</DialogActions>
 
-          <Button
-            onClick={handleUpdate}
-            disabled={saving}
-            variant="contained"
-            sx={{
-              ...editBtnSx,
-              minWidth: 140,
-              opacity: saving ? 0.8 : 1,
-            }}
-          >
-            {saving ? "جارٍ الحفظ..." : "حفظ التعديل"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
 

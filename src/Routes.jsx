@@ -29,6 +29,8 @@ import ActivityDetails from "./pages/admin/ActivityDetails/ActivityDetails";
 import Donation from "./pages/admin/Donation/Donation";
 import AddDonation from "./pages/admin/AddDonation/AddDonation";
 import DonationDetails from "./pages/admin/DonationDetails/DonationDetails";
+import CompleteInfoElderly from "./pages/sponsor/completeInfoElderly/CompleteInfoElderly";
+import HomeSponsore from "./pages/sponsor/HomeSponsore/HomeSponsore";
 
 const router = createBrowserRouter([
   {
@@ -157,7 +159,18 @@ const router = createBrowserRouter([
   {
     path:'/Sponsor',
     element: <SponsorLayout/>,
+    children: [ 
+      {
+        index: true,
+        element: <HomeSponsore />,
+      },    
+      {
+        path:'completeInfoElderly',
+        element: <CompleteInfoElderly />,
+      },
+    ]
   },
+  
 ]);
 
 export default router;

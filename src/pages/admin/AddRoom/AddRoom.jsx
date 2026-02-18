@@ -20,6 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AddRoomSchema from "../../../validations/AddRoomSchema";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 
 
 import style from "./AddRoom.module.css";
@@ -248,7 +249,7 @@ export default function AddRoom() {
               }}
               className={style.iconCircle}
             >
-              <TrendingUp
+              <AddPhotoAlternateIcon
                 sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }}
               />
             </Box>
