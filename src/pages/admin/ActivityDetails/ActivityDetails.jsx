@@ -29,7 +29,7 @@ import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
-
+import style from './ActivityDetails.module.css'
 
 import { useNavigate, useParams } from "react-router-dom";
 import AxiosUserInstance from "../../../api/AxiosUserInstance.jsx";
@@ -44,15 +44,6 @@ const headerCardStyles = {
   boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
 };
 
-
-const pageWrapperSx = {
-  p: "16px",
-  minHeight: "100vh",
-  background: "#f0f0ea",
-  
-};
-
-
 const paperStyle = {
   p: { xs: 2.2, sm: 3.2, md: 4 },
   width: "100%",
@@ -60,6 +51,18 @@ const paperStyle = {
   background: "#f0f0ea",
   border: "1px solid rgba(106, 106, 87, 0.15)",
   boxShadow: "0 10px 34px rgba(0,0,0,0.12)",
+};
+const orgChipSx = {
+  px: 2.2,
+  py: 1.0,
+  borderRadius: "999px",
+  fontWeight: 600,
+  fontSize: { xs: 14.5, md: 18.5 },
+  border: "1px solid rgba(200,200,200,0.4)", // حدود رمادية فاتحة
+  background: "#ffffff", // لون أبيض
+  color: "#2f2f27",      // لون الخط داكن
+  boxShadow: "0 4px 10px rgba(0,0,0,0.05)", // ظل خفيف
+  cursor: "default",      // مؤشر عادي
 };
 
 
@@ -69,16 +72,6 @@ const inputStyle = {
     background: "rgba(255,255,255,0.75)",
   },
 };
-
-
-const toolbarCardSx = {
-  borderRadius: 4,
-  overflow: "hidden",
-  mb: 2.5,
-  background: "#f0f0ea",
-  boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
-};
-
 
 const toolBtnBase = {
   borderRadius: 3,
@@ -134,18 +127,6 @@ const statInnerSx = {
   gap: 1.6,
 };
 
-const statIconWrapSx = {
-  width: 52,
-  height: 52,
-  borderRadius: "16px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "rgba(106,106,87,0.12)",
-  border: "1px solid rgba(106,106,87,0.18)",
-};
-
-
 const statLabelSx = { fontWeight: 900, color: "#6a6a57", fontSize: 14 };
 const statValueSx = {
   fontWeight: 600,
@@ -154,7 +135,6 @@ const statValueSx = {
   mt: 0.4,
 };
 
-
 const descBoxSx = {
   mt: 2.2,
   borderRadius: 4,
@@ -162,31 +142,6 @@ const descBoxSx = {
   background: "rgba(255,255,255,0.72)",
   boxShadow: "0 6px 16px rgba(0,0,0,0.05)",
   p: { xs: 2, md: 2.4 },
-};
-
-
-const orgChipSx = {
-  px: 2.2,
-  py: 1.0,
-  borderRadius: "999px",
-  fontWeight: 600,
-  fontSize: { xs: 14.5, md: 18.5 },
-  border: "1px solid rgba(106,106,87,0.18)",
-  background: "rgba(240, 240, 234, 0.85)",
-  color: "#2f2f27",
-  boxShadow: "0 6px 14px rgba(0,0,0,0.06)",
-};
-
-
-const sectionTitleSx = {
-  fontWeight: 700,
-  color: "#6a6a57",
-  mt: 3,
-  mb: 1.2,
-  display: "flex",
-  alignItems: "center",
-  gap: 1,
- 
 };
 
 
@@ -335,26 +290,15 @@ export default function() {
 
 
   return (
-    <Box sx={pageWrapperSx}>
+    <Box className={style.pageWrapper}>
       {/* Header */}
       <Card sx={headerCardStyles}>
         <CardContent
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "16px",
-          }}
+          className={style.headerContent}
         >
           <Box>
             <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                flexWrap: "wrap",
-              }}
+             className={style.titleWrapper}
             >
               <Typography
                 variant="h4"
@@ -379,15 +323,11 @@ export default function() {
             </Typography>
           </Box>
 
-          <Box
+          <Box className={style.iconCircle}
             sx={{
               width: { xs: 52, lg: 70 },
               height: { xs: 52, lg: 70 },
-              borderRadius: "50%",
-              backgroundColor: "rgba(255, 255, 255, 0.2)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+              
             }}
           >
             <TrendingUp sx={{ fontSize: { xs: 28, lg: 40 }, color: "#fff" }} />
@@ -407,15 +347,7 @@ export default function() {
       ) : (
         <Paper elevation={0} sx={{ ...paperStyle, maxWidth: 1200, mx: "auto" }}>
           <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 2,
-              mb: 3,
-              direction: "rtl",
-              flexWrap: "wrap",
-            }}
+           className={style.flexRow}
           >
            <Typography
   sx={{
@@ -484,13 +416,11 @@ export default function() {
 </Box>
 
           </Box>
-
-
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 4 }}>
               <Card sx={statCardSx}>
                 <Box sx={statInnerSx}>
-                  <Box sx={statIconWrapSx}>
+                  <Box className={style.statIconWrap}>
                     <PlaceOutlinedIcon
                       sx={{ fontSize: 26, color: "#6a6a57" }}
                     />
@@ -509,7 +439,7 @@ export default function() {
             <Grid size={{ xs: 12, md: 4 }}>
               <Card sx={statCardSx}>
                 <Box sx={statInnerSx}>
-                  <Box sx={statIconWrapSx}>
+                  <Box className={style.statIconWrap}>
                     <CalendarMonthOutlinedIcon
                       sx={{ fontSize: 26, color: "#6a6a57" }}
                     />
@@ -526,7 +456,7 @@ export default function() {
             <Grid size={{ xs: 12, md: 4 }}>
               <Card sx={statCardSx}>
                 <Box sx={statInnerSx}>
-                  <Box sx={statIconWrapSx}>
+                  <Box className={style.statIconWrap}>
                     <ScheduleOutlinedIcon
                       sx={{ fontSize: 26, color: "#6a6a57" }}
                     />
@@ -560,7 +490,25 @@ export default function() {
             </Typography>
           </Box>
 
+          <Box className={style.sectionTitle}>
+            <BusinessOutlinedIcon sx={{ color: "#6a6a57" }} />
+            <Typography sx={{ fontWeight: 900, color: "#6a6a57" , fontSize: 19 }}>
+              الجهات المشاركة
+            </Typography>
+          </Box>
 
+
+          {orgs.length > 0 ? (
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.2 }}>
+              {orgs.map((o) => (
+                <Box key={o.id} sx={orgChipSx} title={`ID: ${o.id}`}>
+                  {o.organizationName}
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Typography sx={{ fontWeight: 900 }}>لا توجد جهات</Typography>
+          )}
           
         </Paper>
       )}
@@ -849,7 +797,6 @@ export default function() {
     </Box>
   );
 }
-
 
 
 

@@ -184,7 +184,7 @@ export default function AdminHome() {
   <Grid size={{xs:12 , sm:6}}>
     <StatCard
       Icon={Event}
-      label="عدد الفعاليات"
+      label="عدد الأنشطة"
       value={stats.eventsCountToDate}
       color="#e388a7"
     />

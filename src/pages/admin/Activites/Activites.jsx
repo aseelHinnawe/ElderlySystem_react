@@ -24,19 +24,20 @@ import { Link } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import style from "./Activites.module.css";
+
+
+// ✅ NEW: status icons
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import PendingActionsIcon from "@mui/icons-material/PendingActions";
+
+
 const headerCardStyles = {
   mb: 4,
   borderRadius: 5,
   background: "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
   color: "#fff",
   boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-};
-
-
-const pageWrapperSx = {
-  p: "16px",
-  minHeight: "100vh",
-  background: "#f0f0ea",
 };
 
 
@@ -47,14 +48,6 @@ const activityCardSx = {
   boxShadow: "0 6px 18px rgba(0, 0, 0, 0.08)",
   background: "rgba(255, 255, 255, 0.65)",
   backdropFilter: "blur(8px)",
-};
-
-
-const flexSpaceBetweenSx = {
-  display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  gap: "10px",
 };
 
 
@@ -80,22 +73,6 @@ const badgeSx = {
 };
 
 
-const infoPillSx = {
-  border: "1px solid rgba(106, 106, 87, 0.18)",
-  background: "rgba(240, 240, 234, 0.55)",
-  borderRadius: "16px",
-  px: "10px",
-  py: "12px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  textAlign: "center",
-  gap: "6px",
-  minHeight: "68px",
-};
-
-
 const infoLabelSx = {
   fontSize: { xs: 13, "@media (max-width:380px)": 13 },
   fontWeight: 900,
@@ -114,6 +91,53 @@ const detailsButtonStyles = {
   borderRadius: 2,
   textTransform: "none",
   fontWeight: 800,
+};
+
+
+// ===== Date Helpers =====
+const parseDateSafe = (dateStr) => {
+  if (!dateStr) return null;
+
+
+  // Case 1: YYYY-MM-DD (or ISO)
+  const isoLike = /^\d{4}-\d{2}-\d{2}/.test(dateStr);
+  if (isoLike) {
+    const d = new Date(dateStr);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+
+  // Case 2: DD/MM/YYYY
+  const dmY = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(dateStr);
+  if (dmY) {
+    const day = Number(dmY[1]);
+    const month = Number(dmY[2]) - 1;
+    const year = Number(dmY[3]);
+    const d = new Date(year, month, day);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+
+  // Fallback
+  const d = new Date(dateStr);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+
+
+const isPastOrToday = (dateStr) => {
+  const d = parseDateSafe(dateStr);
+  if (!d) return false;
+
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+
+  const onlyDate = new Date(d);
+  onlyDate.setHours(0, 0, 0, 0);
+
+
+  return onlyDate.getTime() <= today.getTime();
 };
 
 
@@ -150,48 +174,33 @@ export default function Activites() {
   useEffect(() => {
     fetchActivities();
   }, []);
+
+
   const filteredActivities = useMemo(() => {
     const q = searchName.trim().toLowerCase();
     if (!q) return activities;
 
 
     return activities.filter((a) =>
-      (a?.activityName || "").toLowerCase().includes(q),
+      (a?.activityName || "").toLowerCase().includes(q)
     );
   }, [activities, searchName]);
 
 
   return (
-    <Box sx={pageWrapperSx}>
+    <Box className={style.pageWrapper}>
       {/* Header */}
       <Card sx={headerCardStyles}>
-        <CardContent
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "16px",
-          }}
-        >
+        <CardContent className={style.headerContent}>
           <Box>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                flexWrap: "wrap",
-              }}
-            >
+            <Box className={style.titleWrapper}>
               <Typography
                 variant="h4"
                 sx={{ fontWeight: "bold", fontSize: { xs: 20, lg: 28 } }}
               >
                 إدارة الأنشطة
               </Typography>
-              <EventNoteIcon
-                sx={{ fontSize: { xs: 26, lg: 34 }, color: "#fff" }}
-              />
+              <EventNoteIcon sx={{ fontSize: { xs: 26, lg: 34 }, color: "#fff" }} />
             </Box>
 
 
@@ -208,14 +217,10 @@ export default function Activites() {
 
 
           <Box
+            className={style.iconCircle}
             sx={{
               width: { xs: 52, lg: 70 },
               height: { xs: 52, lg: 70 },
-              borderRadius: "50%",
-              backgroundColor: "rgba(255, 255, 255, 0.2)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
             }}
           >
             <TrendingUp sx={{ fontSize: { xs: 28, lg: 40 }, color: "#fff" }} />
@@ -225,38 +230,37 @@ export default function Activites() {
 
 
       <Box sx={{ mb: 3, width: { xs: "100%", md: "25%" } }}>
-  <TextField
-    fullWidth
-    label="اسم النشاط"
-    value={searchName}
-    onChange={(e) => setSearchName(e.target.value)}
-    placeholder="ابحث عن اسم النشاط..."
-    sx={{ backgroundColor: "#fefefe", borderRadius: 3 }}
-    InputProps={{
-      sx: { borderRadius: 3 },
-      startAdornment: (
-        <InputAdornment position="start">
-          <SearchIcon sx={{ color: "#6a6a57" }} />
-        </InputAdornment>
-      ),
-      endAdornment: searchName ? (
-        <InputAdornment position="end">
-          <IconButton
-            size="small"
-            onClick={() => setSearchName("")}
-            sx={{
-              color: "#6a6a57",
-              "&:hover": { backgroundColor: "rgba(106,106,87,0.08)" },
-            }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </InputAdornment>
-      ) : null,
-    }}
-  />
-</Box>
-
+        <TextField
+          fullWidth
+          label="اسم النشاط"
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+          placeholder="ابحث عن اسم النشاط..."
+          sx={{ backgroundColor: "#fefefe", borderRadius: 3 }}
+          InputProps={{
+            sx: { borderRadius: 3 },
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: "#6a6a57" }} />
+              </InputAdornment>
+            ),
+            endAdornment: searchName ? (
+              <InputAdornment position="end">
+                <IconButton
+                  size="small"
+                  onClick={() => setSearchName("")}
+                  sx={{
+                    color: "#6a6a57",
+                    "&:hover": { backgroundColor: "rgba(106,106,87,0.08)" },
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ) : null,
+          }}
+        />
+      </Box>
 
 
       {loading ? (
@@ -267,10 +271,7 @@ export default function Activites() {
         <>
           {/* ===== Desktop Table ===== */}
           <Box sx={{ display: { xs: "none", lg: "block" } }}>
-            <Card
-              component={Paper}
-              sx={{ borderRadius: 3, overflow: "hidden" }}
-            >
+            <Card component={Paper} sx={{ borderRadius: 3, overflow: "hidden" }}>
               <CardContent sx={{ p: 0 }}>
                 <Box sx={{ overflowX: "auto" }}>
                   <Table sx={{ minWidth: 750, direction: "rtl" }}>
@@ -297,41 +298,64 @@ export default function Activites() {
 
                     <TableBody>
                       {filteredActivities.length > 0 ? (
-                        filteredActivities.map((a, idx) => (
-                          <TableRow key={a.id ?? idx}>
-                            <TableCell align="center">
-                              {a.activityName}
-                            </TableCell>
-                            <TableCell align="center">{a.location}</TableCell>
-                            <TableCell align="center">{a.date}</TableCell>
-                            <TableCell align="center">{a.startTime}</TableCell>
+                        filteredActivities.map((a, idx) => {
+                          const done = isPastOrToday(a?.date);
+                          return (
+                            <TableRow key={a.id ?? idx}>
+                              {/* ✅ icon beside activity name */}
+                              <TableCell align="center">
+                                <Box
+                                  sx={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                  }}
+                                >
+                                  {done ? (
+                                    <TaskAltIcon
+                                      sx={{ fontSize: 30, color: "#2e7d32" }}
+                                    />
+                                  ) : (
+                                    <PendingActionsIcon
+                                      sx={{ fontSize: 30, color: "#ed6c02" }}
+                                    />
+                                  )}
+                                  <Box component="span">{a.activityName}</Box>
+                                </Box>
+                              </TableCell>
 
 
-                            <TableCell align="center">
-                              <Button
-                                size="small"
-                                variant="contained"
-                                component={Link}
-                                to={a?.id ? `/Admin/activity/${a.id}` : "#"}
-                                disabled={!a?.id}
-                                sx={{
-                                  ...detailsButtonStyles,
-                                  fontSize: 13,
-                                  backgroundColor: "#FFF8E1",
-                                  color: "#8D6E63",
-                                  border: "1px solid rgba(141,110,99,0.35)",
-                                  boxShadow: "none",
-                                  "&:hover": {
-                                    backgroundColor: "#FFECB3",
+                              <TableCell align="center">{a.location}</TableCell>
+                              <TableCell align="center">{a.date}</TableCell>
+                              <TableCell align="center">{a.startTime}</TableCell>
+
+
+                              <TableCell align="center">
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  component={Link}
+                                  to={a?.id ? `/Admin/activity/${a.id}` : "#"}
+                                  disabled={!a?.id}
+                                  sx={{
+                                    ...detailsButtonStyles,
+                                    fontSize: 13,
+                                    backgroundColor: "#FFF8E1",
+                                    color: "#8D6E63",
+                                    border: "1px solid rgba(141,110,99,0.35)",
                                     boxShadow: "none",
-                                  },
-                                }}
-                              >
-                                تفاصيل النشاط
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                                    "&:hover": {
+                                      backgroundColor: "#FFECB3",
+                                      boxShadow: "none",
+                                    },
+                                  }}
+                                >
+                                  تفاصيل النشاط
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                       ) : (
                         <TableRow>
                           <TableCell colSpan={5} align="center">
@@ -350,81 +374,97 @@ export default function Activites() {
           {/* ===== Mobile Cards ===== */}
           <Box sx={{ display: { xs: "block", lg: "none" } }}>
             {filteredActivities.length > 0 ? (
-              filteredActivities.map((a, idx) => (
-                <Card key={a.id ?? idx} sx={activityCardSx}>
-                  <CardContent sx={{ p: 2.2 }}>
-                    <Box sx={flexSpaceBetweenSx}>
-                      <Typography sx={titleSx} noWrap>
-                        {a.activityName}
-                      </Typography>
-
-
-                      <Box sx={badgeSx}>{a.startTime}</Box>
-                    </Box>
-
-
-                    <Box sx={{ mt: 1.2 }}>
-                      <Typography
-                        sx={{ fontWeight: 800, color: "#6a6a57", mb: 1 }}
-                      >
-                        التفاصيل
-                      </Typography>
-
-
-                      <Box
-                        sx={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                          gap: 1.2,
-                        }}
-                      >
-                        <Box sx={infoPillSx}>
-                          <Box component="span" sx={infoLabelSx}>
-                            الموقع
-                          </Box>
-                          <Box component="span" sx={infoValueSx}>
-                            {a.location}
-                          </Box>
-                        </Box>
-
-
-                        <Box sx={infoPillSx}>
-                          <Box component="span" sx={infoLabelSx}>
-                            التاريخ
-                          </Box>
-                          <Box component="span" sx={infoValueSx}>
-                            {a.date}
-                          </Box>
-                        </Box>
-                      </Box>
-
-
-                      <Box sx={{ mt: 1.6 }}>
-                        <Button
-                          fullWidth
-                          variant="contained"
-                          component={Link}
-                          to={a?.id ? `/Admin/activity/${a.id}` : "#"}
-                          disabled={!a?.id}
+              filteredActivities.map((a, idx) => {
+                const done = isPastOrToday(a?.date);
+                return (
+                  <Card key={a.id ?? idx} sx={activityCardSx}>
+                    <CardContent sx={{ p: 2.2 }}>
+                      <Box className={style.flexSpaceBetween}>
+                        {/* ✅ icon beside activity name */}
+                        <Box
                           sx={{
-                            ...detailsButtonStyles,
-                            backgroundColor: "#FFF8E1",
-                            color: "#8D6E63",
-                            border: "1px solid rgba(141,110,99,0.35)",
-                            boxShadow: "none",
-                            "&:hover": {
-                              backgroundColor: "#FFECB3",
-                              boxShadow: "none",
-                            },
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 1,
+                            minWidth: 0,
                           }}
                         >
-                          تفاصيل النشاط
-                        </Button>
+                          {done ? (
+                            <TaskAltIcon sx={{ fontSize: 26, color: "#2e7d32" }} />
+                          ) : (
+                            <PendingActionsIcon
+                              sx={{ fontSize: 26, color: "#ed6c02" }}
+                            />
+                          )}
+                          <Typography sx={titleSx} noWrap>
+                            {a.activityName}
+                          </Typography>
+                        </Box>
+
+
+                        <Box sx={badgeSx}>{a.startTime}</Box>
                       </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))
+
+
+                      <Box sx={{ mt: 1.2 }}>
+                    
+
+
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                            gap: 1.2,
+                          }}
+                        >
+                          <Box className={style.infoPill}>
+                            <Box component="span" sx={infoLabelSx}>
+                              الموقع
+                            </Box>
+                            <Box component="span" sx={infoValueSx}>
+                              {a.location}
+                            </Box>
+                          </Box>
+
+
+                          <Box className={style.infoPill}>
+                            <Box component="span" sx={infoLabelSx}>
+                              التاريخ
+                            </Box>
+                            <Box component="span" sx={infoValueSx}>
+                              {a.date}
+                            </Box>
+                          </Box>
+                        </Box>
+
+
+                        <Box sx={{ mt: 1.6 }}>
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            component={Link}
+                            to={a?.id ? `/Admin/activity/${a.id}` : "#"}
+                            disabled={!a?.id}
+                            sx={{
+                              ...detailsButtonStyles,
+                              backgroundColor: "#FFF8E1",
+                              color: "#8D6E63",
+                              border: "1px solid rgba(141,110,99,0.35)",
+                              boxShadow: "none",
+                              "&:hover": {
+                                backgroundColor: "#FFECB3",
+                                boxShadow: "none",
+                              },
+                            }}
+                          >
+                            تفاصيل النشاط
+                          </Button>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                );
+              })
             ) : (
               <Typography align="center">لا توجد بيانات</Typography>
             )}
@@ -447,8 +487,4 @@ export default function Activites() {
     </Box>
   );
 }
-
-
-
-
 

@@ -1,0 +1,60 @@
+
+.pageWrapper {
+  padding: 16px;
+  min-height: 100vh;
+  background: #f0f0ea;
+}
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.iconCircle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.flexRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px; /* 2*4 */
+  margin-bottom: 12px; /* 3*4 */
+  flex-wrap: wrap;
+  direction: rtl;
+}
+
+/* Stat Icon Wrap */
+.statIconWrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(106,106,87,0.12);
+  border: 1px solid rgba(106,106,87,0.18);
+}
+
+.sectionTitle {
+  font-weight: 700;
+  color: #6a6a57;
+  margin-top: 18px; /* mt: 3 * 4px */
+  margin-bottom: 4.8px; /* mb: 1.2 * 4px */
+  display: flex;
+  align-items: center;
+  gap: 4px; /* gap: 1 * 4px */
+}
+
+
+

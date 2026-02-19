@@ -1,0 +1,50 @@
+
+/* Page Wrapper */
+.pageWrapper {
+  padding: 16px;
+  min-height: 100vh;
+  background: #f0f0ea;
+}
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.iconCircle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Flex Space Between */
+.flexSpaceBetween {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Info Pill */
+.infoPill {
+  border: 1px solid rgba(106, 106, 87, 0.18);
+  background: rgba(240, 240, 234, 0.55);
+  border-radius: 16px;
+  padding: 12px 10px; /* py:12px px:10px */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  min-height: 68px;
+}

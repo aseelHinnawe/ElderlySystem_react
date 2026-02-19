@@ -21,11 +21,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import AddRoomSchema from "../../../validations/AddRoomSchema";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-
-
 import style from "./AddRoom.module.css";
-
-
 import BedIcon from "@mui/icons-material/Bed";
 import { TrendingUp } from "@mui/icons-material";
 
@@ -120,7 +116,7 @@ export default function AddRoom() {
       setValue("price", 2500, { shouldValidate: true, shouldDirty: true });
     } else if (roomType === "SecondClass") {
       setValue("capacity", 2, { shouldValidate: true, shouldDirty: true });
-      setValue("price", 2000, { shouldValidate: true, shouldDirty: true });
+      setValue("price", 2300, { shouldValidate: true, shouldDirty: true });
     } else {
       setValue("capacity", "", { shouldValidate: false, shouldDirty: false });
       setValue("price", "", { shouldValidate: false, shouldDirty: false });
@@ -366,7 +362,7 @@ export default function AddRoom() {
                     roomType === "FirstClass"
                       ? "السعر ثابت (2500) للدرجة الأولى"
                       : roomType === "SecondClass"
-                        ? "السعر ثابت (2000) للدرجة الثانية"
+                        ? "السعر ثابت (2300) للدرجة الثانية"
                         : ""
                   }
                   sx={inputStyle}
