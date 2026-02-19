@@ -270,105 +270,76 @@ export default function Activites() {
       ) : (
         <>
           {/* ===== Desktop Table ===== */}
-          <Box sx={{ display: { xs: "none", lg: "block" } }}>
-            <Card component={Paper} sx={{ borderRadius: 3, overflow: "hidden" }}>
-              <CardContent sx={{ p: 0 }}>
-                <Box sx={{ overflowX: "auto" }}>
-                  <Table sx={{ minWidth: 750, direction: "rtl" }}>
-                    <TableHead>
-                      <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          اسم النشاط
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          الموقع
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          التاريخ
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          وقت البداية
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          التفاصيل
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
+<Box sx={{ display: { xs: "none", lg: "block" } }}>
+  <Card component={Paper} sx={{ borderRadius: 3, overflow: "hidden" }}>
+    <CardContent sx={{ p: 0 }}>
+      <Box sx={{ overflowX: "auto" }}>
+        <Table sx={{ minWidth: 750, direction: "rtl" }}>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>الحالة</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>اسم النشاط</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>الموقع</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>التاريخ</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>التفاصيل</TableCell>
+            </TableRow>
+          </TableHead>
 
-
-                    <TableBody>
-                      {filteredActivities.length > 0 ? (
-                        filteredActivities.map((a, idx) => {
-                          const done = isPastOrToday(a?.date);
-                          return (
-                            <TableRow key={a.id ?? idx}>
-                              {/* ✅ icon beside activity name */}
-                              <TableCell align="center">
-                                <Box
-                                  sx={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: 1,
-                                  }}
-                                >
-                                  {done ? (
-                                    <TaskAltIcon
-                                      sx={{ fontSize: 30, color: "#2e7d32" }}
-                                    />
-                                  ) : (
-                                    <PendingActionsIcon
-                                      sx={{ fontSize: 30, color: "#ed6c02" }}
-                                    />
-                                  )}
-                                  <Box component="span">{a.activityName}</Box>
-                                </Box>
-                              </TableCell>
-
-
-                              <TableCell align="center">{a.location}</TableCell>
-                              <TableCell align="center">{a.date}</TableCell>
-                              <TableCell align="center">{a.startTime}</TableCell>
-
-
-                              <TableCell align="center">
-                                <Button
-                                  size="small"
-                                  variant="contained"
-                                  component={Link}
-                                  to={a?.id ? `/Admin/activity/${a.id}` : "#"}
-                                  disabled={!a?.id}
-                                  sx={{
-                                    ...detailsButtonStyles,
-                                    fontSize: 13,
-                                    backgroundColor: "#FFF8E1",
-                                    color: "#8D6E63",
-                                    border: "1px solid rgba(141,110,99,0.35)",
-                                    boxShadow: "none",
-                                    "&:hover": {
-                                      backgroundColor: "#FFECB3",
-                                      boxShadow: "none",
-                                    },
-                                  }}
-                                >
-                                  تفاصيل النشاط
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })
+          <TableBody>
+            {filteredActivities.length > 0 ? (
+              filteredActivities.map((a, idx) => {
+                const done = isPastOrToday(a?.date);
+                return (
+                  <TableRow key={a.id ?? idx}>
+                    {/* عمود الحالة */}
+                    <TableCell align="center">
+                      {done ? (
+                        <TaskAltIcon sx={{ fontSize: 30, color: "#2e7d32" }} />
                       ) : (
-                        <TableRow>
-                          <TableCell colSpan={5} align="center">
-                            لا توجد بيانات
-                          </TableCell>
-                        </TableRow>
+                        <PendingActionsIcon sx={{ fontSize: 30, color: "#ed6c02" }} />
                       )}
-                    </TableBody>
-                  </Table>
-                </Box>
-              </CardContent>
-            </Card>
-          </Box>
+                    </TableCell>
+
+                    <TableCell align="center">{a.activityName}</TableCell>
+                    <TableCell align="center">{a.location}</TableCell>
+                    <TableCell align="center">{a.date}</TableCell>
+                    <TableCell align="center">
+                      <Button
+                        size="small"
+                        variant="contained"
+                        component={Link}
+                        to={a?.id ? `/Admin/activity/${a.id}` : "#"}
+                        disabled={!a?.id}
+                        sx={{
+                          ...detailsButtonStyles,
+                          fontSize: 13,
+                          backgroundColor: "#FFF8E1",
+                          color: "#8D6E63",
+                          border: "1px solid rgba(141,110,99,0.35)",
+                          boxShadow: "none",
+                          "&:hover": { backgroundColor: "#FFECB3", boxShadow: "none" },
+                        }}
+                      >
+                        تفاصيل النشاط
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  لا توجد بيانات
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </Box>
+    </CardContent>
+  </Card>
+</Box>
+
 
 
           {/* ===== Mobile Cards ===== */}
@@ -402,7 +373,6 @@ export default function Activites() {
                         </Box>
 
 
-                        <Box sx={badgeSx}>{a.startTime}</Box>
                       </Box>
 
 
