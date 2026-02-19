@@ -342,103 +342,124 @@ export default function Activites() {
 
 
 
-          {/* ===== Mobile Cards ===== */}
-          <Box sx={{ display: { xs: "block", lg: "none" } }}>
-            {filteredActivities.length > 0 ? (
-              filteredActivities.map((a, idx) => {
-                const done = isPastOrToday(a?.date);
-                return (
-                  <Card key={a.id ?? idx} sx={activityCardSx}>
-                    <CardContent sx={{ p: 2.2 }}>
-                      <Box className={style.flexSpaceBetween}>
-                        {/* ✅ icon beside activity name */}
-                        <Box
-                          sx={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 1,
-                            minWidth: 0,
-                          }}
-                        >
-                          {done ? (
-                            <TaskAltIcon sx={{ fontSize: 26, color: "#2e7d32" }} />
-                          ) : (
-                            <PendingActionsIcon
-                              sx={{ fontSize: 26, color: "#ed6c02" }}
-                            />
-                          )}
-                          <Typography sx={titleSx} noWrap>
-                            {a.activityName}
-                          </Typography>
-                        </Box>
+      {/* ===== Mobile Cards ===== */}
+<Box sx={{ display: { xs: "block", lg: "none" } }}>
+  {filteredActivities.length > 0 ? (
+    filteredActivities.map((a, idx) => {
+      const done = isPastOrToday(a?.date);
 
+      return (
+        <Card key={a.id ?? idx} sx={activityCardSx}>
+          <CardContent sx={{ p: 2.2 }}>
+            
+            {/* ===== Title + Status ===== */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                minWidth: 0, // مهم جداً للـ ellipsis
+              }}
+            >
+              {/* عمود الأيقونة بعرض ثابت */}
+              <Box
+                sx={{
+                  width: 28,
+                  display: "flex",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                {done ? (
+                  <TaskAltIcon
+                    sx={{ fontSize: 24, color: "#2e7d32" }}
+                  />
+                ) : (
+                  <PendingActionsIcon
+                    sx={{ fontSize: 24, color: "#ed6c02" }}
+                  />
+                )}
+              </Box>
 
-                      </Box>
+              {/* اسم النشاط مع ... */}
+              <Typography
+  sx={{
+    ...titleSx,
+    flex: 1,
+    minWidth: 0,
+    whiteSpace: "normal",        // يسمح بالنزول
+    wordBreak: "break-word",     // يكسر الكلمات الطويلة
+    overflowWrap: "anywhere",    // أقوى حل للكلمات الطويلة جداً
+    lineHeight: 1.4
+  }}
+>
+  {a.activityName}
+</Typography>
 
+            </Box>
 
-                      <Box sx={{ mt: 1.2 }}>
-                    
+            {/* ===== Info Section ===== */}
+            <Box sx={{ mt: 1.5 }}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 1.2,
+                }}
+              >
+                <Box className={style.infoPill}>
+                  <Box component="span" sx={infoLabelSx}>
+                    الموقع
+                  </Box>
+                  <Box component="span" sx={infoValueSx}>
+                    {a.location}
+                  </Box>
+                </Box>
 
+                <Box className={style.infoPill}>
+                  <Box component="span" sx={infoLabelSx}>
+                    التاريخ
+                  </Box>
+                  <Box component="span" sx={infoValueSx}>
+                    {a.date}
+                  </Box>
+                </Box>
+              </Box>
 
-                        <Box
-                          sx={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                            gap: 1.2,
-                          }}
-                        >
-                          <Box className={style.infoPill}>
-                            <Box component="span" sx={infoLabelSx}>
-                              الموقع
-                            </Box>
-                            <Box component="span" sx={infoValueSx}>
-                              {a.location}
-                            </Box>
-                          </Box>
+              {/* ===== Details Button ===== */}
+              <Box sx={{ mt: 1.8 }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  component={Link}
+                  to={a?.id ? `/Admin/activity/${a.id}` : "#"}
+                  disabled={!a?.id}
+                  sx={{
+                    ...detailsButtonStyles,
+                    backgroundColor: "#FFF8E1",
+                    color: "#8D6E63",
+                    border: "1px solid rgba(141,110,99,0.35)",
+                    boxShadow: "none",
+                    "&:hover": {
+                      backgroundColor: "#FFECB3",
+                      boxShadow: "none",
+                    },
+                  }}
+                >
+                  تفاصيل النشاط
+                </Button>
+              </Box>
+            </Box>
 
+          </CardContent>
+        </Card>
+      );
+    })
+  ) : (
+    <Typography align="center">لا توجد بيانات</Typography>
+  )}
+</Box>
 
-                          <Box className={style.infoPill}>
-                            <Box component="span" sx={infoLabelSx}>
-                              التاريخ
-                            </Box>
-                            <Box component="span" sx={infoValueSx}>
-                              {a.date}
-                            </Box>
-                          </Box>
-                        </Box>
-
-
-                        <Box sx={{ mt: 1.6 }}>
-                          <Button
-                            fullWidth
-                            variant="contained"
-                            component={Link}
-                            to={a?.id ? `/Admin/activity/${a.id}` : "#"}
-                            disabled={!a?.id}
-                            sx={{
-                              ...detailsButtonStyles,
-                              backgroundColor: "#FFF8E1",
-                              color: "#8D6E63",
-                              border: "1px solid rgba(141,110,99,0.35)",
-                              boxShadow: "none",
-                              "&:hover": {
-                                backgroundColor: "#FFECB3",
-                                boxShadow: "none",
-                              },
-                            }}
-                          >
-                            تفاصيل النشاط
-                          </Button>
-                        </Box>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            ) : (
-              <Typography align="center">لا توجد بيانات</Typography>
-            )}
-          </Box>
         </>
       )}
 
