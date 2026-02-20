@@ -22,6 +22,7 @@ import {
   TextField,
 } from "@mui/material";
 
+
 import { TrendingUp } from "@mui/icons-material";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import BedIcon from "@mui/icons-material/Bed";
@@ -116,7 +117,9 @@ export default function AdminRooms() {
     const rn = (filterRoomNumber || "").trim();
     if (rn) {
       list = list.filter((r) =>
-        String(r.roomNumber ?? "").toLowerCase().includes(rn.toLowerCase())
+        String(r.roomNumber ?? "")
+          .toLowerCase()
+          .includes(rn.toLowerCase()),
       );
     }
 
@@ -131,14 +134,14 @@ export default function AdminRooms() {
         (r) =>
           r.roomTypeName === "درجة أولى" ||
           r.roomTypeName === "FirstClass" ||
-          r.roomType === "FirstClass"
+          r.roomType === "FirstClass",
       );
     } else if (filterDegree === "SecondClass") {
       list = list.filter(
         (r) =>
           r.roomTypeName === "درجة ثانية" ||
           r.roomTypeName === "SecondClass" ||
-          r.roomType === "SecondClass"
+          r.roomType === "SecondClass",
       );
     }
 
@@ -240,7 +243,7 @@ export default function AdminRooms() {
             >
               <MenuItem value="">الكل</MenuItem>
               <MenuItem value="متاحة">متاحة</MenuItem>
-              <MenuItem value="غير متاحة">غير متاحة</MenuItem>
+              <MenuItem value="ممتلئة">ممتلئة</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -270,7 +273,10 @@ export default function AdminRooms() {
       ) : (
         <>
           <Box sx={{ display: { xs: "none", lg: "block" } }}>
-            <Card component={Paper} sx={{ borderRadius: 3, overflow: "hidden" }}>
+            <Card
+              component={Paper}
+              sx={{ borderRadius: 3, overflow: "hidden" }}
+            >
               <CardContent sx={{ p: 0 }}>
                 <Box sx={{ overflowX: "auto" }}>
                   <Table sx={{ minWidth: 650, direction: "rtl" }}>
@@ -282,11 +288,13 @@ export default function AdminRooms() {
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           النوع
                         </TableCell>
-                       
+
+
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           السعة الحالية
                         </TableCell>
-                   
+
+
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           الحالة
                         </TableCell>
@@ -302,8 +310,12 @@ export default function AdminRooms() {
                         filteredRooms.map((r) => (
                           <TableRow key={r.id}>
                             <TableCell align="center">{r.roomNumber}</TableCell>
-                            <TableCell align="center">{r.roomTypeName}</TableCell>
-                            <TableCell align="center">{r.currentCapacity}</TableCell>
+                            <TableCell align="center">
+                              {r.roomTypeName}
+                            </TableCell>
+                            <TableCell align="center">
+                              {r.currentCapacity}
+                            </TableCell>
 
 
                             <TableCell align="center">
@@ -311,9 +323,13 @@ export default function AdminRooms() {
                                 className={style.statusChip}
                                 style={{
                                   backgroundColor:
-                                    r.statusName === "متاحة" ? "#E8F5E9" : "#FFEBEE",
+                                    r.statusName === "متاحة"
+                                      ? "#E8F5E9"
+                                      : "#FFEBEE",
                                   color:
-                                    r.statusName === "متاحة" ? "#2E7D32" : "#C62828",
+                                    r.statusName === "متاحة"
+                                      ? "#2E7D32"
+                                      : "#C62828",
                                   display: "inline-block",
                                 }}
                               >
@@ -388,31 +404,21 @@ export default function AdminRooms() {
                         <Grid size={{ xs: 6 }}>
                           <Box className={style.infoPill}>
                             <span className={style.infoLabel}>النوع</span>
-                            <span className={style.infoValue}>{r.roomTypeName}</span>
+                            <span className={style.infoValue}>
+                              {r.roomTypeName}
+                            </span>
                           </Box>
                         </Grid>
 
 
                         <Grid size={{ xs: 6 }}>
                           <Box className={style.infoPill}>
-                            <span className={style.infoLabel}>السعر</span>
-                            <span className={style.infoValue}>{r.price}</span>
-                          </Box>
-                        </Grid>
-
-
-                        <Grid size={{ xs: 6 }}>
-                          <Box className={style.infoPill}>
-                            <span className={style.infoLabel}>السعة</span>
-                            <span className={style.infoValue}>{r.capacity}</span>
-                          </Box>
-                        </Grid>
-
-
-                        <Grid size={{ xs: 6 }}>
-                          <Box className={style.infoPill}>
-                            <span className={style.infoLabel}>السعة الحالية</span>
-                            <span className={style.infoValue}>{r.currentCapacity}</span>
+                            <span className={style.infoLabel}>
+                              السعة الحالية
+                            </span>
+                            <span className={style.infoValue}>
+                              {r.currentCapacity}
+                            </span>
                           </Box>
                         </Grid>
                       </Grid>

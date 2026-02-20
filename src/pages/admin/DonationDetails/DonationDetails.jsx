@@ -10,6 +10,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControl,
   Grid,
   InputLabel,
@@ -27,6 +28,8 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+
+
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -40,7 +43,7 @@ import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 
 
-// ===== Styles =====
+// ================== Styles ==================
 const headerCardStyles = {
   mb: 3,
   borderRadius: 5,
@@ -51,9 +54,9 @@ const headerCardStyles = {
 
 
 const pageWrapperSx = {
-  p: "16px",
+  p: { xs: 2, md: 4 },
   minHeight: "100vh",
-  background: "#f0f0ea",
+  background: "#f9f9f4",
 };
 
 
@@ -61,18 +64,27 @@ const paperStyle = {
   p: { xs: 2.2, sm: 3.2, md: 4 },
   width: "100%",
   borderRadius: "22px",
-  background: "#f0f0ea",
   border: "1px solid rgba(106, 106, 87, 0.15)",
   boxShadow: "0 10px 34px rgba(0,0,0,0.12)",
+  background: "#f9f9f4",
+};
+
+
+const inputStyle = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "14px",
+    background: "rgba(255,255,255,0.75)",
+  },
 };
 
 
 const toolBtnBase = {
   borderRadius: 3,
   textTransform: "none",
-  fontWeight: 800,
-  px: 2,
-  py: 1.1,
+  fontWeight: 900,
+  px: { xs: 1.5, sm: 2 },
+  py: { xs: 0.8, sm: 1.1 },
+  fontSize: { xs: 12, sm: 13, md: 13 },
 };
 
 
@@ -87,7 +99,7 @@ const editBtnSx = {
     filter: "brightness(0.98)",
     boxShadow: "0 10px 22px rgba(141,110,99,0.2)",
   },
-  "& .MuiButton-startIcon": { ml: 1.2, mr: 0.2 },
+  "& .MuiButton-startIcon": { ml: 1.0, mr: 0.2 },
 };
 
 
@@ -102,7 +114,7 @@ const deleteBtnSx = {
     filter: "brightness(0.98)",
     boxShadow: "0 10px 22px rgba(198,40,40,0.18)",
   },
-  "& .MuiButton-startIcon": { ml: 1.2, mr: 0.2 },
+  "& .MuiButton-startIcon": { ml: 1.0, mr: 0.2 },
 };
 
 
@@ -123,6 +135,21 @@ const statInnerSx = {
 };
 
 
+const statLabelSx = {
+  fontWeight: 900,
+  color: "#6a6a57",
+  fontSize: 14,
+};
+
+
+const statValueSx = {
+  fontWeight: 600,
+  color: "#2f2f27",
+  fontSize: { xs: 17, md: 19 },
+  mt: 0.4,
+};
+
+
 const statIconWrapSx = {
   width: 52,
   height: 52,
@@ -135,17 +162,8 @@ const statIconWrapSx = {
 };
 
 
-const statLabelSx = { fontWeight: 800, color: "#6a6a57", fontSize: 14 };
-const statValueSx = {
-  fontWeight: 800,
-  color: "#2f2f27",
-  fontSize: { xs: 17, md: 19 },
-  mt: 0.4,
-};
-
-
 const sectionTitleSx = {
-  fontWeight: 800,
+  fontWeight: 900,
   color: "#6a6a57",
   mt: 3,
   mb: 1.2,
@@ -167,12 +185,6 @@ const goodsTableShellSx = {
 const fieldLabelSx = { fontWeight: 900, color: "#6a6a57" };
 
 
-const inputSx = {
-  borderRadius: 3,
-  backgroundColor: "rgba(255,255,255,0.9)",
-};
-
-
 const formatMoney = (amount) => {
   if (amount === null || amount === undefined || amount === "") return "-";
   const num = Number(amount);
@@ -187,8 +199,13 @@ const formatMoney = (amount) => {
 export default function DonationDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+
   const theme = useTheme();
-  const isSmallOrMediumScreen = useMediaQuery(theme.breakpoints.down("md")); // <960px
+  const isSmallOrMediumScreen = useMediaQuery(theme.breakpoints.down("md")); // <960
+  const isBetween900And1100 = useMediaQuery(
+    "(min-width:900px) and (max-width:1100px)",
+  );
 
 
   const [loading, setLoading] = useState(true);
@@ -223,6 +240,8 @@ export default function DonationDetails() {
     () => String(donation?.donationType || "").includes("نقد"),
     [donation],
   );
+
+
   const goods = useMemo(() => donation?.goods || [], [donation]);
 
 
@@ -258,8 +277,6 @@ export default function DonationDetails() {
           Array.isArray(data?.goods) && data.goods.length
             ? data.goods[0]
             : null;
-
-
         setEditForm({
           monetaryAmount: "",
           currency: "",
@@ -278,6 +295,7 @@ export default function DonationDetails() {
 
   useEffect(() => {
     fetchDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
 
@@ -297,7 +315,7 @@ export default function DonationDetails() {
   };
 
 
-  // ===== Build payload for PUT (matches your swagger) =====
+  // ===== Build payload for PUT =====
   const buildUpdatePayload = () => {
     const payload = {};
 
@@ -311,11 +329,7 @@ export default function DonationDetails() {
         const amt = Number(amtStr);
         if (!Number.isNaN(amt)) payload.monetaryAmount = amt;
       }
-
-
       if (curStr !== "") payload.currency = curStr;
-
-
       return payload;
     }
 
@@ -429,7 +443,7 @@ export default function DonationDetails() {
             >
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 800, fontSize: { xs: 20, lg: 28 } }}
+                sx={{ fontWeight: "bold", fontSize: { xs: 20, lg: 28 } }}
               >
                 تفاصيل التبرع
               </Typography>
@@ -437,6 +451,8 @@ export default function DonationDetails() {
                 sx={{ fontSize: { xs: 26, lg: 34 }, color: "#fff" }}
               />
             </Box>
+
+
             <Typography
               sx={{
                 opacity: 0.9,
@@ -475,91 +491,87 @@ export default function DonationDetails() {
 
 
       <Paper elevation={0} sx={{ ...paperStyle, maxWidth: 1200, mx: "auto" }}>
-        {/* Title row + actions */}
+        {/* Title row + actions (FIXED for 900-1100px) */}
         <Box
           sx={{
             display: "flex",
-            alignItems: "center",
+            flexDirection: isBetween900And1100
+              ? "column"
+              : { xs: "column", lg: "row" },
+            alignItems: isBetween900And1100
+              ? "stretch"
+              : { xs: "stretch", lg: "center" },
             justifyContent: "space-between",
-            gap: 2,
+            gap: 1.5,
             mb: 3,
             direction: "rtl",
-            flexWrap: "wrap",
           }}
         >
           <Typography
             sx={{
               direction: "rtl",
               textAlign: "right",
-              fontWeight: 800,
-              fontSize: { xs: 18, md: 22 },
+              fontWeight: 900,
+              fontSize: { xs: 16, sm: 18, md: 20, lg: 22 },
               color: "#2f2f27",
-              flex: 1,
-              minWidth: 260,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              whiteSpace: isBetween900And1100
+                ? "normal"
+                : { xs: "normal", lg: "nowrap" },
+              lineHeight: 1.6,
             }}
             title={donation?.donorName}
           >
-            <span>اسم المتبرع :</span>
-            <span
-              style={{
-                display: isSmallOrMediumScreen ? "block" : "inline",
-                marginLeft: isSmallOrMediumScreen ? 0 : 4,
-              }}
-            >
-              {donation?.donorName}
-            </span>
+            <span>اسم المتبرع :</span>{" "}
+            <span style={{ fontWeight: 900 }}>{donation?.donorName}</span>
           </Typography>
 
 
-         <Box
-  sx={{
-    display: "flex",
-    gap: 1,
-    flexWrap: "wrap",
-    flexDirection: isSmallOrMediumScreen ? "row" : "row", // يبقى أفقي على الصغير
-    justifyContent: isSmallOrMediumScreen ? "flex-start" : "flex-end",
-  }}
->
-  <Button
-    startIcon={<EditOutlinedIcon sx={{ fontSize: isSmallOrMediumScreen ? 18 : 20 }} />}
-    variant="contained"
-    onClick={() => setOpenEdit(true)}
-    sx={{
-      ...editBtnSx,
-      px: isSmallOrMediumScreen ? 1.2 : 2,
-      py: isSmallOrMediumScreen ? 0.8 : 1.1,
-      fontSize: isSmallOrMediumScreen ? 13 : "inherit",
-      minWidth: isSmallOrMediumScreen ? 100 : "auto",
-    }}
-  >
-    تعديل التبرع
-  </Button>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              flexWrap: "wrap",
+              justifyContent: isBetween900And1100
+                ? "flex-start"
+                : { xs: "flex-start", lg: "flex-end" },
+              width: isBetween900And1100 ? "100%" : { xs: "100%", lg: "auto" },
+            }}
+          >
+            <Button
+              startIcon={<EditOutlinedIcon />}
+              variant="contained"
+              onClick={() => setOpenEdit(true)}
+              sx={{
+                ...editBtnSx,
+                minWidth: isBetween900And1100 ? 200 : 160,
+              }}
+            >
+              تعديل التبرع
+            </Button>
 
-  <Button
-    startIcon={<DeleteOutlineIcon sx={{ fontSize: isSmallOrMediumScreen ? 18 : 20 }} />}
-    variant="contained"
-    onClick={() => setOpenDelete(true)}
-    sx={{
-      ...deleteBtnSx,
-      px: isSmallOrMediumScreen ? 1.2 : 2,
-      py: isSmallOrMediumScreen ? 0.8 : 1.1,
-      fontSize: isSmallOrMediumScreen ? 13 : "inherit",
-      minWidth: isSmallOrMediumScreen ? 100 : "auto",
-    }}
-  >
-    حذف التبرع
-  </Button>
-</Box>
 
+            <Button
+              startIcon={<DeleteOutlineIcon />}
+              variant="contained"
+              onClick={() => setOpenDelete(true)}
+              sx={{
+                ...deleteBtnSx,
+                minWidth: isBetween900And1100 ? 200 : 160,
+              }}
+            >
+              حذف التبرع
+            </Button>
+          </Box>
         </Box>
 
 
-        {/* Stats */}
+        {/* Stats (FIXED for 900-1100px) */}
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid
+            size={
+              isBetween900And1100 ? { xs: 12, md: 6 } : { xs: 12, sm: 6, lg: 4 }
+            }
+          >
             <Card sx={statCardSx}>
               <Box sx={statInnerSx}>
                 <Box sx={statIconWrapSx}>
@@ -578,7 +590,11 @@ export default function DonationDetails() {
           </Grid>
 
 
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid
+            size={
+              isBetween900And1100 ? { xs: 12, md: 6 } : { xs: 12, sm: 6, lg: 4 }
+            }
+          >
             <Card sx={statCardSx}>
               <Box sx={statInnerSx}>
                 <Box sx={statIconWrapSx}>
@@ -595,45 +611,41 @@ export default function DonationDetails() {
               </Box>
             </Card>
           </Grid>
-          {isCash && (
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Card sx={statCardSx}>
-                <Box sx={statInnerSx}>
-                  <Box sx={statIconWrapSx}>
+
+
+          <Grid
+            size={
+              isBetween900And1100
+                ? { xs: 12 } // ✅ third card goes full-width under them in this range
+                : { xs: 12, sm: 6, lg: 4 }
+            }
+          >
+            <Card sx={statCardSx}>
+              <Box sx={statInnerSx}>
+                <Box sx={statIconWrapSx}>
+                  {isCash ? (
                     <PaymentsOutlinedIcon
                       sx={{ fontSize: 26, color: "#6a6a57" }}
                     />
-                  </Box>
-                  <Box>
-                    <Typography sx={statLabelSx}>المبلغ</Typography>
-                    <Typography sx={statValueSx}>
-                      {formatMoney(donation?.monetaryAmount)}{" "}
-                      {donation?.currency || ""}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Card>
-            </Grid>
-          )}
-          {!isCash && (
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Card sx={statCardSx}>
-                <Box sx={statInnerSx}>
-                  <Box sx={statIconWrapSx}>
+                  ) : (
                     <Inventory2OutlinedIcon
                       sx={{ fontSize: 26, color: "#6a6a57" }}
                     />
-                  </Box>
-                  <Box>
-                    <Typography sx={statLabelSx}>ملخص سريع</Typography>
-                    <Typography sx={statValueSx}>
-                      📦 {donation?.goods?.length || 0} أصناف
-                    </Typography>
-                  </Box>
+                  )}
                 </Box>
-              </Card>
-            </Grid>
-          )}
+                <Box>
+                  <Typography sx={statLabelSx}>
+                    {isCash ? "المبلغ" : "ملخص سريع"}
+                  </Typography>
+                  <Typography sx={statValueSx}>
+                    {isCash
+                      ? `${formatMoney(donation?.monetaryAmount)} ${donation?.currency || ""}`
+                      : `📦 ${donation?.goods?.length || 0} أصناف`}
+                  </Typography>
+                </Box>
+              </Box>
+            </Card>
+          </Grid>
         </Grid>
 
 
@@ -643,7 +655,7 @@ export default function DonationDetails() {
             <Box sx={sectionTitleSx}>
               <Inventory2OutlinedIcon sx={{ color: "#6a6a57" }} />
               <Typography
-                sx={{ fontWeight: 800, color: "#6a6a57", fontSize: 19 }}
+                sx={{ fontWeight: 900, color: "#6a6a57", fontSize: 19 }}
               >
                 تفاصيل التبرع العيني
               </Typography>
@@ -665,7 +677,7 @@ export default function DonationDetails() {
                         background: "rgba(255,255,255,0.85)",
                       }}
                     >
-                      <Typography sx={{ fontWeight: 800, mb: 0.5 }}>
+                      <Typography sx={{ fontWeight: 900, mb: 0.5 }}>
                         {g.nameGood}
                       </Typography>
                       <Typography color="text.secondary">
@@ -743,7 +755,7 @@ export default function DonationDetails() {
                     }))
                   }
                   inputProps={{ inputMode: "decimal" }}
-                  sx={{ "& .MuiInputBase-root": inputSx }}
+                  sx={inputStyle}
                 />
               </Grid>
 
@@ -756,7 +768,7 @@ export default function DonationDetails() {
                   onChange={(e) =>
                     setEditForm((p) => ({ ...p, currency: e.target.value }))
                   }
-                  sx={{ "& .MuiInputBase-root": inputSx }}
+                  sx={inputStyle}
                 />
               </Grid>
 
@@ -770,13 +782,19 @@ export default function DonationDetails() {
           ) : (
             <Grid container spacing={2}>
               <Grid size={{ xs: 12 }}>
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={inputStyle}>
                   <InputLabel sx={fieldLabelSx}>اختر الصنف</InputLabel>
                   <Select
                     label="اختر الصنف"
                     value={editForm.goodId}
                     onChange={(e) => onSelectGood(e.target.value)}
-                    sx={inputSx}
+                    sx={{
+                      borderRadius: "14px",
+                      "& .MuiSelect-select": {
+                        direction: "rtl",
+                        textAlign: "right",
+                      },
+                    }}
                   >
                     {goods.length === 0 ? (
                       <MenuItem value="" disabled>
@@ -802,7 +820,7 @@ export default function DonationDetails() {
                   onChange={(e) =>
                     setEditForm((p) => ({ ...p, nameGood: e.target.value }))
                   }
-                  sx={{ "& .MuiInputBase-root": inputSx }}
+                  sx={inputStyle}
                 />
               </Grid>
 
@@ -816,14 +834,14 @@ export default function DonationDetails() {
                     setEditForm((p) => ({ ...p, quantity: e.target.value }))
                   }
                   inputProps={{ inputMode: "numeric" }}
-                  sx={{ "& .MuiInputBase-root": inputSx }}
+                  sx={inputStyle}
                 />
               </Grid>
 
 
               <Grid size={{ xs: 12 }}>
                 <Typography sx={{ mt: 0.5, color: "#777", fontSize: 13 }}>
-                  ملاحظة: للتبرع العيني يجب اختيار الصنف ، وبعدها تستطيع تعديل
+                  ملاحظة: للتبرع العيني يجب اختيار الصنف، وبعدها تستطيع تعديل
                   الاسم أو الكمية أو الاثنين.
                 </Typography>
               </Grid>
@@ -832,22 +850,30 @@ export default function DonationDetails() {
         </DialogContent>
 
 
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+        <DialogActions sx={{ px: 3, pb: 2, gap: 2 }}>
           <Button
-            variant="outlined"
             onClick={() => setOpenEdit(false)}
             disabled={saving}
-            sx={{ borderRadius: 999, fontWeight: 900, textTransform: "none" }}
+            variant="outlined"
+            sx={{
+              borderRadius: 3,
+              fontWeight: 900,
+              textTransform: "none",
+              color: "#6a6a57",
+              borderColor: "rgba(106,106,87,0.45)",
+              background: "#fff",
+              "&:hover": { borderColor: "rgba(106,106,87,0.85)" },
+            }}
           >
             إلغاء
           </Button>
 
 
           <Button
-            variant="contained"
             onClick={handleUpdate}
             disabled={saving}
-            sx={{ borderRadius: 999, fontWeight: 900, textTransform: "none" }}
+            variant="contained"
+            sx={{ ...editBtnSx, opacity: saving ? 0.8 : 1 }}
           >
             {saving ? "جارٍ الحفظ..." : "حفظ التعديل"}
           </Button>
@@ -862,36 +888,47 @@ export default function DonationDetails() {
         fullWidth
         maxWidth="xs"
       >
-        <DialogTitle sx={{ fontWeight: 900 }}>تأكيد الحذف</DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Typography sx={{ fontWeight: 700 }}>
+        <DialogTitle sx={{ fontWeight: 800, color: "#B71C1C" }}>
+          تأكيد الحذف
+        </DialogTitle>
+
+
+        <DialogContent dividers>
+          <Typography sx={{ fontWeight: 900 }}>
             هل أنت متأكد أنك تريد حذف هذا التبرع؟
           </Typography>
-          <Typography sx={{ mt: 1, color: "#777", fontSize: 13 }}>
+          <Typography sx={{ mt: 1, color: "text.secondary", fontWeight: 800 }}>
             لا يمكن التراجع عن هذه العملية.
           </Typography>
         </DialogContent>
 
 
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+        <DialogActions sx={{ p: 2, gap: 2 }}>
           <Button
-            variant="outlined"
             onClick={() => setOpenDelete(false)}
             disabled={deleting}
-            sx={{ borderRadius: 999, fontWeight: 900, textTransform: "none" }}
+            variant="outlined"
+            sx={{
+              borderRadius: 3,
+              fontWeight: 900,
+              textTransform: "none",
+              color: "#6a6a57",
+              borderColor: "rgba(106,106,87,0.45)",
+              background: "#fff",
+              "&:hover": { borderColor: "rgba(106,106,87,0.85)" },
+            }}
           >
             إلغاء
           </Button>
 
 
           <Button
-            variant="contained"
-            color="error"
             onClick={handleDelete}
             disabled={deleting}
-            sx={{ borderRadius: 999, fontWeight: 900, textTransform: "none" }}
+            variant="contained"
+            sx={{ ...deleteBtnSx, opacity: deleting ? 0.8 : 1 }}
           >
-            {deleting ? "جارٍ الحذف..." : "تأكيد الحذف"}
+            {deleting ? "جارٍ الحذف..." : "حذف"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -905,9 +942,9 @@ export default function DonationDetails() {
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert
+          onClose={closeSnack}
           severity={snackbar.severity}
-          sx={{ width: "100%", fontWeight: 900 }}
-          variant="filled"
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>
@@ -915,8 +952,6 @@ export default function DonationDetails() {
     </Box>
   );
 }
-
-
 
 
 

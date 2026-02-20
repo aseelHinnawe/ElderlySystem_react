@@ -141,8 +141,8 @@ export default function AdminLayout() {
     }
 
 
-    if (path.startsWith("/Admin/elderlies") || path.startsWith("/Admin/elderly")) {
-      setActivePage("المسنين");
+    if (path.startsWith("/Admin/elderlyStay")) {
+      setActivePage("إقامة المسنين");
       setElderlyFolderOpen(true);
       return;
     }
@@ -327,7 +327,10 @@ export default function AdminLayout() {
 
 
               {isSmallScreen && (
-                <IconButton onClick={() => setOpen(false)} sx={{ color: "white" }}>
+                <IconButton
+                  onClick={() => setOpen(false)}
+                  sx={{ color: "white" }}
+                >
                   <Close />
                 </IconButton>
               )}
@@ -342,7 +345,10 @@ export default function AdminLayout() {
         <List sx={{ mt: 1 }}>
           {/* الرئيسية */}
           <ListItem disablePadding>
-            <ListItemButton onClick={() => goTo("الرئيسية", "/Admin")} sx={navBtnSx(open)}>
+            <ListItemButton
+              onClick={() => goTo("الرئيسية", "/Admin")}
+              sx={navBtnSx(open)}
+            >
               <ListItemIcon sx={navIconSx}>
                 <Dashboard />
               </ListItemIcon>
@@ -359,39 +365,43 @@ export default function AdminLayout() {
               </ListItemIcon>
 
 
-            {open && (
-  <Box
-    sx={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      width: "100%",
-      minWidth: 0,
-      overflow: "hidden",
-      gap: 1,
-    }}
-  >
-    <Typography
-      sx={{
-        fontWeight: 700,
-        minWidth: 0,
-        flex: 1,
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-      }}
-    >
-      إدارة المستخدمين
-    </Typography>
+              {open && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    minWidth: 0,
+                    overflow: "hidden",
+                    gap: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      minWidth: 0,
+                      flex: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    إدارة المستخدمين
+                  </Typography>
 
 
-    <Box sx={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
-      {usersFolderOpen ? <ExpandLess /> : <ExpandMore />}
-    </Box>
-  </Box>
-)}
-
-
+                  <Box
+                    sx={{
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {usersFolderOpen ? <ExpandLess /> : <ExpandMore />}
+                  </Box>
+                </Box>
+              )}
             </ListItemButton>
           </ListItem>
 
@@ -399,7 +409,10 @@ export default function AdminLayout() {
           <Collapse in={usersFolderOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("المستخدمين", "/Admin/users")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("المستخدمين", "/Admin/users")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
                     <People fontSize="small" />
                   </ListItemIcon>
@@ -409,11 +422,16 @@ export default function AdminLayout() {
 
 
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("طلبات الإضافة", "/Admin/requests")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("طلبات الإضافة", "/Admin/requests")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
                     <PersonAdd fontSize="small" />
                   </ListItemIcon>
-                  {open && <ListItemText primary="طلبات الإضافة" sx={navTextSx} />}
+                  {open && (
+                    <ListItemText primary="طلبات الإضافة" sx={navTextSx} />
+                  )}
                 </ListItemButton>
               </ListItem>
             </Box>
@@ -451,11 +469,16 @@ export default function AdminLayout() {
           <Collapse in={elderlyFolderOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("المسنين", "/Admin/elderlies")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("إقامة المسنين", "/Admin/elderlyStay")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
-                    <ElderlyWoman fontSize="small" />
+                    <Bed fontSize="small" />
                   </ListItemIcon>
-                  {open && <ListItemText primary="المسنين" sx={navTextSx} />}
+                  {open && (
+                    <ListItemText primary="إقامة المسنين" sx={navTextSx} />
+                  )}
                 </ListItemButton>
               </ListItem>
             </Box>
@@ -493,7 +516,10 @@ export default function AdminLayout() {
           <Collapse in={roomsFolderOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("الغرف", "/Admin/rooms")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("الغرف", "/Admin/rooms")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
                     <Bed fontSize="small" />
                   </ListItemIcon>
@@ -503,11 +529,16 @@ export default function AdminLayout() {
 
 
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("اضافة الغرف", "/Admin/add-room")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("اضافة الغرف", "/Admin/add-room")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
                     <AddHome fontSize="small" />
                   </ListItemIcon>
-                  {open && <ListItemText primary="اضافة الغرف" sx={navTextSx} />}
+                  {open && (
+                    <ListItemText primary="اضافة الغرف" sx={navTextSx} />
+                  )}
                 </ListItemButton>
               </ListItem>
             </Box>
@@ -516,7 +547,10 @@ export default function AdminLayout() {
 
           {/* إدارة الأنشطة */}
           <ListItem disablePadding>
-            <ListItemButton onClick={toggleActivitiesFolder} sx={navBtnSx(open)}>
+            <ListItemButton
+              onClick={toggleActivitiesFolder}
+              sx={navBtnSx(open)}
+            >
               <ListItemIcon sx={navIconSx}>
                 <EventNote />
               </ListItemIcon>
@@ -545,7 +579,10 @@ export default function AdminLayout() {
           <Collapse in={activitiesFolderOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("الأنشطة", "/Admin/activites")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("الأنشطة", "/Admin/activites")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
                     <EventNote fontSize="small" />
                   </ListItemIcon>
@@ -555,7 +592,10 @@ export default function AdminLayout() {
 
 
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("إضافة نشاط", "/Admin/add-activity")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("إضافة نشاط", "/Admin/add-activity")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
                     <AddCircleOutline fontSize="small" />
                   </ListItemIcon>
@@ -597,7 +637,10 @@ export default function AdminLayout() {
           <Collapse in={donationsFolderOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("التبرعات", "/Admin/Donations")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("التبرعات", "/Admin/Donations")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
                     <Payments fontSize="small" />
                   </ListItemIcon>
@@ -607,7 +650,10 @@ export default function AdminLayout() {
 
 
               <ListItem disablePadding>
-                <ListItemButton onClick={() => goTo("إضافة تبرع", "/Admin/add-Donation")} sx={navBtnSx(open, true)}>
+                <ListItemButton
+                  onClick={() => goTo("إضافة تبرع", "/Admin/add-Donation")}
+                  sx={navBtnSx(open, true)}
+                >
                   <ListItemIcon sx={navIconSx}>
                     <AddCircleOutline fontSize="small" />
                   </ListItemIcon>
@@ -690,7 +736,9 @@ export default function AdminLayout() {
         </AppBar>
 
 
-        <Box sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, backgroundColor: "#f0f0ea" }}>
+        <Box
+          sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, backgroundColor: "#f0f0ea" }}
+        >
           <Outlet />
         </Box>
       </Box>

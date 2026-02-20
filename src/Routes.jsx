@@ -17,8 +17,6 @@ import AdminUsers from "./pages/admin/AdminUsers/AdminUsers";
 import ProtectedRouter from "./component/protected/ProtectedRouter";
 import AdminRequest from "./pages/admin/AdminRequest/AdminRequest";
 import UserDetail from "./pages/admin/UserDetail/UserDetail";
-import AdminElderlies from "./pages/admin/AdminElderlies/AdminElderlies";
-import AdminElderliesRequest from "./pages/admin/AdminElderliesRequest/AdminElderliesRequest";
 import AdminRooms from "./pages/admin/AdminRooms/AdminRooms";
 import AddRoom from "./pages/admin/AddRoom/AddRoom";
 import ElderlyDetails from "./pages/admin/ElderlyDetails/ElderlyDetails";
@@ -31,6 +29,7 @@ import AddDonation from "./pages/admin/AddDonation/AddDonation";
 import DonationDetails from "./pages/admin/DonationDetails/DonationDetails";
 import CompleteInfoElderly from "./pages/sponsor/completeInfoElderly/CompleteInfoElderly";
 import HomeSponsore from "./pages/sponsor/HomeSponsore/HomeSponsore";
+import ElderlyStays from "./pages/admin/ElderlyStays/ElderlyStays";
 
 const router = createBrowserRouter([
   {
@@ -105,14 +104,6 @@ const router = createBrowserRouter([
       path: "user/:id",      
       element: <UserDetail />,
     },
-    {
-        path: "elderlies",
-        element: <AdminElderlies />,
-      },
-      {
-        path: "elderliesRequest",
-        element: <AdminElderliesRequest />,
-      },
       {
       path: "rooms",
       element: <AdminRooms />,
@@ -153,6 +144,10 @@ const router = createBrowserRouter([
        {
         path: "Donation/:id",
         element: <DonationDetails />,
+      },
+      {
+        path: "elderlyStay",
+        element: <ElderlyStays />,
       },
   ],
   },

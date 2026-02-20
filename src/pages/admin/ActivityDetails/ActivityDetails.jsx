@@ -29,7 +29,8 @@ import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
-import style from './ActivityDetails.module.css'
+import style from "./ActivityDetails.module.css";
+
 
 import { useNavigate, useParams } from "react-router-dom";
 import AxiosUserInstance from "../../../api/AxiosUserInstance.jsx";
@@ -43,6 +44,7 @@ const headerCardStyles = {
   color: "#fff",
   boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
 };
+
 
 const paperStyle = {
   p: { xs: 2.2, sm: 3.2, md: 4 },
@@ -60,9 +62,9 @@ const orgChipSx = {
   fontSize: { xs: 14.5, md: 18.5 },
   border: "1px solid rgba(200,200,200,0.4)", // حدود رمادية فاتحة
   background: "#ffffff", // لون أبيض
-  color: "#2f2f27",      // لون الخط داكن
+  color: "#2f2f27", // لون الخط داكن
   boxShadow: "0 4px 10px rgba(0,0,0,0.05)", // ظل خفيف
-  cursor: "default",      // مؤشر عادي
+  cursor: "default", // مؤشر عادي
 };
 
 
@@ -73,11 +75,12 @@ const inputStyle = {
   },
 };
 
+
 const toolBtnBase = {
   borderRadius: 3,
   textTransform: "none",
   fontWeight: 900,
-  px: { xs: 1.5, sm: 2 },    // أصغر على شاشات xs
+  px: { xs: 1.5, sm: 2 }, // أصغر على شاشات xs
   py: { xs: 0.8, sm: 1.1 },
   fontSize: { xs: 12, sm: 13, md: 13 }, // حجم خط أصغر على الموبايل
 };
@@ -121,12 +124,14 @@ const statCardSx = {
   overflow: "hidden",
 };
 
+
 const statInnerSx = {
   p: 2.2,
   display: "flex",
   alignItems: "center",
   gap: 1.6,
 };
+
 
 const statLabelSx = { fontWeight: 900, color: "#6a6a57", fontSize: 14 };
 const statValueSx = {
@@ -135,6 +140,7 @@ const statValueSx = {
   fontSize: { xs: 17, md: 19 },
   mt: 0.4,
 };
+
 
 const descBoxSx = {
   mt: 2.2,
@@ -156,28 +162,47 @@ function ddmmyyyy_to_yyyymmdd(s) {
   return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
 }
 
+
 export default function ActivityDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+
   const [loading, setLoading] = useState(true);
   const [activity, setActivity] = useState(null);
 
-  const [snackbar, setSnackbar] = useState({ open: false, severity: "success", message: "" });
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
   const [openDelete, setOpenDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [saving, setSaving] = useState(false);
 
+
   const [editForm, setEditForm] = useState({
-    activityName: "", description: "", location: "", date: "", startTime: "",
-    updateParticipantId: "", updateOrganizationName: ""
+    activityName: "",
+    description: "",
+    location: "",
+    date: "",
+    startTime: "",
+    updateParticipantId: "",
+    updateOrganizationName: "",
   });
+
 
   const orgs = useMemo(() => activity?.activityOrganizations || [], [activity]);
 
-  const showSnack = (severity, message) => setSnackbar({ open: true, severity, message });
-  const closeSnack = (_, reason) => { if (reason !== "clickaway") setSnackbar(s => ({ ...s, open: false })); }
+
+  const showSnack = (severity, message) =>
+    setSnackbar({ open: true, severity, message });
+  const closeSnack = (_, reason) => {
+    if (reason !== "clickaway") setSnackbar((s) => ({ ...s, open: false }));
+  };
+
 
   const fetchDetails = async () => {
     setLoading(true);
@@ -196,10 +221,16 @@ export default function ActivityDetails() {
       });
     } catch (e) {
       showSnack("error", "فشل جلب تفاصيل النشاط");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchDetails(); }, [id]);
+
+  useEffect(() => {
+    fetchDetails();
+  }, [id]);
+
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -209,8 +240,12 @@ export default function ActivityDetails() {
       setTimeout(() => navigate("/Admin/activites"), 400);
     } catch (e) {
       showSnack("error", e?.response?.data?.message || "فشل حذف النشاط");
-    } finally { setDeleting(false); setOpenDelete(false); }
+    } finally {
+      setDeleting(false);
+      setOpenDelete(false);
+    }
   };
+
 
   const buildUpdatePayload = () => {
     const payload = {
@@ -227,6 +262,7 @@ export default function ActivityDetails() {
     return payload;
   };
 
+
   const handleUpdate = async () => {
     setSaving(true);
     try {
@@ -237,11 +273,16 @@ export default function ActivityDetails() {
       await fetchDetails();
     } catch (e) {
       showSnack("error", e?.response?.data?.message || "فشل تعديل النشاط");
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   };
 
+
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, background: "#f9f9f4", minHeight: "100vh" }}>
+    <Box
+      sx={{ p: { xs: 2, md: 4 }, background: "#f9f9f4", minHeight: "100vh" }}
+    >
       {/* ===== Header ===== */}
       <Card sx={headerCardStyles}>
         <CardContent
@@ -302,83 +343,119 @@ export default function ActivityDetails() {
         </CardContent>
       </Card>
 
+
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}><CircularProgress /></Box>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+          <CircularProgress />
+        </Box>
       ) : !activity ? (
-        <Typography align="center" sx={{ mt: 6 }}>لا توجد بيانات</Typography>
+        <Typography align="center" sx={{ mt: 6 }}>
+          لا توجد بيانات
+        </Typography>
       ) : (
-        <Grid container spacing={3} maxWidth={1200} mx="auto" alignItems="stretch">
+        <Grid
+          container
+          spacing={3}
+          maxWidth={1200}
+          mx="auto"
+          alignItems="stretch"
+        >
           {/* ===== Activity Main Info ===== */}
-<Grid size={{ xs: 12, md: 8 }} display="flex" flexDirection="column" gap={3}>
-  
-  {/* اسم النشاط */}
-  <Paper
-    sx={{
-      ...paperStyle,
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      flexWrap: "wrap",
-      gap: 1,
-    }}
-  >
-   <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-  <Typography sx={{ fontWeight: 900, fontSize: { xs: 20, md: 25, lg: 27 }, color: "#545445" }}>
-   اسم النشاط:
-  </Typography>
-  <Typography sx={{ fontSize: { xs: 18, md: 23, lg: 25 }, fontWeight: 900, color: "#545445"}}>
-    {activity.activityName}
-  </Typography>
-</Box>
+          <Grid
+            size={{ xs: 12, md: 8 }}
+            display="flex"
+            flexDirection="column"
+            gap={3}
+          >
+            {/* اسم النشاط */}
+            <Paper
+              sx={{
+                ...paperStyle,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontWeight: 900,
+                    fontSize: { xs: 20, md: 25, lg: 27 },
+                    color: "#545445",
+                  }}
+                >
+                  اسم النشاط:
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: { xs: 18, md: 23, lg: 25 },
+                    fontWeight: 900,
+                    color: "#545445",
+                  }}
+                >
+                  {activity.activityName}
+                </Typography>
+              </Box>
 
 
-    <Box sx={{ display: "flex", gap: 1 }}>
-      <Button
-        startIcon={<EditOutlinedIcon />}
-        variant="contained"
-        sx={editBtnSx}
-        onClick={() => setOpenEdit(true)}
-      >
-        تعديل النشاط
-      </Button>
-      <Button
-        startIcon={<DeleteOutlineIcon />}
-        variant="contained"
-        sx={deleteBtnSx}
-        onClick={() => setOpenDelete(true)}
-      >
-        حذف النشاط
-      </Button>
-    </Box>
-  </Paper>
-
-  {/* الوصف */}
-  <Paper
-    sx={{
-      ...paperStyle,
-      flexGrow: 1,        // ✨ يخليه يتمدد
-      display: "flex",
-      flexDirection: "column",
-    }}
-  >
-    <Typography sx={{ fontWeight: 900, fontSize: 18, mb: 1 }}>
-      الوصف
-    </Typography>
-
-    <Typography sx={{ fontSize: 16, lineHeight: 1.8, flexGrow: 1 }}>
-      {activity.description}
-    </Typography>
-  </Paper>
-</Grid>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button
+                  startIcon={<EditOutlinedIcon />}
+                  variant="contained"
+                  sx={editBtnSx}
+                  onClick={() => setOpenEdit(true)}
+                >
+                  تعديل النشاط
+                </Button>
+                <Button
+                  startIcon={<DeleteOutlineIcon />}
+                  variant="contained"
+                  sx={deleteBtnSx}
+                  onClick={() => setOpenDelete(true)}
+                >
+                  حذف النشاط
+                </Button>
+              </Box>
+            </Paper>
 
 
+            {/* الوصف */}
+            <Paper
+              sx={{
+                ...paperStyle,
+                flexGrow: 1, // ✨ يخليه يتمدد
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Typography sx={{ fontWeight: 900, fontSize: 18, mb: 1 }}>
+                الوصف
+              </Typography>
+
+
+              <Typography sx={{ fontSize: 16, lineHeight: 1.8, flexGrow: 1 }}>
+                {activity.description}
+              </Typography>
+            </Paper>
+          </Grid>
 
 
           {/* ===== Stats Cards ===== */}
-          <Grid size={{ xs: 12, md: 4 }}
-  display="flex"
-  flexDirection="column"
-  gap={2}>
+          <Grid
+            size={{ xs: 12, md: 4 }}
+            display="flex"
+            flexDirection="column"
+            gap={2}
+          >
             <Card sx={statCardSx}>
               <Box sx={statInnerSx}>
                 <PlaceOutlinedIcon sx={{ fontSize: 26, color: "#6a6a57" }} />
@@ -389,15 +466,19 @@ export default function ActivityDetails() {
               </Box>
             </Card>
 
+
             <Card sx={statCardSx}>
               <Box sx={statInnerSx}>
-                <CalendarMonthOutlinedIcon sx={{ fontSize: 26, color: "#6a6a57" }} />
+                <CalendarMonthOutlinedIcon
+                  sx={{ fontSize: 26, color: "#6a6a57" }}
+                />
                 <Box>
                   <Typography sx={statLabelSx}>التاريخ</Typography>
                   <Typography sx={statValueSx}>{activity.date}</Typography>
                 </Box>
               </Box>
             </Card>
+
 
             <Card sx={statCardSx}>
               <Box sx={statInnerSx}>
@@ -410,17 +491,25 @@ export default function ActivityDetails() {
             </Card>
           </Grid>
 
+
           {/* ===== Participating Organizations ===== */}
-          <Grid size={{xs:12}}>
+          <Grid size={{ xs: 12 }}>
             <Paper sx={{ ...paperStyle }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <BusinessOutlinedIcon sx={{ mr: 1, color: "#6a6a57" }} />
-                <Typography sx={{ fontWeight: 900, fontSize: 18 ,mr:1}}>الجهات المشاركة</Typography>
+                <Typography sx={{ fontWeight: 900, fontSize: 18, mr: 1 }}>
+                  الجهات المشاركة
+                </Typography>
               </Box>
+
 
               {orgs.length > 0 ? (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.2 }}>
-                  {orgs.map(o => <Box key={o.id} sx={orgChipSx}>{o.organizationName}</Box>)}
+                  {orgs.map((o) => (
+                    <Box key={o.id} sx={orgChipSx}>
+                      {o.organizationName}
+                    </Box>
+                  ))}
                 </Box>
               ) : (
                 <Typography sx={{ fontWeight: 900 }}>لا توجد جهات</Typography>
@@ -429,13 +518,289 @@ export default function ActivityDetails() {
           </Grid>
         </Grid>
       )}
+      {/* ===== Edit Dialog ===== */}
+      <Dialog
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 900 }}>تعديل النشاط</DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="اسم النشاط"
+                value={editForm.activityName}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, activityName: e.target.value }))
+                }
+                sx={{
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-input": {
+                    direction: "rtl",
+                    textAlign: "right",
+                  },
+                }}
+              />
+            </Grid>
 
 
-      
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="الموقع"
+                value={editForm.location}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, location: e.target.value }))
+                }
+                sx={{
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-input": {
+                    direction: "rtl",
+                    textAlign: "right",
+                  },
+                }}
+              />
+            </Grid>
+
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="الوصف"
+                value={editForm.description}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, description: e.target.value }))
+                }
+                multiline
+                minRows={3}
+                sx={{
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-input": {
+                    direction: "rtl",
+                    textAlign: "right",
+                  },
+                }}
+              />
+            </Grid>
+
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="التاريخ"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={editForm.date}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, date: e.target.value }))
+                }
+                sx={inputStyle}
+              />
+            </Grid>
+
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="وقت البداية"
+                placeholder="مثال: 10 صباحا"
+                value={editForm.startTime}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, startTime: e.target.value }))
+                }
+                sx={{
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-input": {
+                    direction: "rtl",
+                    textAlign: "right",
+                  },
+                }}
+              />
+            </Grid>
+
+
+            <Grid size={{ xs: 12 }}>
+              <Divider sx={{ my: 1 }} />
+              <Typography sx={{ color: "#6a6a57", mb: 1 }}>
+                تعديل جهة واحدة (اختياري)
+              </Typography>
+
+
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormControl fullWidth sx={inputStyle}>
+                    <InputLabel>اختر الجهة</InputLabel>
+                    <Select
+                      label="اختر الجهة"
+                      value={editForm.updateParticipantId}
+                      onChange={(e) =>
+                        setEditForm((p) => ({
+                          ...p,
+                          updateParticipantId: e.target.value,
+                        }))
+                      }
+                      sx={{
+                        borderRadius: "14px",
+                        "& .MuiSelect-select": {
+                          direction: "rtl",
+                          textAlign: "right",
+                        },
+                      }}
+                    >
+                      <MenuItem value="">بدون</MenuItem>
+                      {orgs.map((o) => (
+                        <MenuItem key={o.id} value={o.id}>
+                          {o.organizationName}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="اسم الجهة الجديد"
+                    value={editForm.updateOrganizationName}
+                    onChange={(e) =>
+                      setEditForm((p) => ({
+                        ...p,
+                        updateOrganizationName: e.target.value,
+                      }))
+                    }
+                    sx={{
+                      ...inputStyle,
+                      "& .MuiOutlinedInput-input": {
+                        direction: "rtl",
+                        textAlign: "right",
+                      },
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+
+        <DialogActions sx={{ p: 2, gap: 2 }}>
+          <Button
+            onClick={() => setOpenEdit(false)}
+            variant="outlined"
+            sx={{
+              borderRadius: 3,
+              fontWeight: 900,
+              textTransform: "none",
+              color: "#6a6a57",
+              minWidth: { xs: 100, sm: 140 },
+              px: { xs: 1.5, sm: 2 },
+              py: { xs: 0.8, sm: 1.1 },
+              borderColor: "rgba(106,106,87,0.45)",
+              background: "#fff",
+              "&:hover": { borderColor: "rgba(106,106,87,0.85)" },
+            }}
+          >
+            إلغاء
+          </Button>
+
+
+          <Button
+            onClick={handleUpdate}
+            disabled={saving}
+            variant="contained"
+            sx={{
+              ...editBtnSx,
+              minWidth: { xs: 100, sm: 140 },
+              px: { xs: 1.5, sm: 2 },
+              py: { xs: 0.8, sm: 1.1 },
+              opacity: saving ? 0.8 : 1,
+            }}
+          >
+            {saving ? "جارٍ الحفظ..." : "حفظ التعديل"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+      {/* ===== Delete Dialog ===== */}
+      <Dialog
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 800, color: "#B71C1C" }}>
+          تأكيد حذف النشاط
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography sx={{ fontWeight: 900 }}>
+            هل أنت متأكد أنك تريد حذف هذا النشاط؟
+          </Typography>
+          <Typography sx={{ mt: 1, color: "text.secondary", fontWeight: 800 }}>
+            هذا الإجراء لا يمكن التراجع عنه.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 2 }}>
+          <Button
+            onClick={() => setOpenDelete(false)}
+            variant="outlined"
+            sx={{
+              borderRadius: 3,
+              fontWeight: 900,
+              textTransform: "none",
+              color: "#6a6a57",
+              minWidth: { xs: 90, sm: 140 },
+              px: { xs: 1, sm: 2 },
+              py: { xs: 0.6, sm: 1.1 },
+              borderColor: "rgba(106,106,87,0.45)",
+              background: "#fff",
+              "&:hover": { borderColor: "rgba(106,106,87,0.85)" },
+            }}
+          >
+            إلغاء
+          </Button>
+
+
+          <Button
+            onClick={handleDelete}
+            disabled={deleting}
+            variant="contained"
+            sx={{
+              ...deleteBtnSx,
+              minWidth: { xs: 90, sm: 130 },
+              px: { xs: 1, sm: 2 },
+              py: { xs: 0.6, sm: 1.1 },
+              opacity: deleting ? 0.8 : 1,
+            }}
+          >
+            {deleting ? "جارٍ الحذف..." : "حذف"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={closeSnack}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={closeSnack}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
-
 
 
 
