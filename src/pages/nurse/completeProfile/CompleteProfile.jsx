@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import CompleteNurseProfileSchema from "../../../validations/CompleteNurseProfileSchema";
 
+
 const paperStyle = {
   p: 4,
   maxWidth: 700,
@@ -28,6 +29,7 @@ const paperStyle = {
   border: "1px solid rgba(106, 106, 87, 0.15)",
   boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
 };
+
 
 const inputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -41,12 +43,14 @@ const inputStyle = {
   },
 };
 
+
 export default function CompleteProfile() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); // <-- حالة لرسالة الخطأ
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
 
   const {
     control,
@@ -65,22 +69,26 @@ export default function CompleteProfile() {
     },
   });
 
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "workExperiences",
   });
 
-    const onSubmit = async (data) => {
-    setLoading(true);
-    setErrorMessage(""); 
 
-      // إزالة أي عنصر خبرة فارغ تمامًا
-  if (data.workExperiences) {
-    data.workExperiences = data.workExperiences.filter(
-      (w) => w.workName || w.workLocation || w.jobTitle
-    );
-  }
-  
+  const onSubmit = async (data) => {
+    setLoading(true);
+    setErrorMessage("");
+
+
+    // إزالة أي عنصر خبرة فارغ تمامًا
+    if (data.workExperiences) {
+      data.workExperiences = data.workExperiences.filter(
+        (w) => w.workName || w.workLocation || w.jobTitle,
+      );
+    }
+
+
     try {
       const response = await axios.post(
         "https://localhost:7160/api/Nurse/complete",
@@ -89,15 +97,15 @@ export default function CompleteProfile() {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
       if (response.status === 200) {
         setSnackbarMessage("تم حفظ البيانات بنجاح!");
         setSnackbarOpen(true);
-
-        // بعد 2 ثانية حول المستخدم
+        const newToken = response.data.data.token;
+        localStorage.setItem("token", newToken);
         setTimeout(() => {
-          navigate("/Nurse");
+          navigate("/Nurse" , { replace: true });
         }, 2000);
       }
     } catch (error) {
@@ -114,6 +122,7 @@ export default function CompleteProfile() {
     setSnackbarOpen(false);
   };
 
+
   return (
     <Box
       sx={{
@@ -129,9 +138,16 @@ export default function CompleteProfile() {
         <Typography variant="h5" textAlign="center" mb={3}>
           إكمال ملف الممرض
         </Typography>
-        <Typography variant="body2" color="text.secondary" textAlign="center" mb={3} sx={{ fontWeight: 300 }}>
-    هذه البيانات يجب إكمالها أولاً
-  </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          textAlign="center"
+          mb={3}
+          sx={{ fontWeight: 300 }}
+        >
+          هذه البيانات يجب إكمالها أولاً
+        </Typography>
+
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>
@@ -154,6 +170,7 @@ export default function CompleteProfile() {
               </TextField>
             </Grid>
 
+
             {/* Marital */}
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
@@ -173,6 +190,7 @@ export default function CompleteProfile() {
               </TextField>
             </Grid>
 
+
             <Grid size={{ xs: 12 }}>
               <TextField
                 label="مجال الدراسة (التخصص)"
@@ -180,9 +198,16 @@ export default function CompleteProfile() {
                 {...register("fieldOfStudy")}
                 error={!!errors.fieldOfStudy}
                 helperText={errors.fieldOfStudy?.message}
-                sx={{ ...inputStyle, "& .MuiOutlinedInput-input": { direction: "rtl", textAlign: "right" } }} 
+                sx={{
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-input": {
+                    direction: "rtl",
+                    textAlign: "right",
+                  },
+                }}
               />
             </Grid>
+
 
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
@@ -196,6 +221,7 @@ export default function CompleteProfile() {
               />
             </Grid>
 
+
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="سنة التخرج"
@@ -207,11 +233,18 @@ export default function CompleteProfile() {
               />
             </Grid>
 
+
             <Grid size={{ xs: 12 }}>
-        <Typography variant="body2" color="text.secondary" mt={3} sx={{ fontWeight: 300 }}>
-  إذا كان لديك خبرة سابقة، يرجى ملؤها، وإذا لم تكن لديك خبرة يمكنك تخطي هذا القسم
-</Typography>
-      </Grid>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                mt={3}
+                sx={{ fontWeight: 300 }}
+              >
+                إذا كان لديك خبرة سابقة، يرجى ملؤها، وإذا لم تكن لديك خبرة يمكنك
+                تخطي هذا القسم
+              </Typography>
+            </Grid>
 
 
             {/* Work Experience */}
@@ -230,6 +263,7 @@ export default function CompleteProfile() {
                   خبرة عملية #{index + 1}
                 </Typography>
 
+
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12, md: 4 }}>
                     <TextField
@@ -240,6 +274,7 @@ export default function CompleteProfile() {
                     />
                   </Grid>
 
+
                   <Grid size={{ xs: 12, md: 4 }}>
                     <TextField
                       label="موقع العمل"
@@ -248,6 +283,7 @@ export default function CompleteProfile() {
                       sx={inputStyle}
                     />
                   </Grid>
+
 
                   <Grid size={{ xs: 12, md: 4 }}>
                     <TextField
@@ -258,6 +294,7 @@ export default function CompleteProfile() {
                     />
                   </Grid>
                 </Grid>
+
 
                 {fields.length > 1 && (
                   <Button
@@ -276,6 +313,7 @@ export default function CompleteProfile() {
               </Grid>
             ))}
 
+
             <Grid size={{ xs: 12 }}>
               <Button
                 onClick={() =>
@@ -289,6 +327,7 @@ export default function CompleteProfile() {
                 + إضافة خبرة
               </Button>
             </Grid>
+
 
             <Grid size={{ xs: 12 }}>
               <Button
@@ -309,23 +348,26 @@ export default function CompleteProfile() {
           </Grid>
         </Box>
       </Paper>
-       {/* Snackbar للنجاح */}
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={3000}
+      {/* Snackbar للنجاح */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
           onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          severity="success"
+          sx={{ width: "100%", fontWeight: 600 }}
+          elevation={6}
+          variant="filled"
         >
-          <Alert
-            onClose={handleSnackbarClose}
-            severity="success"
-            sx={{ width: "100%", fontWeight: 600 }}
-            elevation={6}
-            variant="filled"
-          >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
+
+
+

@@ -58,11 +58,13 @@ const passwordInputStyles = {
   },
 };
 
+
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
   const handleMouseDownPassword = (event) => event.preventDefault();
   const navigate = useNavigate();
+
 
   const loginForm = useForm({
     resolver: yupResolver(LoginSchema),
@@ -82,6 +84,7 @@ export default function Login() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
+
   const [error, setError] = useState("");
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") return;
@@ -93,8 +96,9 @@ export default function Login() {
     try {
       const response = await axios.post(
         "https://localhost:7160/api/Identity/Account/login",
-        data
+        data,
       );
+
 
       if (response.status === 200) {
         reset();
@@ -108,7 +112,11 @@ export default function Login() {
         if (role === "Admin") {
           navigate("/Admin");
         } else if (role === "Sponsor") {
-          navigate("/Sponsor");
+          if (response.data.data.isProfileCompleted === true) {
+            navigate("/Sponsor");
+          } else {
+            navigate("/Sponsor/Verfiy-Link");
+          }
         } else if (role === "Nurse") {
           if (response.data.data.isProfileCompleted === true) {
             navigate("/Nurse");
@@ -118,11 +126,12 @@ export default function Login() {
         }
       }
     } catch (err) {
-  setError(err.response?.data?.message || "حدث خطأ");
-} finally {
+      setError(err.response?.data?.message || "حدث خطأ");
+    } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <Box className={style.authWrapper}>
@@ -130,6 +139,7 @@ export default function Login() {
         <Typography variant="h5" textAlign="center" mb={2}>
           تسجيل الدخول
         </Typography>
+
 
         <Box
           component="form"
@@ -151,6 +161,7 @@ export default function Login() {
               />
             </Grid>
 
+
             <Grid size={{ xs: 12 }}>
               <FormControl
                 fullWidth
@@ -158,6 +169,7 @@ export default function Login() {
                 className={style.glassInput}
               >
                 <InputLabel htmlFor="password">كلمة المرور</InputLabel>
+
 
                 <OutlinedInput
                   id="password"
@@ -185,6 +197,7 @@ export default function Login() {
               </FormControl>
             </Grid>
 
+
             {error && (
               <Grid size={{ xs: 12 }}>
                 <Typography color="error" textAlign="center">
@@ -192,6 +205,7 @@ export default function Login() {
                 </Typography>
               </Grid>
             )}
+
 
             <Grid size={{ xs: 12 }}>
               <Button
@@ -204,6 +218,7 @@ export default function Login() {
                 {loading ? "جار الدخول..." : "تسجيل الدخول"}
               </Button>
             </Grid>
+
 
             <Grid size={{ xs: 12 }}>
               <Typography variant="body2" textAlign="center" sx={{ mt: 2 }}>
@@ -242,3 +257,4 @@ export default function Login() {
     </Box>
   );
 }
+

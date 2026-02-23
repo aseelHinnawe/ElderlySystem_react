@@ -27,96 +27,124 @@ import ActivityDetails from "./pages/admin/ActivityDetails/ActivityDetails";
 import Donation from "./pages/admin/Donation/Donation";
 import AddDonation from "./pages/admin/AddDonation/AddDonation";
 import DonationDetails from "./pages/admin/DonationDetails/DonationDetails";
-import CompleteInfoElderly from "./pages/sponsor/completeInfoElderly/CompleteInfoElderly";
 import HomeSponsore from "./pages/sponsor/HomeSponsore/HomeSponsore";
 import ElderlyStays from "./pages/admin/ElderlyStays/ElderlyStays";
+import VerfiyLink from "./pages/sponsor/VerfiyLink/VerfiyLink.jsx";
+import AddElderly from "./pages/sponsor/AddElderly/AddElderly.jsx";
+import AddElderlyLink from "./pages/sponsor/AddElderlyLink/AddElderlyLink.jsx";
+import AuthProtectedRoute from "./component/protected/AuthProtectedRoute.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,
-    children:[
-        {
-        index:true,
-        element:<Home />
-        },
-    ]
+    children: [
+      {
+        index: true,
+        element: (
+          <AuthProtectedRoute>
+            <Home />
+          </AuthProtectedRoute>
+        ),
+      },
+    ],
   },
   {
     element: <AuthLayout />,
     children: [
       {
         path: "/login",
-        element: <Login />
-         },
-      { 
+        element: (
+          <AuthProtectedRoute>
+            <Login />
+          </AuthProtectedRoute>
+        ),
+      },
+      {
         path: "/register",
-        element: <Register /> 
+        element: (
+          <AuthProtectedRoute>
+            <Register />
+          </AuthProtectedRoute>
+        ),
       },
       {
-        path:'/forgot-password',
-        element:<ForgetPassword />
+        path: "/forgot-password",
+        element: (
+          <AuthProtectedRoute>
+            <ForgetPassword />
+          </AuthProtectedRoute>
+        ),
       },
       {
-        path:'/reset-password',
-        element:<ResetPassword />
+        path: "/reset-password",
+        element: (
+          <AuthProtectedRoute>
+            <ResetPassword />
+          </AuthProtectedRoute>
+        ),
       },
     ],
   },
   {
-    path:'/Nurse',
-    element: <NurseLayout />,
+    path: "/Nurse",
+    element: (
+      <ProtectedRouter>
+        <NurseLayout />
+      </ProtectedRouter>
+    ),
     children: [
       {
         index: true,
         element: <HomeNurse />,
       },
       {
-        path:'completeProfile',
+        path: "completeProfile",
         element: <CompleteProfile />,
       },
-    ]
+    ],
   },
   {
-    path:'/Admin',
-    element: 
-    <ProtectedRouter>
-     <AdminLayout />
-     </ProtectedRouter>,
+    path: "/Admin",
+    element: (
+      <ProtectedRouter>
+        <AdminLayout />
+      </ProtectedRouter>
+    ),
     children: [
-    {
-      index: true,
-      element: <AdminHome />,
-    },
-    {
-      path: 'users',
-      element: <AdminUsers />,
-    },
-    {
-      path: 'profile',
-      element: <AdminProfile />,
-    },
-    {
-      path: 'requests',
-      element: <AdminRequest />,
-    },
-    {
-      path: "user/:id",      
-      element: <UserDetail />,
-    },
       {
-      path: "rooms",
-      element: <AdminRooms />,
+        index: true,
+        element: <AdminHome />,
+      },
+      {
+        path: "users",
+        element: <AdminUsers />,
+      },
+      {
+        path: "profile",
+        element: <AdminProfile />,
+      },
+      {
+        path: "requests",
+        element: <AdminRequest />,
+      },
+      {
+        path: "user/:id",
+        element: <UserDetail />,
+      },
+      {
+        path: "rooms",
+        element: <AdminRooms />,
       },
       {
         path: "add-room",
         element: <AddRoom />,
       },
       {
-      path: "room/:id",
-      element: <RoomDetails />,
+        path: "room/:id",
+        element: <RoomDetails />,
       },
-      
+
       {
         path: "elderly/:id",
         element: <ElderlyDetails />,
@@ -141,7 +169,7 @@ const router = createBrowserRouter([
         path: "add-Donation",
         element: <AddDonation />,
       },
-       {
+      {
         path: "Donation/:id",
         element: <DonationDetails />,
       },
@@ -149,23 +177,34 @@ const router = createBrowserRouter([
         path: "elderlyStay",
         element: <ElderlyStays />,
       },
-  ],
+    ],
   },
   {
-    path:'/Sponsor',
-    element: <SponsorLayout/>,
-    children: [ 
+    path: "/Sponsor",
+    element: (
+      <ProtectedRouter>
+        <SponsorLayout />
+      </ProtectedRouter>
+    ),
+    children: [
       {
         index: true,
         element: <HomeSponsore />,
-      },    
-      {
-        path:'completeInfoElderly',
-        element: <CompleteInfoElderly />,
       },
-    ]
+      {
+        path: "Verfiy-Link",
+        element: <VerfiyLink />,
+      },
+      {
+        path: "Add-Elderly",
+        element: <AddElderly />,
+      },
+      {
+        path: "Add-Elderly-Link",
+        element: <AddElderlyLink />,
+      },
+    ],
   },
-  
 ]);
 
 export default router;
