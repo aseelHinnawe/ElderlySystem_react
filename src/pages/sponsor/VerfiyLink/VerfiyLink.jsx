@@ -131,7 +131,7 @@ export default function VerfiyLink() {
           mb={3}
           sx={{ fontWeight: 300 }}
         >
-          أدخل رقم هوية المسن ورقم هوية الكفيل للتحقق
+          أدخل رقم هوية المسن ورقم هوية الكفيل الاخر للتحقق
         </Typography>
 
 
@@ -159,7 +159,7 @@ export default function VerfiyLink() {
 
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label="رقم هوية الكفيل"
+                label="رقم هوية الكفيل الاخر"
                 fullWidth
                 {...register("sponsorNationalId")}
                 error={!!errors.sponsorNationalId}

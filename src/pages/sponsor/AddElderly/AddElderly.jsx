@@ -540,7 +540,7 @@ const elderlyIdFromPrev = location.state?.elderlyNationalId || "";
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 type="date"
-                label="تاريخ التقرير"
+                label="تاريخ اخر تشخيص"
                 name="ReportDate"
                 fullWidth
                 value={formData.ReportDate}
