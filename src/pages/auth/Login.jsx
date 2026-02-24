@@ -103,26 +103,18 @@ export default function Login() {
       if (response.status === 200) {
         reset();
         setSnackbarMessage("تم تسجيل الدخول بنجاح");
-        localStorage.setItem("token", response.data.data.token);
+        localStorage.setItem("token", response.data.token);
         setSnackbarOpen(true);
-        const decodedToken = jwtDecode(response.data.data.token);
+        const decodedToken = jwtDecode(response.data.token);
         const roleClaim =
           "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
         const role = decodedToken[roleClaim];
         if (role === "Admin") {
           navigate("/Admin");
         } else if (role === "Sponsor") {
-          if (response.data.data.isProfileCompleted === true) {
-            navigate("/Sponsor");
-          } else {
-            navigate("/Sponsor/Verfiy-Link");
-          }
+          navigate("/Sponsor");
         } else if (role === "Nurse") {
-          if (response.data.data.isProfileCompleted === true) {
-            navigate("/Nurse");
-          } else {
-            navigate("/Nurse/completeProfile");
-          }
+          navigate("/Nurse");
         }
       }
     } catch (err) {
@@ -257,4 +249,6 @@ export default function Login() {
     </Box>
   );
 }
+
+
 

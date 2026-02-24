@@ -9,7 +9,6 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import AdminLayout from "./layout/AdminLayout";
 import SponsorLayout from "./layout/SponsorLayout";
 import NurseLayout from "./layout/NurseLayout";
-import CompleteProfile from "./pages/nurse/completeProfile/CompleteProfile";
 import HomeNurse from "./pages/nurse/homeNurse/HomeNurse";
 import AdminHome from "./pages/admin/AdminHome/AdminHome";
 import AdminProfile from "./pages/admin/AdminProfile/AdminProfile";
@@ -29,9 +28,6 @@ import AddDonation from "./pages/admin/AddDonation/AddDonation";
 import DonationDetails from "./pages/admin/DonationDetails/DonationDetails";
 import HomeSponsore from "./pages/sponsor/HomeSponsore/HomeSponsore";
 import ElderlyStays from "./pages/admin/ElderlyStays/ElderlyStays";
-import VerfiyLink from "./pages/sponsor/VerfiyLink/VerfiyLink.jsx";
-import AddElderly from "./pages/sponsor/AddElderly/AddElderly.jsx";
-import AddElderlyLink from "./pages/sponsor/AddElderlyLink/AddElderlyLink.jsx";
 import AuthProtectedRoute from "./component/protected/AuthProtectedRoute.jsx";
 
 const router = createBrowserRouter([
@@ -97,10 +93,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomeNurse />,
-      },
-      {
-        path: "completeProfile",
-        element: <CompleteProfile />,
       },
     ],
   },
@@ -190,18 +182,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomeSponsore />,
-      },
-      {
-        path: "Verfiy-Link",
-        element: <VerfiyLink />,
-      },
-      {
-        path: "Add-Elderly",
-        element: <AddElderly />,
-      },
-      {
-        path: "Add-Elderly-Link",
-        element: <AddElderlyLink />,
       },
     ],
   },
