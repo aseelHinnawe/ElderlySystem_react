@@ -30,6 +30,7 @@ import HomeSponsore from "./pages/sponsor/HomeSponsore/HomeSponsore";
 import ElderlyStays from "./pages/admin/ElderlyStays/ElderlyStays";
 import AuthProtectedRoute from "./component/protected/AuthProtectedRoute.jsx";
 import Elderlies from "./pages/nurse/Elderlies/Elderlies.jsx";
+import ElderlyDetail from "./pages/nurse/ElderlyDetail/ElderlyDetail.jsx";
 
 const router = createBrowserRouter([
   {
@@ -99,10 +100,10 @@ const router = createBrowserRouter([
         path: "elderlies",
         element: <Elderlies />,
       },
-      /*{
+      {
         path: "elderly/:id",
         element: <ElderlyDetail />,
-      },*/
+      },
     ],
   },
   {

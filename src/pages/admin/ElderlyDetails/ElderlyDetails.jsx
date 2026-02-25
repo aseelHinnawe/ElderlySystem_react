@@ -3,8 +3,6 @@ import { useParams } from "react-router-dom";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 
 
-
-
 import {
   Box,
   Typography,
@@ -21,11 +19,12 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-
-
-
-
+import EventNoteIcon from "@mui/icons-material/EventNote";
 import BadgeIcon from "@mui/icons-material/Badge";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -40,16 +39,12 @@ import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 
-
-
 const chipStatusSx = (isActive) => ({
   fontWeight: 900,
   color: "#fff",
   backgroundColor: isActive ? "#2E7D32" : "#C62828",
   px: 1.5,
 });
-
-
 
 
 const cardTitleSx = (borderColor) => ({
@@ -61,8 +56,6 @@ const cardTitleSx = (borderColor) => ({
 });
 
 
-
-
 const infoRowSx = {
   display: "flex",
   alignItems: "center",
@@ -71,8 +64,6 @@ const infoRowSx = {
   borderRadius: 2.5,
   background: "#f7f7f3",
 };
-
-
 
 
 const iconCircleSx = {
@@ -88,15 +79,11 @@ const iconCircleSx = {
 };
 
 
-
-
 const softBtnSx = {
   borderRadius: 2,
   textTransform: "none",
   fontWeight: 900,
 };
-
-
 
 
 function FieldRow({ icon, label, value }) {
@@ -105,14 +92,10 @@ function FieldRow({ icon, label, value }) {
       <Box sx={iconCircleSx}>{icon}</Box>
 
 
-
-
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography sx={{ fontSize: 12, color: "#777", fontWeight: 800 }}>
           {label}
         </Typography>
-
-
 
 
         <Typography
@@ -134,20 +117,15 @@ function FieldRow({ icon, label, value }) {
 }
 
 
-
-
 export default function ElderlyDetails() {
   const { id } = useParams();
 
 
-
-
   const [elderly, setElderly] = useState(null);
   const [loading, setLoading] = useState(true);
-
-
-
-
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [loadingReport, setLoadingReport] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState("");
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -155,14 +133,10 @@ export default function ElderlyDetails() {
   });
 
 
-
-
   // ✅ Preview Dialog
   const [openPreview, setOpenPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-
-
 
 
   const openFilePreview = (url, title) => {
@@ -173,8 +147,6 @@ export default function ElderlyDetails() {
   };
 
 
-
-
   const closeFilePreview = () => {
     setOpenPreview(false);
     setPreviewUrl("");
@@ -182,13 +154,14 @@ export default function ElderlyDetails() {
   };
 
 
-
-
   const fetchElderly = async () => {
     setLoading(true);
     try {
       const res = await AxiosUserInstance.get(`/Admin/Elderly/${id}`);
-      setElderly(res?.data?.data || null);
+      const data = res?.data?.data || null;
+      setElderly(data);
+      setSelectedReport(data?.latestMedicalReport || null);
+      setSelectedReportId(data?.latestMedicalReport?.reportId ?? "");
     } catch (err) {
       setSnackbar({
         open: true,
@@ -196,24 +169,40 @@ export default function ElderlyDetails() {
         severity: "error",
       });
       setElderly(null);
+      setSelectedReport(null);
     } finally {
       setLoading(false);
     }
   };
 
 
-
-
   useEffect(() => {
     fetchElderly();
   }, [id]);
-
-
-
-
+  const handleReportChange = async (e) => {
+    const reportId = e.target.value;
+    setSelectedReportId(reportId);
+    await fetchReportById(reportId);
+  };
+  const fetchReportById = async (reportId) => {
+    if (!reportId) return;
+    setLoadingReport(true);
+    try {
+      const res = await AxiosUserInstance.get(
+        `/Admin/Elderly/medical-reports/${reportId}`,
+      );
+      setSelectedReport(res?.data?.data || null);
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: "فشل جلب التقرير",
+        severity: "error",
+      });
+    } finally {
+      setLoadingReport(false);
+    }
+  };
   const isActive = elderly?.status === "نشط";
-
-
 
 
   const basicFields = useMemo(() => {
@@ -248,8 +237,6 @@ export default function ElderlyDetails() {
   }, [elderly]);
 
 
-
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
@@ -259,22 +246,17 @@ export default function ElderlyDetails() {
   }
 
 
-
-
   if (!elderly) return null;
   const hasSponsors =
     Array.isArray(elderly.sponsors) && elderly.sponsors.length > 0;
   const hasDiseases =
     Array.isArray(elderly.diseases) && elderly.diseases.length > 0;
   const hasReports =
-    Array.isArray(elderly.medicalReports) && elderly.medicalReports.length > 0;
-
-
+    Array.isArray(elderly.medicalReportDates) &&
+    elderly.medicalReportDates.length > 0;
 
 
   const isPdf = (url = "") => url.toLowerCase().includes(".pdf");
-
-
 
 
   return (
@@ -318,8 +300,6 @@ export default function ElderlyDetails() {
                 </Avatar>
 
 
-
-
                 <Chip
                   label={isActive ? "نشط" : "غير نشط"}
                   size="small"
@@ -338,22 +318,16 @@ export default function ElderlyDetails() {
               </Box>
 
 
-
-
               <Typography sx={{ mt: 2, fontSize: 26, fontWeight: 1000 }}>
                 {elderly.elderlyName}
               </Typography>
             </Box>
 
 
-
-
             <Box sx={{ flexGrow: 1 }}>
               <Typography sx={cardTitleSx("#6a6a57")}>
                 البيانات الأساسية
               </Typography>
-
-
 
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
@@ -369,12 +343,8 @@ export default function ElderlyDetails() {
             </Box>
 
 
-
-
             <Box>
               <Typography sx={cardTitleSx("#417d44")}>الأمراض</Typography>
-
-
 
 
               {hasDiseases ? (
@@ -427,8 +397,6 @@ export default function ElderlyDetails() {
                           </Box>
 
 
-
-
                           <Box sx={{ minWidth: 0 }}>
                             <Typography
                               sx={{
@@ -445,8 +413,6 @@ export default function ElderlyDetails() {
                             </Typography>
 
 
-
-
                             <Typography
                               sx={{
                                 fontSize: 12,
@@ -458,8 +424,6 @@ export default function ElderlyDetails() {
                             </Typography>
                           </Box>
                         </Box>
-
-
 
 
                         <Chip
@@ -500,8 +464,6 @@ export default function ElderlyDetails() {
         </Grid>
 
 
-
-
         {/* ===== Right Column ===== */}
         <Grid size={{ xs: 12, lg: 7 }} sx={{ display: "flex" }}>
           <Box
@@ -512,89 +474,29 @@ export default function ElderlyDetails() {
               width: "100%",
             }}
           >
-           
-          {isActive ? (
+            {isActive ? (
               <Paper
-              sx={{
-                p: 3,
-                borderRadius: 4,
-                boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Typography sx={cardTitleSx("#0d0d0d")}>الإقامة</Typography>
+                sx={{
+                  p: 3,
+                  borderRadius: 4,
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+                }}
+              >
+                <Typography sx={cardTitleSx("#0d0d0d")}>الإقامة</Typography>
 
 
-
-
-              {elderly.currentStay ? (
-                <Box sx={{ mt: 1.5 }}>
-                  <Grid container spacing={2}>
-                    {/* تاريخ البداية */}
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <Box
-                        sx={{ p: 2, borderRadius: 2.5, background: "#f7f7f3" }}
-                      >
-                        <Typography
-                          sx={{ fontSize: 12, color: "#777", fontWeight: 800 }}
-                        >
-                          تاريخ البداية
-                        </Typography>
-                        <Typography sx={{ fontWeight: 1000 }}>
-                          {elderly.currentStay.startDate ?? "-"}
-                        </Typography>
-                      </Box>
-                    </Grid>
-
-
-
-
-                    {/* تاريخ النهاية */}
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <Box
-                        sx={{ p: 2, borderRadius: 2.5, background: "#f7f7f3" }}
-                      >
-                        <Typography
-                          sx={{ fontSize: 12, color: "#777", fontWeight: 800 }}
-                        >
-                          تاريخ النهاية
-                        </Typography>
-                        <Typography
+                {elderly.currentStay ? (
+                  <Box sx={{ mt: 1.5 }}>
+                    <Grid container spacing={2}>
+                      {/* تاريخ البداية */}
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Box
                           sx={{
-                            fontWeight: 1000,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
+                            p: 2,
+                            borderRadius: 2.5,
+                            background: "#f7f7f3",
                           }}
                         >
-                          {elderly.currentStay.endDate ?? "-"}
-                        </Typography>
-                      </Box>
-                    </Grid>
-
-
-
-
-                    {/* الغرفة */}
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <Box
-                        sx={{
-                          p: 2,
-                          borderRadius: 2.5,
-                          background: "#f7f7f3",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.2,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <Box sx={iconCircleSx}>
-                          <MeetingRoomIcon />
-                        </Box>
-
-
-
-
-                        <Box sx={{ minWidth: 0 }}>
                           <Typography
                             sx={{
                               fontSize: 12,
@@ -602,42 +504,24 @@ export default function ElderlyDetails() {
                               fontWeight: 800,
                             }}
                           >
-                            الغرفة
+                            تاريخ البداية
                           </Typography>
                           <Typography sx={{ fontWeight: 1000 }}>
-                            رقم {elderly.currentStay.room?.roomNumber ?? "-"} —{" "}
-                            {elderly.currentStay.room?.roomTypeName ??
-                              elderly.currentStay.room?.roomType ??
-                              "-"}
+                            {elderly.currentStay.startDate ?? "-"}
                           </Typography>
                         </Box>
-                      </Box>
-                    </Grid>
+                      </Grid>
 
 
-
-
-                    {/* الحالة */}
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <Box
-                        sx={{
-                          p: 2,
-                          borderRadius: 2.5,
-                          background: "#f7f7f3",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.2,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <Box sx={iconCircleSx}>
-                          <SwapHorizIcon />
-                        </Box>
-
-
-
-
-                        <Box sx={{ minWidth: 0 }}>
+                      {/* تاريخ النهاية */}
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Box
+                          sx={{
+                            p: 2,
+                            borderRadius: 2.5,
+                            background: "#f7f7f3",
+                          }}
+                        >
                           <Typography
                             sx={{
                               fontSize: 12,
@@ -645,39 +529,121 @@ export default function ElderlyDetails() {
                               fontWeight: 800,
                             }}
                           >
-                            الحالة
+                            تاريخ النهاية
                           </Typography>
-                          <Typography sx={{ fontWeight: 1000 }}>
-                            {elderly.currentStay.status ?? "-"}
+                          <Typography
+                            sx={{
+                              fontWeight: 1000,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {elderly.currentStay.endDate ?? "-"}
                           </Typography>
                         </Box>
-                      </Box>
+                      </Grid>
+
+
+                      {/* الغرفة */}
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Box
+                          sx={{
+                            p: 2,
+                            borderRadius: 2.5,
+                            background: "#f7f7f3",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.2,
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <Box sx={iconCircleSx}>
+                            <MeetingRoomIcon />
+                          </Box>
+
+
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography
+                              sx={{
+                                fontSize: 12,
+                                color: "#777",
+                                fontWeight: 800,
+                              }}
+                            >
+                              الغرفة
+                            </Typography>
+                            <Typography sx={{ fontWeight: 1000 }}>
+                              رقم {elderly.currentStay.room?.roomNumber ?? "-"}{" "}
+                              —{" "}
+                              {elderly.currentStay.room?.roomTypeName ??
+                                elderly.currentStay.room?.roomType ??
+                                "-"}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+
+
+                      {/* الحالة */}
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Box
+                          sx={{
+                            p: 2,
+                            borderRadius: 2.5,
+                            background: "#f7f7f3",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.2,
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <Box sx={iconCircleSx}>
+                            <SwapHorizIcon />
+                          </Box>
+
+
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography
+                              sx={{
+                                fontSize: 12,
+                                color: "#777",
+                                fontWeight: 800,
+                              }}
+                            >
+                              الحالة
+                            </Typography>
+                            <Typography sx={{ fontWeight: 1000 }}>
+                              {elderly.currentStay.status ?? "-"}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
                     </Grid>
-                  </Grid>
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    mt: 1.5,
-                    p: 2,
-                    borderRadius: 3,
-                    background: "rgba(106,106,87,0.08)",
-                    border: "1px dashed rgba(106,106,87,0.35)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.2,
-                  }}
-                >
-                  <Box sx={iconCircleSx}>
-                    <MeetingRoomIcon />
                   </Box>
-                  <Typography sx={{ fontWeight: 1000, color: "#6a6a57" }}>
-                    لا يوجد إقامة حالياً.
-                  </Typography>
-                </Box>
-              )}
-            </Paper>
-          ) : null }
+                ) : (
+                  <Box
+                    sx={{
+                      mt: 1.5,
+                      p: 2,
+                      borderRadius: 3,
+                      background: "rgba(106,106,87,0.08)",
+                      border: "1px dashed rgba(106,106,87,0.35)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.2,
+                    }}
+                  >
+                    <Box sx={iconCircleSx}>
+                      <MeetingRoomIcon />
+                    </Box>
+                    <Typography sx={{ fontWeight: 1000, color: "#6a6a57" }}>
+                      لا يوجد إقامة حالياً.
+                    </Typography>
+                  </Box>
+                )}
+              </Paper>
+            ) : null}
             {/* Sponsors */}
             <Paper
               sx={{
@@ -687,8 +653,6 @@ export default function ElderlyDetails() {
               }}
             >
               <Typography sx={cardTitleSx("#6a6a57")}>الكفلاء</Typography>
-
-
 
 
               {hasSponsors ? (
@@ -717,8 +681,6 @@ export default function ElderlyDetails() {
                           <Box sx={iconCircleSx}>
                             <GroupsIcon />
                           </Box>
-
-
 
 
                           <Box sx={{ minWidth: 0 }}>
@@ -756,21 +718,51 @@ export default function ElderlyDetails() {
               }}
             >
               <Typography sx={cardTitleSx("#417d44")}>
-                التقارير الطبية
+               معلومات الطبيب
               </Typography>
-
-
 
 
               {hasReports ? (
                 <Box
-                  sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+                  sx={{
+                    mt: 1.5,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
                 >
-                  {elderly.medicalReports.map((r) => (
-                    <Box
-                      key={r.reportId}
-                      sx={{ p: 2, borderRadius: 3, background: "#f7f7f3" }}
+                  <FormControl fullWidth size="small">
+                    <InputLabel id="report-date-label">
+                      تاريخ التقرير
+                    </InputLabel>
+                    <Select
+                      labelId="report-date-label"
+                      value={selectedReportId}
+                      label="تاريخ التقرير"
+                      onChange={handleReportChange}
+                      sx={{
+                        borderRadius: 3,
+                        background: "#f7f7f3",
+                        fontWeight: 900,
+                      }}
                     >
+                      {elderly.medicalReportDates.map((d) => (
+                        <MenuItem key={d.reportId} value={d.reportId}>
+                          {d.date}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+
+                  {loadingReport ? (
+                    <Box
+                      sx={{ display: "flex", justifyContent: "center", py: 4 }}
+                    >
+                      <CircularProgress size={26} />
+                    </Box>
+                  ) : selectedReport ? (
+                    <Box sx={{ p: 2, borderRadius: 3, background: "#f7f7f3" }}>
                       <Box
                         sx={{
                           display: "flex",
@@ -792,18 +784,28 @@ export default function ElderlyDetails() {
                           </Box>
                           <Box>
                             <Typography sx={{ fontWeight: 1000, fontSize: 15 }}>
-                              تقرير الدكتور
+                              تقرير الطبي للمسنة
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: 12,
+                                color: "#777",
+                                fontWeight: 900,
+                              }}
+                            >
+                              {selectedReport.date ?? "-"}
                             </Typography>
                           </Box>
                         </Box>
 
 
-
-
-                        {r.diagnosisUrl && (
+                        {selectedReport.diagnosisUrl && (
                           <Button
                             onClick={() =>
-                              openFilePreview(r.diagnosisUrl, "عرض التشخيص")
+                              openFilePreview(
+                                selectedReport.diagnosisUrl,
+                                "عرض التشخيص",
+                              )
                             }
                             startIcon={<PhotoLibraryOutlinedIcon />}
                             variant="contained"
@@ -826,11 +828,7 @@ export default function ElderlyDetails() {
                       </Box>
 
 
-
-
                       <Divider sx={{ my: 2 }} />
-
-
 
 
                       <Grid container spacing={2}>
@@ -848,12 +846,10 @@ export default function ElderlyDetails() {
                               الطبيب
                             </Typography>
                             <Typography sx={{ fontWeight: 1000 }}>
-                              {r.doctor?.name ?? "-"}
+                              {selectedReport.doctor?.name ?? "-"}
                             </Typography>
                           </Box>
                         </Grid>
-
-
 
 
                         <Grid size={{ xs: 12, sm: 6 }}>
@@ -870,66 +866,44 @@ export default function ElderlyDetails() {
                               مكان العمل
                             </Typography>
                             <Typography sx={{ fontWeight: 1000 }}>
-                              {r.doctor?.workPlace ?? "-"}
+                              {selectedReport.doctor?.workPlace ?? "-"}
                             </Typography>
                           </Box>
                         </Grid>
 
 
-
-
                         <Grid size={{ xs: 12 }}>
                           <Box
-                            sx={{
-                              p: 2,
-                              borderRadius: 2.5,
-                              background: "#fff",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              gap: 2,
-                              flexWrap: "wrap",
-                            }}
+                            sx={{ p: 2, borderRadius: 2.5, background: "#fff" }}
                           >
-                            <Box
+                            <Typography
                               sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
+                                fontSize: 12,
+                                color: "#777",
+                                fontWeight: 900,
                               }}
                             >
-                              <Box sx={iconCircleSx}>
-                                <ArticleOutlinedIcon />
-                              </Box>
-                              <Box>
-                                <Typography
-                                  sx={{
-                                    fontSize: 12,
-                                    color: "#777",
-                                    fontWeight: 900,
-                                  }}
-                                >
-                                  هاتف الطبيب
-                                </Typography>
-                                <Typography sx={{ fontWeight: 1000 }}>
-                                  {r.doctor?.phone ?? "-"}
-                                </Typography>
-                              </Box>
-                            </Box>
+                              هاتف الطبيب
+                            </Typography>
+                            <Typography sx={{ fontWeight: 1000 }}>
+                              {selectedReport.doctor?.phone ?? "-"}
+                            </Typography>
                           </Box>
                         </Grid>
                       </Grid>
                     </Box>
-                  ))}
+                  ) : (
+                    <Typography sx={{ fontWeight: 900, color: "#777" }}>
+                      لا يوجد تقرير محدد للعرض.
+                    </Typography>
+                  )}
                 </Box>
               ) : (
-                <Typography sx={{ fontWeight: 900, color: "#777" }}>
+                <Typography sx={{ fontWeight: 900, color: "#777", mt: 1 }}>
                   لا يوجد تقارير طبية مسجلة.
                 </Typography>
               )}
             </Paper>
-
-
 
 
             {/* Files */}
@@ -941,8 +915,6 @@ export default function ElderlyDetails() {
               }}
             >
               <Typography sx={cardTitleSx("#6a6a57")}>الملفات</Typography>
-
-
 
 
               <Grid container spacing={2}>
@@ -972,8 +944,6 @@ export default function ElderlyDetails() {
                         </Typography>
                       </Box>
                     </Box>
-
-
 
 
                     {elderly.nationalIdImage ? (
@@ -1009,8 +979,6 @@ export default function ElderlyDetails() {
                 </Grid>
 
 
-
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Box
                     sx={{
@@ -1039,8 +1007,6 @@ export default function ElderlyDetails() {
                         </Typography>
                       </Box>
                     </Box>
-
-
 
 
                     {elderly.healthInsurance ? (
@@ -1077,16 +1043,12 @@ export default function ElderlyDetails() {
               </Grid>
 
 
-
-
               <Box sx={{ mt: 2 }}>
                 <Typography
                   sx={{ fontSize: 12, color: "#777", fontWeight: 900, mb: 1 }}
                 >
                   الفحص الشامل
                 </Typography>
-
-
 
 
                 {elderly.comprehensiveExamination ? (
@@ -1117,8 +1079,6 @@ export default function ElderlyDetails() {
           </Box>
         </Grid>
       </Grid>
-
-
 
 
       {/* ✅ Dialog Preview */}
@@ -1174,14 +1134,10 @@ export default function ElderlyDetails() {
             </Box>
 
 
-
-
             <Typography sx={{ fontWeight: 1000, fontSize: 16 }}>
               {previewTitle}
             </Typography>
           </Box>
-
-
 
 
           <IconButton
@@ -1195,8 +1151,6 @@ export default function ElderlyDetails() {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-
-
 
 
         <DialogContent sx={{ p: 2.2, background: "transparent" }}>
@@ -1239,8 +1193,6 @@ export default function ElderlyDetails() {
       </Dialog>
 
 
-
-
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -1252,12 +1204,6 @@ export default function ElderlyDetails() {
     </Box>
   );
 }
-
-
-
-
-
-
 
 
 

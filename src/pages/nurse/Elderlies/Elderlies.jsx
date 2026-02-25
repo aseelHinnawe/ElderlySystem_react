@@ -246,7 +246,7 @@ export default function Elderlies() {
                         <TableBody>
                           {filteredElderlies.length > 0 ? (
                             filteredElderlies.map((d, idx) => (
-                              <TableRow key={d.id ?? idx}>
+                              <TableRow key={d.elderlyId ?? idx}>
                                 <TableCell align="center">{d.name}</TableCell>
                                 <TableCell align="center">
                                   {d.roomNumber}
@@ -259,7 +259,7 @@ export default function Elderlies() {
                                     size="small"
                                     variant="contained"
                                     component={Link}
-                                    to={d?.id ? `/Nurse/elderly/${d.elderlyId}` : "#"}
+                                    to={d?.elderlyId ? `/Nurse/elderly/${d.elderlyId}` : "#"}
                                     sx={{
                                       ...detailsButtonStyles,
                                       fontSize: 13,
