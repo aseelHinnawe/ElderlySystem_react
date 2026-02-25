@@ -381,7 +381,7 @@ export default function Activites() {
                 )}
               </Box>
 
-              {/* اسم النشاط مع ... */}
+              {/* اسم النشاط */}
               <Typography
   sx={{
     ...titleSx,

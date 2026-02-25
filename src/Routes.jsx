@@ -29,6 +29,7 @@ import DonationDetails from "./pages/admin/DonationDetails/DonationDetails";
 import HomeSponsore from "./pages/sponsor/HomeSponsore/HomeSponsore";
 import ElderlyStays from "./pages/admin/ElderlyStays/ElderlyStays";
 import AuthProtectedRoute from "./component/protected/AuthProtectedRoute.jsx";
+import Elderlies from "./pages/nurse/Elderlies/Elderlies.jsx";
 
 const router = createBrowserRouter([
   {
@@ -94,6 +95,14 @@ const router = createBrowserRouter([
         index: true,
         element: <HomeNurse />,
       },
+      {
+        path: "elderlies",
+        element: <Elderlies />,
+      },
+      /*{
+        path: "elderly/:id",
+        element: <ElderlyDetail />,
+      },*/
     ],
   },
   {
