@@ -19,8 +19,14 @@ import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import style from "./AdminRequest.module.css";
+import { Link } from "react-router";
 
 
+const userDetailsButtonStyles = {
+  borderRadius: 2,
+  textTransform: "none",
+  fontWeight: 800,
+};
 const addRequestsCardStyles = {
   mb: 4,
   borderRadius: 5,
@@ -85,7 +91,7 @@ export default function AdminRequest() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await AxiosUserInstance.patch(`/Admin/User/change-status/${id}`, null, {
+      await AxiosUserInstance.patch(`/Admin/User/approve/${id}`, null, {
         params: { status: newStatus },
       });
 
@@ -150,7 +156,9 @@ export default function AdminRequest() {
               </Typography>
 
 
-              <PersonAddAlt1Icon sx={{ fontSize: { xs: 26, md: 34 }, color: "#fff" }} />
+              <PersonAddAlt1Icon
+                sx={{ fontSize: { xs: 26, md: 34 }, color: "#fff" }}
+              />
             </Box>
 
 
@@ -173,7 +181,9 @@ export default function AdminRequest() {
             }}
             className={style.iconCircle}
           >
-            <PendingActionsIcon sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }} />
+            <PendingActionsIcon
+              sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }}
+            />
           </Box>
         </CardContent>
       </Card>
@@ -187,7 +197,10 @@ export default function AdminRequest() {
         <>
           {/* ====== Desktop Table ====== */}
           <Box sx={{ display: { xs: "none", md: "block" } }}>
-            <Card component={Paper} sx={{ borderRadius: 3, overflow: "hidden" }}>
+            <Card
+              component={Paper}
+              sx={{ borderRadius: 3, overflow: "hidden" }}
+            >
               <CardContent sx={{ p: 0 }}>
                 <Box sx={{ overflowX: "auto" }}>
                   <Table sx={{ minWidth: 450, direction: "rtl" }}>
@@ -202,6 +215,9 @@ export default function AdminRequest() {
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           الإجراءات
                         </TableCell>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                          التفاصيل
+                        </TableCell>
                       </TableRow>
                     </TableHead>
 
@@ -210,8 +226,12 @@ export default function AdminRequest() {
                       {users.length > 0 ? (
                         users.map((user) => (
                           <TableRow key={user.id}>
-                            <TableCell align="center">{user.fullName}</TableCell>
-                            <TableCell align="center">{user.roleUser}</TableCell>
+                            <TableCell align="center">
+                              {user.fullName}
+                            </TableCell>
+                            <TableCell align="center">
+                              {user.roleUser}
+                            </TableCell>
                             <TableCell align="center">
                               <Box className={style.actionsBox}>
                                 <Button
@@ -225,7 +245,9 @@ export default function AdminRequest() {
                                     boxShadow: "none",
                                     "&:hover": { backgroundColor: "#256427" },
                                   }}
-                                  onClick={() => handleStatusChange(user.id, "Active")}
+                                  onClick={() =>
+                                    handleStatusChange(user.id, "Active")
+                                  }
                                 >
                                   قبول
                                 </Button>
@@ -247,11 +269,28 @@ export default function AdminRequest() {
                                 </Button>
                               </Box>
                             </TableCell>
+                            <TableCell align="center">
+                              <Button
+                                size="small"
+                                variant="contained"
+                                component={Link}
+                                to={`/Admin/user/${user.id}`}
+                                sx={{
+                                  ...userDetailsButtonStyles,
+                                  fontSize: { xs: 10, md: 13 },
+                                  backgroundColor: "#FFF8E1",
+                                  color: "#8D6E63",
+                                  border: "1px solid rgba(141,110,99,0.35)",
+                                }}
+                              >
+                                تفاصيل المستخدم
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={3} align="center">
+                          <TableCell colSpan={4} align="center">
                             لا توجد بيانات
                           </TableCell>
                         </TableRow>
@@ -287,31 +326,49 @@ export default function AdminRequest() {
                     </Typography>
 
 
-                    <Box sx={{ mt: 1.5, display: "flex", gap: 1 }}>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        sx={{
-                          ...ButtonStyles,
-                          backgroundColor: "#417d44",
-                          "&:hover": { backgroundColor: "#256427" },
-                        }}
-                        onClick={() => handleStatusChange(user.id, "Active")}
-                      >
-                        قبول
-                      </Button>
+                    <Box sx={{ mt: 1.5, display: "flex", flexDirection: "column", gap: 1 }}>
+  {/* أزرار قبول وحذف */}
+  <Box sx={{ display: "flex", gap: 1 }}>
+    <Button
+      fullWidth
+      variant="contained"
+      sx={{
+        ...ButtonStyles,
+        backgroundColor: "#417d44",
+        "&:hover": { backgroundColor: "#256427" },
+      }}
+      onClick={() => handleStatusChange(user.id, "Active")}
+    >
+      قبول
+    </Button>
 
+    <Button
+      fullWidth
+      variant="contained"
+      color="error"
+      sx={ButtonStyles}
+      onClick={() => handleDeleteUser(user.id)}
+    >
+      حذف
+    </Button>
+  </Box>
 
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        color="error"
-                        sx={ButtonStyles}
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        حذف
-                      </Button>
-                    </Box>
+  {/* زر تفاصيل المستخدم */}
+  <Button
+    fullWidth
+    variant="contained"
+    component={Link}
+    to={`/Admin/user/${user.id}`}
+    sx={{
+      ...userDetailsButtonStyles,
+      backgroundColor: "#FFF8E1",
+      color: "#8D6E63",
+      border: "1px solid rgba(141,110,99,0.35)",
+    }}
+  >
+    تفاصيل المستخدم
+  </Button>
+</Box>
                   </CardContent>
                 </Card>
               ))

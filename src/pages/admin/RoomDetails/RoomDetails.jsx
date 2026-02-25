@@ -201,6 +201,9 @@ export default function RoomDetails() {
     room?.images?.[0]?.url ||
     "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2";
 
+const isFull =
+  room.statusName === "ممتلئة" ||
+  room.currentCapacity >= room.capacity;
 
   return (
     <Box sx={{ p: 2.5 }}>
@@ -296,12 +299,12 @@ export default function RoomDetails() {
                   sx={{ display: "flex", alignItems: "center", gap: 1 }}
                 >
                   الحالة:
-                  <Chip
-                    label={room.statusName}
-                    color="success"
-                    size="small"
-                    sx={{ fontWeight: 900 }}
-                  />
+              <Chip
+  label={room.statusName}
+  color={isFull ? "error" : "success"}
+  size="small"
+  sx={{ fontWeight: 900 }}
+/>
                 </Typography>
               </Box>
             </Box>

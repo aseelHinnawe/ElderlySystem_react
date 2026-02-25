@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 
 
+
+
 import {
   Box,
   Typography,
@@ -22,6 +24,8 @@ import {
 } from "@mui/material";
 
 
+
+
 import BadgeIcon from "@mui/icons-material/Badge";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -33,7 +37,9 @@ import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
-import SwapHorizIcon from "@mui/icons-material/SwapHoriz"; // (موجود عندك بالأيقونات — لو ما بتحتاجه احذفه)
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+
+
 
 
 const chipStatusSx = (isActive) => ({
@@ -42,6 +48,8 @@ const chipStatusSx = (isActive) => ({
   backgroundColor: isActive ? "#2E7D32" : "#C62828",
   px: 1.5,
 });
+
+
 
 
 const cardTitleSx = (borderColor) => ({
@@ -53,6 +61,8 @@ const cardTitleSx = (borderColor) => ({
 });
 
 
+
+
 const infoRowSx = {
   display: "flex",
   alignItems: "center",
@@ -61,6 +71,8 @@ const infoRowSx = {
   borderRadius: 2.5,
   background: "#f7f7f3",
 };
+
+
 
 
 const iconCircleSx = {
@@ -76,11 +88,15 @@ const iconCircleSx = {
 };
 
 
+
+
 const softBtnSx = {
   borderRadius: 2,
   textTransform: "none",
   fontWeight: 900,
 };
+
+
 
 
 function FieldRow({ icon, label, value }) {
@@ -89,10 +105,14 @@ function FieldRow({ icon, label, value }) {
       <Box sx={iconCircleSx}>{icon}</Box>
 
 
+
+
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography sx={{ fontSize: 12, color: "#777", fontWeight: 800 }}>
           {label}
         </Typography>
+
+
 
 
         <Typography
@@ -114,12 +134,18 @@ function FieldRow({ icon, label, value }) {
 }
 
 
+
+
 export default function ElderlyDetails() {
   const { id } = useParams();
 
 
+
+
   const [elderly, setElderly] = useState(null);
   const [loading, setLoading] = useState(true);
+
+
 
 
   const [snackbar, setSnackbar] = useState({
@@ -129,10 +155,14 @@ export default function ElderlyDetails() {
   });
 
 
+
+
   // ✅ Preview Dialog
   const [openPreview, setOpenPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+
+
 
 
   const openFilePreview = (url, title) => {
@@ -143,11 +173,15 @@ export default function ElderlyDetails() {
   };
 
 
+
+
   const closeFilePreview = () => {
     setOpenPreview(false);
     setPreviewUrl("");
     setPreviewTitle("");
   };
+
+
 
 
   const fetchElderly = async () => {
@@ -168,12 +202,18 @@ export default function ElderlyDetails() {
   };
 
 
+
+
   useEffect(() => {
     fetchElderly();
   }, [id]);
 
 
+
+
   const isActive = elderly?.status === "نشط";
+
+
 
 
   const basicFields = useMemo(() => {
@@ -208,6 +248,8 @@ export default function ElderlyDetails() {
   }, [elderly]);
 
 
+
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
@@ -215,6 +257,8 @@ export default function ElderlyDetails() {
       </Box>
     );
   }
+
+
 
 
   if (!elderly) return null;
@@ -226,7 +270,11 @@ export default function ElderlyDetails() {
     Array.isArray(elderly.medicalReports) && elderly.medicalReports.length > 0;
 
 
+
+
   const isPdf = (url = "") => url.toLowerCase().includes(".pdf");
+
+
 
 
   return (
@@ -270,6 +318,8 @@ export default function ElderlyDetails() {
                 </Avatar>
 
 
+
+
                 <Chip
                   label={isActive ? "نشط" : "غير نشط"}
                   size="small"
@@ -288,16 +338,22 @@ export default function ElderlyDetails() {
               </Box>
 
 
+
+
               <Typography sx={{ mt: 2, fontSize: 26, fontWeight: 1000 }}>
                 {elderly.elderlyName}
               </Typography>
             </Box>
 
 
+
+
             <Box sx={{ flexGrow: 1 }}>
               <Typography sx={cardTitleSx("#6a6a57")}>
                 البيانات الأساسية
               </Typography>
+
+
 
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
@@ -313,8 +369,12 @@ export default function ElderlyDetails() {
             </Box>
 
 
+
+
             <Box>
               <Typography sx={cardTitleSx("#417d44")}>الأمراض</Typography>
+
+
 
 
               {hasDiseases ? (
@@ -367,6 +427,8 @@ export default function ElderlyDetails() {
                           </Box>
 
 
+
+
                           <Box sx={{ minWidth: 0 }}>
                             <Typography
                               sx={{
@@ -383,6 +445,8 @@ export default function ElderlyDetails() {
                             </Typography>
 
 
+
+
                             <Typography
                               sx={{
                                 fontSize: 12,
@@ -394,6 +458,8 @@ export default function ElderlyDetails() {
                             </Typography>
                           </Box>
                         </Box>
+
+
 
 
                         <Chip
@@ -434,6 +500,8 @@ export default function ElderlyDetails() {
         </Grid>
 
 
+
+
         {/* ===== Right Column ===== */}
         <Grid size={{ xs: 12, lg: 7 }} sx={{ display: "flex" }}>
           <Box
@@ -444,8 +512,9 @@ export default function ElderlyDetails() {
               width: "100%",
             }}
           >
-            {/* ✅ Current Stay (DISPLAY ONLY) */}
-            <Paper
+           
+          {isActive ? (
+              <Paper
               sx={{
                 p: 3,
                 borderRadius: 4,
@@ -453,6 +522,8 @@ export default function ElderlyDetails() {
               }}
             >
               <Typography sx={cardTitleSx("#0d0d0d")}>الإقامة</Typography>
+
+
 
 
               {elderly.currentStay ? (
@@ -473,6 +544,8 @@ export default function ElderlyDetails() {
                         </Typography>
                       </Box>
                     </Grid>
+
+
 
 
                     {/* تاريخ النهاية */}
@@ -499,6 +572,8 @@ export default function ElderlyDetails() {
                     </Grid>
 
 
+
+
                     {/* الغرفة */}
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Box
@@ -515,6 +590,8 @@ export default function ElderlyDetails() {
                         <Box sx={iconCircleSx}>
                           <MeetingRoomIcon />
                         </Box>
+
+
 
 
                         <Box sx={{ minWidth: 0 }}>
@@ -538,6 +615,8 @@ export default function ElderlyDetails() {
                     </Grid>
 
 
+
+
                     {/* الحالة */}
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Box
@@ -554,6 +633,8 @@ export default function ElderlyDetails() {
                         <Box sx={iconCircleSx}>
                           <SwapHorizIcon />
                         </Box>
+
+
 
 
                         <Box sx={{ minWidth: 0 }}>
@@ -596,6 +677,7 @@ export default function ElderlyDetails() {
                 </Box>
               )}
             </Paper>
+          ) : null }
             {/* Sponsors */}
             <Paper
               sx={{
@@ -605,6 +687,8 @@ export default function ElderlyDetails() {
               }}
             >
               <Typography sx={cardTitleSx("#6a6a57")}>الكفلاء</Typography>
+
+
 
 
               {hasSponsors ? (
@@ -633,6 +717,8 @@ export default function ElderlyDetails() {
                           <Box sx={iconCircleSx}>
                             <GroupsIcon />
                           </Box>
+
+
 
 
                           <Box sx={{ minWidth: 0 }}>
@@ -674,6 +760,8 @@ export default function ElderlyDetails() {
               </Typography>
 
 
+
+
               {hasReports ? (
                 <Box
                   sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
@@ -710,6 +798,8 @@ export default function ElderlyDetails() {
                         </Box>
 
 
+
+
                         {r.diagnosisUrl && (
                           <Button
                             onClick={() =>
@@ -736,7 +826,11 @@ export default function ElderlyDetails() {
                       </Box>
 
 
+
+
                       <Divider sx={{ my: 2 }} />
+
+
 
 
                       <Grid container spacing={2}>
@@ -760,6 +854,8 @@ export default function ElderlyDetails() {
                         </Grid>
 
 
+
+
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <Box
                             sx={{ p: 2, borderRadius: 2.5, background: "#fff" }}
@@ -778,6 +874,8 @@ export default function ElderlyDetails() {
                             </Typography>
                           </Box>
                         </Grid>
+
+
 
 
                         <Grid size={{ xs: 12 }}>
@@ -832,6 +930,8 @@ export default function ElderlyDetails() {
             </Paper>
 
 
+
+
             {/* Files */}
             <Paper
               sx={{
@@ -841,6 +941,8 @@ export default function ElderlyDetails() {
               }}
             >
               <Typography sx={cardTitleSx("#6a6a57")}>الملفات</Typography>
+
+
 
 
               <Grid container spacing={2}>
@@ -870,6 +972,8 @@ export default function ElderlyDetails() {
                         </Typography>
                       </Box>
                     </Box>
+
+
 
 
                     {elderly.nationalIdImage ? (
@@ -905,6 +1009,8 @@ export default function ElderlyDetails() {
                 </Grid>
 
 
+
+
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Box
                     sx={{
@@ -933,6 +1039,8 @@ export default function ElderlyDetails() {
                         </Typography>
                       </Box>
                     </Box>
+
+
 
 
                     {elderly.healthInsurance ? (
@@ -969,12 +1077,16 @@ export default function ElderlyDetails() {
               </Grid>
 
 
+
+
               <Box sx={{ mt: 2 }}>
                 <Typography
                   sx={{ fontSize: 12, color: "#777", fontWeight: 900, mb: 1 }}
                 >
                   الفحص الشامل
                 </Typography>
+
+
 
 
                 {elderly.comprehensiveExamination ? (
@@ -1005,6 +1117,8 @@ export default function ElderlyDetails() {
           </Box>
         </Grid>
       </Grid>
+
+
 
 
       {/* ✅ Dialog Preview */}
@@ -1060,10 +1174,14 @@ export default function ElderlyDetails() {
             </Box>
 
 
+
+
             <Typography sx={{ fontWeight: 1000, fontSize: 16 }}>
               {previewTitle}
             </Typography>
           </Box>
+
+
 
 
           <IconButton
@@ -1077,6 +1195,8 @@ export default function ElderlyDetails() {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
+
+
 
 
         <DialogContent sx={{ p: 2.2, background: "transparent" }}>
@@ -1119,6 +1239,8 @@ export default function ElderlyDetails() {
       </Dialog>
 
 
+
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -1130,6 +1252,12 @@ export default function ElderlyDetails() {
     </Box>
   );
 }
+
+
+
+
+
+
 
 
 

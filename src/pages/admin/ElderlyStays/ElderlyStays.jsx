@@ -56,7 +56,6 @@ const detailsBtn = {
   backgroundColor: "#FFF8E1",
   color: "#8D6E63",
   border: "1px solid rgba(141, 110, 99, 0.35)",
-  
 };
 
 
@@ -80,11 +79,13 @@ export default function ElderlyStays() {
     message: "",
     severity: "success",
   });
-const [openActionsId, setOpenActionsId] = useState(null);
+  const [openActionsId, setOpenActionsId] = useState(null);
 
-const toggleActions = (id) => {
-  setOpenActionsId((prev) => (prev === id ? null : id));
-};
+
+  const toggleActions = (id) => {
+    setOpenActionsId((prev) => (prev === id ? null : id));
+  };
+
 
   // ===== Dialog State =====
   const [dialog, setDialog] = useState({
@@ -98,13 +99,21 @@ const toggleActions = (id) => {
   const [rooms, setRooms] = useState([]); // available rooms list
   const [roomsLoading, setRoomsLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [filterName, setFilterName] = useState("");
 
 
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [startDate, setStartDate] = useState(todayStr);
   const [selectedRoomId, setSelectedRoomId] = useState("");
+  const filteredElderlies = useMemo(() => {
+    const q = filterName.trim().toLowerCase();
+    if (!q) return elderlies;
 
 
+    return elderlies.filter((e) =>
+      (e.elderlyName || "").toLowerCase().includes(q),
+    );
+  }, [elderlies, filterName]);
   const closeDialog = () => {
     setDialog({ open: false, type: null, elderlyId: null, elderlyName: "" });
     setRooms([]);
@@ -325,48 +334,66 @@ const toggleActions = (id) => {
 
 
   const renderActions = (elderlyId, elderlyName) => {
-  const isMobile = window.innerWidth < 900; // md breakpoint
-
-  if (stayFilter === "Active") {
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        gap: 1,
-        width: "100%",
-        justifyContent: { xs: "space-between", md: "center" },
-      }}
-    >
-      <Button
-        size="small"
-        variant="outlined"
-        color="error"
-        sx={{
-          ...actionBtn,
-          flex: { xs: 1, md: "unset" }, // 👈 الفرق هون
-        }}
-        onClick={() => openEndStayDialog(elderlyId, elderlyName)}
-      >
-        إنهاء الإقامة
-      </Button>
-
-      <Button
-        size="small"
-        variant="outlined"
-        sx={{
-          ...actionBtn,
-          flex: { xs: 1, md: "unset" }, // 👈 الفرق هون
-        }}
-        onClick={() => openChangeRoomDialog(elderlyId, elderlyName)}
-      >
-        تغيير الغرفة
-      </Button>
-    </Box>
-  );
-}
+    const isMobile = window.innerWidth < 900; // md breakpoint
 
 
-  if (stayFilter === "None") {
+    if (stayFilter === "Active") {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            width: "100%",
+            justifyContent: { xs: "space-between", md: "center" },
+          }}
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            sx={{
+              ...actionBtn,
+              flex: { xs: 1, md: "unset" },
+            }}
+            onClick={() => openEndStayDialog(elderlyId, elderlyName)}
+          >
+            إنهاء الإقامة
+          </Button>
+
+
+          <Button
+            size="small"
+            variant="outlined"
+            sx={{
+              ...actionBtn,
+              flex: { xs: 1, md: "unset" },
+            }}
+            onClick={() => openChangeRoomDialog(elderlyId, elderlyName)}
+          >
+            تغيير الغرفة
+          </Button>
+        </Box>
+      );
+    }
+
+
+    if (stayFilter === "None") {
+      return (
+        <Box sx={{ width: "100%" }}>
+          <Button
+            fullWidth
+            size="small"
+            variant="outlined"
+            sx={actionBtn}
+            onClick={() => openAssignDialog(elderlyId, elderlyName)}
+          >
+            تحديد إقامة
+          </Button>
+        </Box>
+      );
+    }
+
+
     return (
       <Box sx={{ width: "100%" }}>
         <Button
@@ -374,29 +401,13 @@ const toggleActions = (id) => {
           size="small"
           variant="outlined"
           sx={actionBtn}
-          onClick={() => openAssignDialog(elderlyId, elderlyName)}
+          onClick={() => openRenewDialog(elderlyId, elderlyName)}
         >
-          تحديد إقامة
+          تجديد الإقامة
         </Button>
       </Box>
     );
-  }
-
-  return (
-    <Box sx={{ width: "100%" }}>
-      <Button
-        fullWidth
-        size="small"
-        variant="outlined"
-        sx={actionBtn}
-        onClick={() => openRenewDialog(elderlyId, elderlyName)}
-      >
-        تجديد الإقامة
-      </Button>
-    </Box>
-  );
-};
-
+  };
 
 
   const dialogTitle =
@@ -442,6 +453,21 @@ const toggleActions = (id) => {
       {/* Filters */}
       <Grid container spacing={2} className={style.filtersGrid}>
         <Grid size={{ xs: 12, md: 3 }}>
+          <TextField
+            fullWidth
+            label="بحث بالاسم"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+            placeholder="اكتب اسم المستخدم..."
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 3,
+                backgroundColor: "#fefefe",
+              },
+            }}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth>
             <InputLabel sx={{ color: "#6a6a57", fontWeight: 500 }}>
               حالة الإقامة
@@ -481,8 +507,8 @@ const toggleActions = (id) => {
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           اسم المسن
                         </TableCell>
-                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                                                  الحالة
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                          الحالة
                         </TableCell>
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           الإجراءات
@@ -495,44 +521,44 @@ const toggleActions = (id) => {
 
 
                     <TableBody>
-                      {elderlies.length > 0 ? (
-                        elderlies.map((e) => (
+                      {filteredElderlies.length > 0 ? (
+                        filteredElderlies.map((e) => (
                           <TableRow key={e.elderlyId}>
                             <TableCell align="center">
                               {e.elderlyName}
                             </TableCell>
 
-                            <TableCell align="center">
-  <Box
-    sx={{
-      px: 2,
-      py: 0.6,
-      borderRadius: 3,
-      fontSize: 13,
-      fontWeight: 800,
-      display: "inline-block",
-      backgroundColor:
-        stayFilter === "Active"
-          ? "#E8F5E9"
-          : stayFilter === "Finish"
-          ? "#FFEBEE"
-          : "#E3F2FD",
-      color:
-        stayFilter === "Active"
-          ? "#2E7D32"
-          : stayFilter === "Finish"
-          ? "#C62828"
-          : "#1565C0",
-    }}
-  >
-    {stayFilter === "Active"
-      ? "نشط"
-      : stayFilter === "Finish"
-      ? "منتهي"
-      : "جديد"}
-  </Box>
-</TableCell>
 
+                            <TableCell align="center">
+                              <Box
+                                sx={{
+                                  px: 2,
+                                  py: 0.6,
+                                  borderRadius: 3,
+                                  fontSize: 13,
+                                  fontWeight: 800,
+                                  display: "inline-block",
+                                  backgroundColor:
+                                    stayFilter === "Active"
+                                      ? "#E8F5E9"
+                                      : stayFilter === "Finish"
+                                        ? "#FFEBEE"
+                                        : "#E3F2FD",
+                                  color:
+                                    stayFilter === "Active"
+                                      ? "#2E7D32"
+                                      : stayFilter === "Finish"
+                                        ? "#C62828"
+                                        : "#1565C0",
+                                }}
+                              >
+                                {stayFilter === "Active"
+                                  ? "نشط"
+                                  : stayFilter === "Finish"
+                                    ? "منتهي"
+                                    : "جديد"}
+                              </Box>
+                            </TableCell>
 
 
                             <TableCell align="center">
@@ -558,7 +584,7 @@ const toggleActions = (id) => {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={3} align="center">
+                          <TableCell colSpan={4} align="center">
                             لا توجد بيانات
                           </TableCell>
                         </TableRow>
@@ -572,102 +598,105 @@ const toggleActions = (id) => {
 
 
           {/* ===== Mobile Cards ===== */}
-<Box sx={{ display: { xs: "block", md: "none" } }}>
-  {elderlies.length > 0 ? (
-    elderlies.map((e) => (
-      <Card key={e.elderlyId} sx={rowCardStyles}>
-        <CardContent sx={{ p: 2 }}>
-
-          {/* اسم + الحالة + قلم */}
-<Box
-  sx={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    mb: 1,
-    gap: 1,
-  }}
->
-  <Typography sx={{ fontWeight: 800, fontSize: 15 }}>
-    {e.elderlyName}
-  </Typography>
-
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-    {/* الحالة */}
-    <Box
-      sx={{
-        px: 1.5,
-        py: 0.4,
-        borderRadius: 3,
-        fontSize: 14,
-        fontWeight: 800,
-        backgroundColor:
-          stayFilter === "Active"
-            ? "#E8F5E9"
-            : stayFilter === "Finish"
-            ? "#FFEBEE"
-            : "#E3F2FD",
-        color:
-          stayFilter === "Active"
-            ? "#2E7D32"
-            : stayFilter === "Finish"
-            ? "#C62828"
-            : "#1565C0",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {stayFilter === "Active"
-        ? "نشط"
-        : stayFilter === "Finish"
-        ? "منتهي"
-        : "جديد"}
-    </Box>
-
-    {/* القلم */}
-    <IconButton
-      size="small"
-      onClick={() => toggleActions(e.elderlyId)}
-      sx={{
-    width: 27,
-    height: 27,
-    borderRadius: 2, // هون السر 👈 مش 50%
-    backgroundColor: "#f5f5f5",
-    border: "1px solid #e0e0e0",
-    "&:hover": {
-      backgroundColor: "#e0e0e0",
-    },
-  }}
-    >
-      <EditIcon fontSize="small" />
-    </IconButton>
-  </Box>
-</Box>
+          <Box sx={{ display: { xs: "block", md: "none" } }}>
+            {filteredElderlies.length > 0 ? (
+              filteredElderlies.map((e) => (
+                <Card key={e.elderlyId} sx={rowCardStyles}>
+                  <CardContent sx={{ p: 2 }}>
+                    {/* اسم + الحالة + قلم */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 1,
+                        gap: 1,
+                      }}
+                    >
+                      <Typography sx={{ fontWeight: 800, fontSize: 15 }}>
+                        {e.elderlyName}
+                      </Typography>
 
 
-          {/* الأزرار تظهر عند الضغط */}
-          {openActionsId === e.elderlyId && (
-            <Box sx={{ mb: 1, mt: 1 }}>
-              {renderActions(e.elderlyId, e.elderlyName)}
-            </Box>
-          )}
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        {/* الحالة */}
+                        <Box
+                          sx={{
+                            px: 1.5,
+                            py: 0.4,
+                            borderRadius: 3,
+                            fontSize: 14,
+                            fontWeight: 800,
+                            backgroundColor:
+                              stayFilter === "Active"
+                                ? "#E8F5E9"
+                                : stayFilter === "Finish"
+                                  ? "#FFEBEE"
+                                  : "#E3F2FD",
+                            color:
+                              stayFilter === "Active"
+                                ? "#2E7D32"
+                                : stayFilter === "Finish"
+                                  ? "#C62828"
+                                  : "#1565C0",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {stayFilter === "Active"
+                            ? "نشط"
+                            : stayFilter === "Finish"
+                              ? "منتهي"
+                              : "جديد"}
+                        </Box>
 
-          <Button
-            fullWidth
-            variant="contained"
-            component={Link}
-            to={`/Admin/elderly/${e.elderlyId}`}
-            sx={detailsBtn}
-          >
-            تفاصيل المسن
-          </Button>
-        </CardContent>
-      </Card>
-    ))
-  ) : (
-    <Typography align="center">لا توجد بيانات</Typography>
-  )}
-</Box>
 
+                        {/* القلم */}
+                        <IconButton
+                          size="small"
+                          onClick={() => toggleActions(e.elderlyId)}
+                          sx={{
+                            width: 27,
+                            height: 27,
+                            borderRadius: 2, // هون السر 👈 مش 50%
+                            backgroundColor: "#f5f5f5",
+                            border: "1px solid #e0e0e0",
+                            "&:hover": {
+                              backgroundColor: "#e0e0e0",
+                            },
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+
+
+                    {/* الأزرار تظهر عند الضغط */}
+                    {openActionsId === e.elderlyId && (
+                      <Box sx={{ mb: 1, mt: 1 }}>
+                        {renderActions(e.elderlyId, e.elderlyName)}
+                      </Box>
+                    )}
+
+
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      component={Link}
+                      to={`/Admin/elderly/${e.elderlyId}`}
+                      sx={detailsBtn}
+                    >
+                      تفاصيل المسن
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Typography align="center">لا توجد بيانات</Typography>
+            )}
+          </Box>
         </>
       )}
 
@@ -740,7 +769,7 @@ const toggleActions = (id) => {
                 </Box>
               ) : (
                 <Grid container spacing={2}>
-                  <Grid size={{xs:12}}>
+                  <Grid size={{ xs: 12 }}>
                     <FormControl fullWidth>
                       <InputLabel>الغرفة</InputLabel>
                       <Select
@@ -762,7 +791,7 @@ const toggleActions = (id) => {
                   </Grid>
 
 
-                  <Grid size={{xs:12}}>
+                  <Grid size={{ xs: 12 }}>
                     <TextField
                       fullWidth
                       type="date"
@@ -783,7 +812,7 @@ const toggleActions = (id) => {
           <Button
             onClick={closeDialog}
             variant="outlined"
-            sx={{ borderRadius: 2 ,ml:1}}
+            sx={{ borderRadius: 2, ml: 1 }}
           >
             إلغاء
           </Button>
@@ -846,6 +875,8 @@ const toggleActions = (id) => {
     </Box>
   );
 }
+
+
 
 
 

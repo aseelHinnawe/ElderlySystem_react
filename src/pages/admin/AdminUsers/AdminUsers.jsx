@@ -19,13 +19,14 @@ import {
   Alert,
   IconButton,
   Button,
+  TextField,
   Paper,
 } from "@mui/material";
 import { Edit, TrendingUp } from "@mui/icons-material";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { Link } from "react-router";
-import style from './AdminUsers.module.css';
+import style from "./AdminUsers.module.css";
 const addRequestsCardStyles = {
   mb: 4,
   borderRadius: 5,
@@ -57,6 +58,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("Active");
   const [filterRole, setFilterRole] = useState("");
+  const [filterName, setFilterName] = useState("");
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -64,12 +66,15 @@ export default function AdminUsers() {
   });
   const [editingUserId, setEditingUserId] = useState(null);
 
+
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const params = {};
       if (filterStatus) params.status = filterStatus;
       if (filterRole) params.role = filterRole;
+      if (filterName?.trim()) params.name = filterName.trim();
+
 
       const res = await AxiosUserInstance.get("/Admin/User", { params });
       setUsers(res.data.users);
@@ -84,9 +89,16 @@ export default function AdminUsers() {
     setLoading(false);
   };
 
+
   useEffect(() => {
-    fetchUsers();
-  }, [filterStatus, filterRole]);
+    const t = setTimeout(() => {
+      fetchUsers();
+    }, 400);
+
+
+    return () => clearTimeout(t);
+  }, [filterStatus, filterRole, filterName]);
+
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -110,19 +122,14 @@ export default function AdminUsers() {
     }
   };
 
+
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* لوحة المستخدمين */}
-      <Card
-        sx={addRequestsCardStyles}
-      >
-        <CardContent
-         className={style.headerContent}
-        >
+      <Card sx={addRequestsCardStyles}>
+        <CardContent className={style.headerContent}>
           <Box>
-            <Box
-             className={style.titleWrapper}
-            >
+            <Box className={style.titleWrapper}>
               <Typography
                 variant="h4"
                 sx={{ fontWeight: "bold", fontSize: { xs: 18, md: 28 } }}
@@ -144,11 +151,11 @@ export default function AdminUsers() {
             </Typography>
           </Box>
 
+
           <Box
             sx={{
               width: { xs: 50, md: 70 },
               height: { xs: 50, md: 70 },
-             
             }}
             className={style.iconCircle}
           >
@@ -157,8 +164,24 @@ export default function AdminUsers() {
         </CardContent>
       </Card>
 
+
       {/* الفلاتر */}
       <Grid container spacing={2} className={style.filtersGrid}>
+        <Grid size={{ xs: 12, md: 3 }}>
+          <TextField
+            fullWidth
+            label="بحث بالاسم"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+            placeholder="اكتب اسم المستخدم..."
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 3,
+                backgroundColor: "#fefefe",
+              },
+            }}
+          />
+        </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth>
             <InputLabel sx={{ color: "#6a6a57", fontWeight: 500 }}>
@@ -175,6 +198,7 @@ export default function AdminUsers() {
             </Select>
           </FormControl>
         </Grid>
+
 
         <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth>
@@ -195,6 +219,7 @@ export default function AdminUsers() {
         </Grid>
       </Grid>
 
+
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
           <CircularProgress color="primary" />
@@ -205,9 +230,9 @@ export default function AdminUsers() {
             <Card
               component={Paper}
               sx={{
-    borderRadius: 3, // 3*8px = 24px
-    overflow: "hidden",
-  }}
+                borderRadius: 3, // 3*8px = 24px
+                overflow: "hidden",
+              }}
             >
               <CardContent sx={{ p: 0 }}>
                 <Box sx={{ overflowX: "auto" }}>
@@ -229,6 +254,7 @@ export default function AdminUsers() {
                       </TableRow>
                     </TableHead>
 
+
                     <TableBody>
                       {users.length > 0 ? (
                         users.map((user) => (
@@ -239,6 +265,7 @@ export default function AdminUsers() {
                             <TableCell align="center">
                               {user.roleUser}
                             </TableCell>
+
 
                             <TableCell align="center">
                               {editingUserId === user.id ? (
@@ -256,8 +283,8 @@ export default function AdminUsers() {
                                     sx={{
                                       borderRadius: 2,
                                       textTransform: "none",
-                                      boxShadow: "none",                               
-                                      fontSize: { xs: 10, md: 13 },                           
+                                      boxShadow: "none",
+                                      fontSize: { xs: 10, md: 13 },
                                     }}
                                     onClick={() =>
                                       handleStatusChange(
@@ -272,6 +299,7 @@ export default function AdminUsers() {
                                       ? "تغيير الى غير نشط"
                                       : "تغيير الى نشط"}
                                   </Button>
+
 
                                   <Button
                                     size="small"
@@ -288,11 +316,9 @@ export default function AdminUsers() {
                                   </Button>
                                 </Box>
                               ) : (
-                                <Box
-                                  className={style.centerFlexWrap}
-                                >
+                                <Box className={style.centerFlexWrap}>
                                   <Box
-                                    sx={{                                
+                                    sx={{
                                       backgroundColor:
                                         user.statusUser === "نشط"
                                           ? "#E8F5E9"
@@ -309,6 +335,7 @@ export default function AdminUsers() {
                                       : "غير نشط"}
                                   </Box>
 
+
                                   <IconButton
                                     size="small"
                                     onClick={() => setEditingUserId(user.id)}
@@ -324,22 +351,20 @@ export default function AdminUsers() {
                               )}
                             </TableCell>
 
+
                             <TableCell align="center">
                               <Button
                                 size="small"
                                 variant="contained"
-                                component={Link}               
-                                to={`/Admin/user/${user.id}`}       
+                                component={Link}
+                                to={`/Admin/user/${user.id}`}
                                 sx={{
                                   ...userDetailsButtonStyles,
                                   fontSize: { xs: 10, md: 13 },
                                   backgroundColor: "#FFF8E1",
-                                      color: "#8D6E63",
-                                      border: "1px solid rgba(141,110,99,0.35)",
+                                  color: "#8D6E63",
+                                  border: "1px solid rgba(141,110,99,0.35)",
                                 }}
-                                onClick={() =>
-                                  console.log("تفاصيل المستخدم:", user.id)
-                                }
                               >
                                 تفاصيل المستخدم
                               </Button>
@@ -360,35 +385,34 @@ export default function AdminUsers() {
             </Card>
           </Box>
 
+
           {/* ====== Mobile (xs/sm) : Cards ====== */}
           <Box sx={{ display: { xs: "block", md: "none" } }}>
             {users.length > 0 ? (
               users.map((user) => {
                 const isActive = user.statusUser === "نشط";
 
+
                 return (
-                  <Card
-                    key={user.id}
-                    sx={userCardStyles}
-                  >
+                  <Card key={user.id} sx={userCardStyles}>
                     <CardContent sx={{ p: 2 }}>
                       {/* Header: Name + Status chip + Edit */}
-                      <Box
-                        className={style.flexSpaceBetween}
-                      >
+                      <Box className={style.flexSpaceBetween}>
                         <Box sx={{ minWidth: 0 }}>
-                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-  <Typography sx={{ fontWeight: 800, fontSize: 14 }}>
-    الاسم : {user.fullName}
-  </Typography>
-</Box>
-
-                          <Typography
-                            className={style.roleText}
+                          <Box
+                            sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
                           >
+                            <Typography sx={{ fontWeight: 800, fontSize: 14 }}>
+                              الاسم : {user.fullName}
+                            </Typography>
+                          </Box>
+
+
+                          <Typography className={style.roleText}>
                             الدور : {user.roleUser}
                           </Typography>
                         </Box>
+
 
                         {editingUserId === user.id ? (
                           <Button
@@ -408,21 +432,23 @@ export default function AdminUsers() {
                               gap: 0.75,
                             }}
                           >
-                           <Box
-  sx={{
-    px: 1.5,           // Padding أفقي
-    py: 0.4,           // Padding عمودي
-    borderRadius: 3,   // زوايا مستديرة
-    fontSize: 14,
-    fontWeight: 800,
-    display: "inline-block",
-    backgroundColor: isActive ? "#E8F5E9" : "#FFEBEE",
-    color: isActive ? "#2E7D32" : "#C62828",
-    whiteSpace: "nowrap",
-  }}
->
-  {isActive ? "نشط" : "غير نشط"}
-</Box>
+                            <Box
+                              sx={{
+                                px: 1.5, // Padding أفقي
+                                py: 0.4, // Padding عمودي
+                                borderRadius: 3, // زوايا مستديرة
+                                fontSize: 14,
+                                fontWeight: 800,
+                                display: "inline-block",
+                                backgroundColor: isActive
+                                  ? "#E8F5E9"
+                                  : "#FFEBEE",
+                                color: isActive ? "#2E7D32" : "#C62828",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {isActive ? "نشط" : "غير نشط"}
+                            </Box>
 
 
                             <IconButton
@@ -441,6 +467,7 @@ export default function AdminUsers() {
                           </Box>
                         )}
                       </Box>
+
 
                       {/* Actions */}
                       <Box
@@ -472,8 +499,8 @@ export default function AdminUsers() {
                             sx={{
                               ...userDetailsButtonStyles,
                               backgroundColor: "#FFF8E1",
-                                      color: "#8D6E63",
-                                      border: "1px solid rgba(141,110,99,0.35)",
+                              color: "#8D6E63",
+                              border: "1px solid rgba(141,110,99,0.35)",
                             }}
                             onClick={() =>
                               console.log("تفاصيل المستخدم:", user.id)
@@ -494,6 +521,7 @@ export default function AdminUsers() {
         </>
       )}
 
+
       {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
@@ -508,3 +536,6 @@ export default function AdminUsers() {
     </Box>
   );
 }
+
+
+
