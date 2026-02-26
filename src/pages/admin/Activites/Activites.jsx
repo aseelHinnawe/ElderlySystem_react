@@ -340,8 +340,6 @@ export default function Activites() {
   </Card>
 </Box>
 
-
-
       {/* ===== Mobile Cards ===== */}
 <Box sx={{ display: { xs: "block", lg: "none" } }}>
   {filteredActivities.length > 0 ? (

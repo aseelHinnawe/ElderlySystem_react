@@ -33,7 +33,6 @@ import Elderlies from "./pages/nurse/Elderlies/Elderlies.jsx";
 import ElderlyDetail from "./pages/nurse/ElderlyDetail/ElderlyDetail.jsx";
 import AddCheckList from "./pages/nurse/AddCheckList/AddCheckList.jsx";
 import ElderlyCheckList from "./pages/nurse/ElderlyCheckList/ElderlyCheckList.jsx";
-import CheckListDetails from "./pages/nurse/CheckListDetails/CheckListDetails.jsx";
 
 const router = createBrowserRouter([
   {
@@ -115,10 +114,7 @@ const router = createBrowserRouter([
         path: "elderly/checklist",
         element: <ElderlyCheckList />,
       },
-      {
-        path: "elderly/checklist/:id",
-        element: <CheckListDetails />,
-      },
+    
     ],
   },
   {
