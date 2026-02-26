@@ -1,196 +1,178 @@
 import React from "react";
 import {
   Box,
-  Grid,
   Card,
-  CardContent,
   Typography,
-  CircularProgress,
+  Grid,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import {
-  ElderlyWoman,
-  People,
-  LocalHospital,
-  MonetizationOn,
-  Event,
-  TrendingUp,
+  PeopleAltOutlined,
+  VolunteerActivism,
+  CalendarMonthOutlined,
+  PaidOutlined,
+  GroupsOutlined,
+  HomeOutlined,
 } from "@mui/icons-material";
-import { useQuery } from "@tanstack/react-query";
-import AxiosUserInstance from "../../../api/AxiosUserInstance";
-import style from "./AdminHome.module.css";
-const welcomeCardStyles = {
-  mb: 4,
-  borderRadius: 5,
-  background: "linear-gradient(135deg,rgb(106,106,87),rgb(160,160,120))",
-  color: "#fff",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-};
+import {
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
 
+// بيانات الكروت
+const stats = [
+  { label: "عدد المسنين", value: 12, icon: <PeopleAltOutlined fontSize="large" />, color: "#f86437", progress: 60 },
+  { label: "عدد الممرضين", value: 4, icon: <VolunteerActivism fontSize="large" />, color: "#29b6f6", progress: 30 },
+  { label: "عدد الانشظة", value: 8, icon: <CalendarMonthOutlined fontSize="large" />, color: "#66bb6a", progress: 45 },
+  { label: "عدد التبرعات", value: 7, icon: <PaidOutlined fontSize="large" />, color: "#b541c9", progress: 70 },
+  { label: "عدد الغرف", value: 5, icon: <HomeOutlined fontSize="large" />, color: "#ffa726", progress: 50 },
+  { label: "عدد الكفلاء", value: 5, icon: <GroupsOutlined fontSize="large" />, color: "#f56bc7", progress: 50 },
+];
+
+// بيانات التبرعات لكل أشهر السنة
+const donationsOverTime = [
+  { month: "يناير", donations: 2 },
+  { month: "فبراير", donations: 3 },
+  { month: "مارس", donations: 4 },
+  { month: "أبريل", donations: 6 },
+  { month: "مايو", donations: 7 },
+  { month: "يونيو", donations: 4 },
+  { month: "يوليو", donations: 4 },
+  { month: "أغسطس", donations: 2 },
+  { month: "سبتمبر", donations: 3 },
+  { month: "أكتوبر", donations: 2 },
+  { month: "نوفمبر", donations: 5 },
+  { month: "ديسمبر", donations: 1 },
+];
+
+// مهام المدير
+const tasks = [
+  { 
+    title: "مراجعة سجل التبرعات", 
+    desc: "تأكد من تحديث التبرعات النقدية والعينية.", 
+    iconText: "📝", // قلم 
+    color: "#f4ede2" // بيج هادئ
+  },
+  { 
+    title: "تأكيد الأنشطة القادمة", 
+    desc: "راجع الأنشطة القادمة وجدول المشاركين.", 
+    iconText: "📅", // تقويم
+    color: "#E8F5E9" // أخضر فاتح هادئ
+  },
+  { 
+    title: "إرسال إشعارات للكفلاء", 
+    desc: "تواصل مع الكفلاء حول آخر المستجدات.", 
+    iconText: "✉️", // رسالة 
+    color: "#E3F2FD" // أزرق فاتح هادئ
+  },
+  { 
+    title: "متابعة الموظفين", 
+    desc: "تأكد من حضور الممرضين والمشرفين.", 
+    iconText: "✅", // علامة صح
+    color: "#FCE4EC" // وردي فاتح هادئ
+  },
+];
 
 export default function AdminHome() {
-  // ==== Fetch البيانات باستخدام axiosUserInstance ====
-  const fetchStats = async () => {
-    const res = await AxiosUserInstance.get("/Admin/dashboard/stats");
-    return res.data.data;
-  };
-
-  const { data: stats, isLoading, isError, error } = useQuery({
-    queryKey: ["adminStats"],
-    queryFn: fetchStats,
-    staleTime: 1000 * 60 * 5, // cache لمدة 5 دقائق
-  });
-
-  // ==== Loader ====
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  // ==== Error ====
-  if (isError) {
-    return (
-      <Box sx={{ textAlign: "center", mt: 4 }}>
-        <Typography variant="h6" color="error">
-          فشل في تحميل الإحصائيات: {error.message}
-        </Typography>
-      </Box>
-    );
-  }
-
-  // ==== كومبوننت للكارد الواحد ====
-  const StatCard = ({ Icon, label, value, color }) => (
-    <Card
-      sx={{
-        borderRadius: 3,
-        boxShadow: 3,
-        background: `linear-gradient(135deg, ${color}20, ${color}50)`,
-        transition: "transform 0.3s, box-shadow 0.3s",
-        "&:hover": {
-          transform: "translateY(-5px)",
-          boxShadow: "0 8px 20px rgba(0,0,0,0.35)",
-        },
-      }}
-    >
-      <CardContent sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-        <Box
-          sx={{
-            width: 60,
-            height: 60,
-            borderRadius: "50%",
-            bgcolor: `${color}33`,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Icon sx={{ fontSize: 40, color }} />
-        </Box>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-            {value}
-          </Typography>
-          <Typography variant="h6" color="text.secondary">
-            {label}
-          </Typography>
-        </Box>
-      </CardContent>
-    </Card>
-  );
-
   return (
-    <Box sx={{ p: 3 }}>
-      {/* بطاقة الترحيب */}
-      <Card
-          sx={welcomeCardStyles}
-        >
-          <CardContent
-            className={style.welcomeContent}
-          >
-            <Box>
-              <Box className={style.titleWrapper}>
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: "bold", fontSize: { xs: 18, md: 28 } }}
-                >
-              لوحة التحكم
-                </Typography>
-              </Box>
-              <Typography
-                sx={{ opacity: 0.9, mt: { xs: 1, md: 2 }, fontSize: { xs: 12, md: 16 } }}
+    <Box sx={{ p: 3, minHeight: "100vh", background: "#f9f9f4" }}>
+      <Typography variant="h4" sx={{ mb: 3, fontWeight: 900 ,color:"#6a6a57"}}>
+        لوحة التحكم الرئيسية
+      </Typography>
+
+      {/* ====== كروت الإحصائيات ====== */}
+      <Grid container spacing={3} sx={{ mb: 5 }}>
+        {stats.map((s, idx) => (
+          <Grid size={{xs:12,sm:6,lg:4}} key={idx}>
+            <Card sx={{ display: "flex", p: 2, alignItems: "center", gap: 2, borderRadius: 3 }}>
+              <Box
+                sx={{
+                  backgroundColor: s.color + "33",
+                  p: 1.5,
+                  borderRadius: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
- أهلاً بك 👋 — نظرة شاملة على إحصائيات دار المسنين              </Typography>
-            </Box>
-      
-            <Box
-              sx={{
-                width: { xs: 50, md: 70 },
-                height: { xs: 50, md: 70 },
-              }}
-              className={style.iconCircle}
-            >
-              <TrendingUp sx={{ fontSize: { xs: 28, md: 40 }, color: "#fff" }} />
-            </Box>
-          </CardContent>
-        </Card>
+                {s.icon}
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontWeight: 700 }}>{s.label}</Typography>
+                <Typography sx={{ fontSize: 22, fontWeight: 900 }}>{s.value}</Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={s.progress}
+                  sx={{ mt: 1, height: 8, borderRadius: 5 }}
+                />
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
-      {/* Grid للكروت */}
-      <Grid container spacing={3}>
-  <Grid size={{xs:12 , sm:6}}>
-    <StatCard
-      Icon={ElderlyWoman}
-      label="عدد المسنين"
-      value={stats.elderlyCount}
-      color="#999963"
-    />
-  </Grid>
+      {/* ====== الرسم البياني + المهام ====== */}
+      <Grid container spacing={4} alignItems="stretch">
+        {/* الرسم البياني */}
+        <Grid size={{xs:12,lg:7}}>
+          <Card sx={{ p: 2, height: "100%" }}>
+            <Typography sx={{ fontWeight: 700, mb: 2 }}>التبرعات الشهرية</Typography>
+     <Box sx={{ width: "100%", height: 400 }}> 
+  <ResponsiveContainer width="100%" height={400}>
+    <ComposedChart margin={{ right: 10, left: -35 }} data={donationsOverTime}>
+      <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+      <XAxis dataKey="month" angle={-40} textAnchor="end" />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="donations" fill="#bdddae" radius={[5,5,0,0]} />
+      <Line type="monotone" dataKey="donations" stroke="#3e9132" strokeWidth={2} />
+    </ComposedChart>
+  </ResponsiveContainer>
+</Box>
+          </Card>
+        </Grid>
 
-  <Grid size={{xs:12 , sm:6}}>
-    <StatCard
-      Icon={People}
-      label="عدد الكفلاء"
-      value={stats.sponsorsCount}
-      color="#f29a56"
-    />
-  </Grid>
-
-  <Grid size={{xs:12 , sm:6}}>
-    <StatCard
-      Icon={LocalHospital}
-      label="عدد الممرضين"
-      value={stats.nursesCount}
-      color="#6b9ff8"
-    />
-  </Grid>
-
-  <Grid size={{xs:12 , sm:6}}>
-    <StatCard
-      Icon={MonetizationOn}
-      label="عدد التبرعات"
-      value={stats.donationsCountToDate}
-      color="#7ac17d"
-    />
-  </Grid>
-
-  <Grid size={{xs:12 , sm:6}}>
-    <StatCard
-      Icon={Event}
-      label="عدد الأنشطة"
-      value={stats.eventsCountToDate}
-      color="#e388a7"
-    />
-  </Grid>
-</Grid>
-
+        {/* قائمة المهام */}
+        <Grid  size={{xs:12,lg:5}}>
+          <Card sx={{ p: 2, height: "100%" }}>
+            <Typography sx={{ fontWeight: 700, mb: 2 }}>مهام المدير</Typography>
+        <List>
+  {tasks.map((task, idx) => (
+    <Box key={idx} sx={{ mb: idx < tasks.length - 1 ? 2 : 0 }}>
+      <ListItem sx={{ background: task.color, borderRadius: 2, alignItems: "center" }}>
+        {/* أيقونة على اليسار */}
+        <Box sx={{ fontSize: 28, ml: 2, display: "flex", alignItems: "center" }}>
+          {task.iconText}
+        </Box>
+        {/* النصوص على اليمين */}
+        <ListItemText
+          primary={
+            <Typography sx={{ fontWeight: 700, color: "#333", textAlign: "right" }}>
+              {task.title}
+            </Typography>
+          }
+          secondary={
+            <Typography sx={{ color: "#666", textAlign: "right" }}>
+              {task.desc}
+            </Typography>
+          }
+        />
+      </ListItem>
+    </Box>
+  ))}
+</List>
+          </Card>
+        </Grid>
+      </Grid>
     </Box>
   );
 }

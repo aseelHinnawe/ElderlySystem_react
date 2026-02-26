@@ -120,13 +120,11 @@ export default function ElderlyDetail() {
   const [loading, setLoading] = useState(true);
 
 
-  // ===== Diagnosis view =====
   const [selectedReport, setSelectedReport] = useState(null);
   const [selectedReportId, setSelectedReportId] = useState("");
   const [loadingReport, setLoadingReport] = useState(false);
 
 
-  // ===== snackbar =====
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -134,35 +132,31 @@ export default function ElderlyDetail() {
   });
 
 
-  // ===== Preview Dialog =====
   const [openPreview, setOpenPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
 
 
-  // ===== Comprehensive Exam Upload/Delete =====
   const examInputRef = useRef(null);
   const [uploadingExam, setUploadingExam] = useState(false);
   const [deletingExam, setDeletingExam] = useState(false);
 
 
-  // ===== Diseases Edit =====
   const [editDiseases, setEditDiseases] = useState(false);
-  const [diseaseInput, setDiseaseInput] = useState(""); // comma separated
+  const [diseaseInput, setDiseaseInput] = useState("");
   const [savingDiseases, setSavingDiseases] = useState(false);
 
 
-  // ===== Doctors + Add Medical Report =====
   const [doctors, setDoctors] = useState([]);
   const [openAddReport, setOpenAddReport] = useState(false);
   const reportFileRef = useRef(null);
 
 
-  const [reportDate, setReportDate] = useState(""); // yyyy-MM-dd
+  const [reportDate, setReportDate] = useState("");
   const [reportFile, setReportFile] = useState(null);
 
 
-  const [doctorMode, setDoctorMode] = useState("existing"); // existing | new
+  const [doctorMode, setDoctorMode] = useState("existing");
   const [selectedDoctorId, setSelectedDoctorId] = useState("");
 
 
@@ -176,7 +170,6 @@ export default function ElderlyDetail() {
   const [savingReport, setSavingReport] = useState(false);
 
 
-  // ===== Helpers =====
   const isPdf = (url = "") => url.toLowerCase().includes(".pdf");
 
 
@@ -548,7 +541,7 @@ export default function ElderlyDetail() {
   const basicFields = useMemo(() => {
     if (!elderly) return [];
     return [
-      { label: "الرقم الوطني", value: elderly.nationalId, icon: <BadgeIcon /> },
+      { label: "رقم الهوية", value: elderly.nationalId, icon: <BadgeIcon /> },
       {
         label: "رقم الغرفة",
         value: elderly.roomNumber ?? "-",
@@ -632,24 +625,25 @@ export default function ElderlyDetail() {
 
 
             <Box sx={{ flexGrow: 1 }}>
-              <Typography sx={cardTitleSx("#6a6a57")}>
-                البيانات الأساسية
-              </Typography>
+  <Typography sx={cardTitleSx("#6a6a57")}>
+    البيانات الأساسية
+  </Typography>
+
+  <Grid container spacing={1.2} sx={{ mt: 1 }}>
+    {basicFields.map((f, i) => (
+      <Grid size={{ xs: 12, sm: 6 }} key={i}>
+        <FieldRow
+          icon={f.icon}
+          label={f.label}
+          value={f.value}
+        />
+      </Grid>
+    ))}
+  </Grid>
+</Box>
 
 
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
-                {basicFields.map((f, i) => (
-                  <FieldRow
-                    key={i}
-                    icon={f.icon}
-                    label={f.label}
-                    value={f.value}
-                  />
-                ))}
-              </Box>
-            </Box>
-
-
+            {/* ===== Diseases ===== */}
             {/* ===== Diseases ===== */}
             <Box>
               <Box
@@ -671,6 +665,7 @@ export default function ElderlyDetail() {
                     ...softBtnSx,
                     borderColor: "rgba(65,125,68,0.35)",
                     color: "#2f5f33",
+                    gap: 1.25,
                     "&:hover": { borderColor: "rgba(65,125,68,0.8)" },
                   }}
                 >
@@ -689,6 +684,8 @@ export default function ElderlyDetail() {
                     placeholder="مثال: ضغط, سكري, كوليسترول"
                     size="small"
                   />
+
+
                   <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
                     <Button
                       onClick={handleAddDiseases}
@@ -724,8 +721,37 @@ export default function ElderlyDetail() {
                           alignItems: "center",
                           justifyContent: "space-between",
                           gap: 1.5,
+                          position: "relative",
+                          overflow: "hidden",
+
+
+                          pl: editDiseases ? 6 : 1.6,
                         }}
                       >
+                        {editDiseases && (
+                          <IconButton
+                            onClick={() => handleRemoveDisease(d)}
+                            sx={{
+                              position: "absolute",
+                              top: 0,
+                              left: 1,
+                              zIndex: 2,
+                              width: 34,
+                              height: 34,
+                              borderRadius: 900,
+                              border: "1px solid rgba(198,40,40,0.35)",
+                              bgcolor: "#fff",
+                              boxShadow: "0 8px 18px rgba(0,0,0,0.08)",
+                              "&:hover": { bgcolor: "rgba(198,40,40,0.06)" },
+                            }}
+                          >
+                            <DeleteOutlineIcon
+                              sx={{ color: "#C62828", fontSize: 20 }}
+                            />
+                          </IconButton>
+                        )}
+
+
                         <Box
                           sx={{
                             display: "flex",
@@ -766,6 +792,8 @@ export default function ElderlyDetail() {
                             >
                               {d}
                             </Typography>
+
+
                             <Typography
                               sx={{
                                 fontSize: 12,
@@ -776,33 +804,6 @@ export default function ElderlyDetail() {
                               مرض مسجّل
                             </Typography>
                           </Box>
-                        </Box>
-
-
-                        <Box
-                          sx={{ display: "flex", gap: 1, alignItems: "center" }}
-                        >
-                          {editDiseases && (
-                            <IconButton
-                              onClick={() => handleRemoveDisease(d)}
-                              sx={{
-                                border: "1px solid rgba(198,40,40,0.35)",
-                                bgcolor: "#fff",
-                                "&:hover": { bgcolor: "rgba(198,40,40,0.06)" },
-                              }}
-                            >
-                              <DeleteOutlineIcon sx={{ color: "#C62828" }} />
-                            </IconButton>
-                          )}
-                          <Chip
-                            label={idx + 1}
-                            sx={{
-                              fontWeight: 1000,
-                              bgcolor: "rgba(65,125,68,0.12)",
-                              color: "#2f5f33",
-                              border: "1px solid rgba(65,125,68,0.18)",
-                            }}
-                          />
                         </Box>
                       </Box>
                     </Grid>
@@ -858,6 +859,10 @@ export default function ElderlyDetail() {
                     ...softBtnSx,
                     backgroundColor: "#417d44",
                     "&:hover": { backgroundColor: "#356836" },
+                    "& .MuiButton-startIcon": {
+                      marginInlineEnd: "10px",
+                      marginInlineStart: 0,
+                    },
                   }}
                 >
                   إضافة تشخيص
@@ -868,7 +873,7 @@ export default function ElderlyDetail() {
               {hasReports ? (
                 <Box
                   sx={{
-                    mt: 1.5,
+                    mt: 3,
                     display: "flex",
                     flexDirection: "column",
                     gap: 2,
@@ -1078,11 +1083,14 @@ export default function ElderlyDetail() {
 
 
                 {elderly.comprehensiveExamination ? (
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    flexWrap="wrap"
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 1,
+                      flexWrap: "wrap",
+                    }}
                   >
                     <Button
                       onClick={() =>
@@ -1105,7 +1113,6 @@ export default function ElderlyDetail() {
                     </Button>
 
 
-                    {/* ✅ زر الحذف فقط إذا في رابط */}
                     {!!elderly.comprehensiveExamination && (
                       <Button
                         onClick={handleDeleteExam}
@@ -1114,6 +1121,7 @@ export default function ElderlyDetail() {
                         startIcon={<DeleteOutlineIcon />}
                         sx={{
                           ...softBtnSx,
+                          gap: 1,
                           borderColor: "rgba(198,40,40,0.35)",
                           color: "#C62828",
                           "&:hover": { borderColor: "rgba(198,40,40,0.8)" },
@@ -1122,10 +1130,7 @@ export default function ElderlyDetail() {
                         {deletingExam ? "جاري الحذف..." : "حذف"}
                       </Button>
                     )}
-
-
-                 
-                  </Stack>
+                  </Box>
                 ) : (
                   <Box
                     sx={{
@@ -1314,7 +1319,7 @@ export default function ElderlyDetail() {
                 onClick={pickReportFile}
                 variant="outlined"
                 startIcon={<UploadFileOutlinedIcon />}
-                sx={{ ...softBtnSx }}
+                sx={{ ...softBtnSx, gap: 1.5 }}
               >
                 اختيار ملف التشخيص
               </Button>
@@ -1352,6 +1357,7 @@ export default function ElderlyDetail() {
                 variant={doctorMode === "new" ? "contained" : "outlined"}
                 sx={{
                   ...softBtnSx,
+                  gap: 1.5,
                   backgroundColor: doctorMode === "new" ? "#417d44" : undefined,
                   "&:hover":
                     doctorMode === "new"
@@ -1380,7 +1386,7 @@ export default function ElderlyDetail() {
                 >
                   {doctors.map((d) => (
                     <MenuItem key={d.doctorId} value={d.doctorId}>
-                      {d.name} {/* ✅ فقط الاسم */}
+                      {d.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -1432,6 +1438,7 @@ export default function ElderlyDetail() {
             sx={{
               ...softBtnSx,
               backgroundColor: "#417d44",
+              gap: 1.5,
               "&:hover": { backgroundColor: "#356836" },
             }}
           >

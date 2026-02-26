@@ -20,7 +20,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 
 import { TrendingUp } from "@mui/icons-material";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
@@ -320,8 +321,22 @@ export default function Donation() {
                               {d.donationDate}
                             </TableCell>
                             <TableCell align="center">
-                              {d.donationType}
-                            </TableCell>
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 1,
+      fontWeight: 700,
+    }}
+  >
+    <Box sx={{ fontSize: 22 }}>
+      {String(d.donationType || "").includes("نقد") ? "💵" : "📦"}
+    </Box>
+
+    {d.donationType}
+  </Box>
+</TableCell>
 
 
                             <TableCell align="center">

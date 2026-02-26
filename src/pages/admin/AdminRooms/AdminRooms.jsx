@@ -311,8 +311,25 @@ export default function AdminRooms() {
                           <TableRow key={r.id}>
                             <TableCell align="center">{r.roomNumber}</TableCell>
                             <TableCell align="center">
-                              {r.roomTypeName}
-                            </TableCell>
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 1,
+      fontWeight: 700,
+    }}
+  >
+    <Box sx={{ fontSize: 20 }}>
+      {r.roomTypeName === "درجة أولى" ||
+      r.roomType === "FirstClass"
+        ? "👤"
+        : "👥"}
+    </Box>
+
+    {r.roomTypeName}
+  </Box>
+</TableCell>
                             <TableCell align="center">
                               {r.currentCapacity}
                             </TableCell>

@@ -26,6 +26,9 @@ import {
   ExpandLess,
   ExpandMore,
   Bed,
+  FactCheck,
+  PlaylistAddCheck,
+  ListAlt,
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
@@ -85,20 +88,23 @@ export default function NurseLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+
   const [open, setOpen] = useState(!isSmallScreen);
   const [anchorEl, setAnchorEl] = useState(null);
   const [elderlyFolderOpen, setElderlyFolderOpen] = useState(true);
-  
-
+  const [dailyChecksOpen, setDailyChecksOpen] = useState(true);
   const [activePage, setActivePage] = useState("الرئيسية");
   const isMenuOpen = Boolean(anchorEl);
+
 
   useEffect(() => {
     setOpen(!isSmallScreen);
   }, [isSmallScreen]);
 
+
   useEffect(() => {
     const path = location.pathname;
+
 
     if (path === "/Nurse" || path === "/Nurse/") {
       setActivePage("الرئيسية");
@@ -111,9 +117,22 @@ export default function NurseLayout() {
       return;
     }
 
-     if (path.startsWith("/Nurse/elderlies")) {
+
+    if (path.startsWith("/Nurse/elderlies")) {
       setActivePage("المسنين");
       setElderlyFolderOpen(true);
+      return;
+    }
+    if (path.startsWith("/Nurse/elderly/add-checklist")) {
+      setActivePage("إضافة فحص");
+      setDailyChecksOpen(true);
+      return;
+    }
+
+
+    if (path.startsWith("/Nurse/elderly/checklist")) {
+      setActivePage("عرض الفحوصات");
+      setDailyChecksOpen(true);
       return;
     }
   }, [location.pathname]);
@@ -128,13 +147,15 @@ export default function NurseLayout() {
       navigate("/Nurse/profile");
       if (isSmallScreen) setOpen(false);
     }
-    
+
+
     handleMenuClose();
   };
 
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
+
 
   const toggleElderlyFolder = () => {
     if (isSmallScreen && !open) {
@@ -144,7 +165,14 @@ export default function NurseLayout() {
     }
     setElderlyFolderOpen((prev) => !prev);
   };
-
+  const toggleDailyChecksFolder = () => {
+    if (isSmallScreen && !open) {
+      setOpen(true);
+      setDailyChecksOpen(true);
+      return;
+    }
+    setDailyChecksOpen((prev) => !prev);
+  };
   const goTo = (label, path) => {
     setActivePage(label);
     navigate(path);
@@ -237,52 +265,115 @@ export default function NurseLayout() {
             </ListItemButton>
           </ListItem>
 
-          {/* إدارة المسنين */}
-                    <ListItem disablePadding>
-                      <ListItemButton onClick={toggleElderlyFolder} sx={navBtnSx(open)}>
-                        <ListItemIcon sx={navIconSx}>
-                          <ElderlyWoman />
-                        </ListItemIcon>
-          
-          
-                        {open && (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              width: "100%",
-                              minWidth: 0,
-                            }}
-                          >
-                            <Typography sx={{ fontWeight: 700 }} noWrap>
-                              إدارة المسنين
-                            </Typography>
-                            {elderlyFolderOpen ? <ExpandLess /> : <ExpandMore />}
-                          </Box>
-                        )}
-                      </ListItemButton>
-                    </ListItem>
-          
-          
-                    <Collapse in={elderlyFolderOpen} timeout="auto" unmountOnExit>
-                      <Box sx={{ mt: 0.5 }}>
-                        <ListItem disablePadding>
-                          <ListItemButton
-                            onClick={() => goTo("المسنين", "/Nurse/elderlies")}
-                            sx={navBtnSx(open, true)}
-                          >
-                            <ListItemIcon sx={navIconSx}>
-                              <Bed fontSize="small" />
-                            </ListItemIcon>
-                            {open && (
-                              <ListItemText primary="المسنين" sx={navTextSx} />
-                            )}
-                          </ListItemButton>
-                        </ListItem>
-                      </Box>
-                    </Collapse>
 
+          {/* إدارة المسنين */}
+          <ListItem disablePadding>
+            <ListItemButton onClick={toggleElderlyFolder} sx={navBtnSx(open)}>
+              <ListItemIcon sx={navIconSx}>
+                <ElderlyWoman />
+              </ListItemIcon>
+
+
+              {open && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    minWidth: 0,
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 700 }} noWrap>
+                    إدارة المسنين
+                  </Typography>
+                  {elderlyFolderOpen ? <ExpandLess /> : <ExpandMore />}
+                </Box>
+              )}
+            </ListItemButton>
+          </ListItem>
+
+
+          <Collapse in={elderlyFolderOpen} timeout="auto" unmountOnExit>
+            <Box sx={{ mt: 0.5 }}>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => goTo("المسنين", "/Nurse/elderlies")}
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <Bed fontSize="small" />
+                  </ListItemIcon>
+                  {open && <ListItemText primary="المسنين" sx={navTextSx} />}
+                </ListItemButton>
+              </ListItem>
+            </Box>
+          </Collapse>
+          {/* إدارة الفحوصات اليومية */}
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={toggleDailyChecksFolder}
+              sx={navBtnSx(open)}
+            >
+              <ListItemIcon sx={navIconSx}>
+               <FactCheck />
+              </ListItemIcon>
+
+
+              {open && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    minWidth: 0,
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 700 }} noWrap>
+                    إدارة الفحوصات
+                  </Typography>
+                  {dailyChecksOpen ? <ExpandLess /> : <ExpandMore />}
+                </Box>
+              )}
+            </ListItemButton>
+          </ListItem>
+
+
+          <Collapse in={dailyChecksOpen} timeout="auto" unmountOnExit>
+            <Box sx={{ mt: 0.5 }}>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() =>
+                    goTo("إضافة فحص", "/Nurse/elderly/add-checklist")
+                  }
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <PlaylistAddCheck fontSize="small" />
+                  </ListItemIcon>
+                  {open && <ListItemText primary="إضافة فحص" sx={navTextSx} />}
+                </ListItemButton>
+              </ListItem>
+
+
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() =>
+                    goTo("عرض الفحوصات", "/Nurse/elderly/checklist")
+                  }
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                   <ListAlt fontSize="small" />
+                  </ListItemIcon>
+                  {open && (
+                    <ListItemText primary="الفحوصات" sx={navTextSx} />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            </Box>
+          </Collapse>
         </List>
       </Box>
 
