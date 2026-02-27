@@ -19,6 +19,15 @@ import {
   Typography,
 } from "@mui/material";
 
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import ThermostatIcon from "@mui/icons-material/Thermostat";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+import BloodtypeIcon from "@mui/icons-material/Bloodtype";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
+import WaterDropIcon from "@mui/icons-material/WaterDrop";
+import ScienceIcon from "@mui/icons-material/Science";
+import InfoIcon from "@mui/icons-material/Info";
+
 
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
@@ -26,9 +35,106 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import TableRowsOutlinedIcon from "@mui/icons-material/TableRowsOutlined";
 import KeyboardArrowDownOutlinedIcon from "@mui/icons-material/KeyboardArrowDownOutlined";
 import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined";
-
-
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
+import NotesOutlinedIcon from "@mui/icons-material/NotesOutlined";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+
+
+const deleteDialogSx = {
+  "& .MuiDialog-paper": {
+    borderRadius: "10px",
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    minHeight: 260,
+  },
+};
+
+
+const deleteDialogTitleSx = {
+  fontWeight: 900,
+  color: "#C62828",
+  textAlign: "right",
+  fontSize: { xs: 18, sm: 20 },
+  px: 4,
+  pt: 3,
+  pb: 2.5,
+};
+
+
+const deleteDialogContentSx = {
+  textAlign: "center",
+  py: 4,
+  px: 4,
+};
+
+
+const deleteDialogMainTextSx = {
+  fontWeight: 900,
+  textAlign: "right",
+  fontSize: { xs: 15, sm: 18 },
+  color: "#2f2f27",
+  mb: 1.5,
+};
+
+
+const deleteDialogSubTextSx = {
+  fontWeight: 800,
+  textAlign: "right",
+  fontSize: { xs: 15, sm: 18 },
+  color: "#757575",
+};
+
+
+const deleteDialogActionsSx = {
+  p: 3,
+  gap: 2,
+  justifyContent: "center",
+};
+
+
+const deleteDialogCancelBtnSx = {
+  borderRadius: "16px",
+  fontWeight: 900,
+  textTransform: "none",
+  minWidth: 130,
+  height: 46,
+  fontSize: 14,
+  color: "#7B755F",
+  borderColor: "#BDB8A8",
+  backgroundColor: "#fff",
+  boxShadow: "none",
+  "&:hover": {
+    borderColor: "#A9A38F",
+    backgroundColor: "#fff",
+    boxShadow: "none",
+  },
+};
+
+
+const deleteDialogConfirmBtnSx = {
+  borderRadius: "16px",
+  fontWeight: 900,
+  textTransform: "none",
+  minWidth: 130,
+  height: 46,
+  fontSize: 16,
+  background: "#F8DDE0",
+  color: "#C62828",
+  border: "1px solid #F0AEB5",
+  boxShadow: "none",
+  "&:hover": {
+    background: "#F5D2D7",
+    boxShadow: "none",
+  },
+};
 
 
 const headerCardStyles = {
@@ -68,6 +174,51 @@ const titleSx = {
 };
 
 
+const nurseDetailsCardSx = {
+  borderRadius: 4,
+  overflow: "hidden",
+  border: "1px solid rgba(106,106,87,0.18)",
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(245,245,238,0.95) 100%)",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+};
+
+
+const nurseDetailsHeaderSx = {
+  px: 2.5,
+  py: 1.8,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  flexWrap: "wrap",
+  gap: 1.5,
+  background: "linear-gradient(135deg, #6a6a57, #8b8b6d)",
+  color: "#fff",
+};
+
+
+const miniInfoCardSx = {
+  p: 2,
+  borderRadius: 3,
+  background: "#ffffff",
+  border: "1px solid rgba(106,106,87,0.12)",
+  boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+  minHeight: 95,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  textAlign: "center",
+};
+
+
+const actionBtnSx = {
+  borderRadius: 3,
+  textTransform: "none",
+  fontWeight: 800,
+  px: 2.2,
+  py: 1,
+};
 const detailsButtonStyles = {
   borderRadius: 2,
   textTransform: "none",
@@ -154,8 +305,21 @@ export default function ElderlyCheckList() {
     message: "",
     severity: "success",
   });
-
-
+  const [editOpen, setEditOpen] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    checkListId: null,
+    notes: "",
+    temperature: "",
+    pulse: "",
+    bloodSugar: "",
+    bloodPressure: "",
+    intake: "",
+    output: "",
+  });
   useEffect(() => {
     const fetchElderlies = async () => {
       setLoadingElderlies(true);
@@ -209,8 +373,25 @@ export default function ElderlyCheckList() {
 
     fetchChecklists();
   }, [selectedElderlyId]);
-
-
+  const handleOpenEdit = (item) => {
+    setEditForm({
+      checkListId: item.checkListId,
+      notes: item.notes ?? "",
+      temperature: item.temperature ?? "",
+      pulse: item.pulse ?? "",
+      bloodSugar: item.bloodSugar ?? "",
+      bloodPressure: item.bloodPressure ?? "",
+      intake: item.intake ?? "",
+      output: item.output ?? "",
+    });
+    setEditOpen(true);
+  };
+  const handleEditChange = (field, value) => {
+    setEditForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
   const handleToggleDetails = async (checkListId) => {
     if (openRowId === checkListId) {
       setOpenRowId(null);
@@ -247,8 +428,125 @@ export default function ElderlyCheckList() {
       setDetailsLoadingId(null);
     }
   };
+  const handleUpdate = async () => {
+    if (!editForm.checkListId) return;
 
 
+    try {
+      setEditLoading(true);
+
+
+      const payload = {
+        notes: editForm.notes,
+        temperature: editForm.temperature,
+        pulse: editForm.pulse,
+        bloodSugar: editForm.bloodSugar,
+        bloodPressure: editForm.bloodPressure,
+        intake: editForm.intake,
+        output: editForm.output,
+      };
+
+
+      await AxiosUserInstance.put(
+        `/Nurse/ElderlyDailyCheck/${editForm.checkListId}`,
+        payload,
+      );
+
+
+      setChecklists((prev) =>
+        prev.map((item) =>
+          item.checkListId === editForm.checkListId
+            ? {
+                ...item,
+                ...payload,
+              }
+            : item,
+        ),
+      );
+
+
+      setDetailsById((prev) => ({
+        ...prev,
+        [editForm.checkListId]: prev[editForm.checkListId]
+          ? {
+              ...prev[editForm.checkListId],
+              ...payload,
+            }
+          : prev[editForm.checkListId],
+      }));
+
+
+      setSnackbar({
+        open: true,
+        message: "تم تعديل الفحص بنجاح",
+        severity: "success",
+      });
+
+
+      setEditOpen(false);
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: "تعذر تعديل الفحص",
+        severity: "error",
+      });
+    } finally {
+      setEditLoading(false);
+    }
+  };
+  const handleDelete = async () => {
+    if (!selectedDeleteId) return;
+
+
+    try {
+      setDeleteLoadingId(selectedDeleteId);
+
+
+      await AxiosUserInstance.delete(
+        `/Nurse/ElderlyDailyCheck/${selectedDeleteId}`,
+      );
+
+
+      setChecklists((prev) =>
+        prev.filter((item) => item.checkListId !== selectedDeleteId),
+      );
+
+
+      setDetailsById((prev) => {
+        const updated = { ...prev };
+        delete updated[selectedDeleteId];
+        return updated;
+      });
+
+
+      if (openRowId === selectedDeleteId) {
+        setOpenRowId(null);
+      }
+
+
+      setSnackbar({
+        open: true,
+        message: "تم حذف الفحص بنجاح",
+        severity: "success",
+      });
+
+
+      setDeleteDialogOpen(false);
+      setSelectedDeleteId(null);
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: "تعذر حذف الفحص",
+        severity: "error",
+      });
+    } finally {
+      setDeleteLoadingId(null);
+    }
+  };
+  const openDeleteDialog = (checkListId) => {
+    setSelectedDeleteId(checkListId);
+    setDeleteDialogOpen(true);
+  };
   return (
     <Box sx={pageWrapperSx}>
       <Card sx={headerCardStyles}>
@@ -384,31 +682,39 @@ export default function ElderlyCheckList() {
                   <Table sx={{ minWidth: 1100, direction: "rtl" }}>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          التاريخ
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          درجة الحرارة
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          النبض
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          سكر الدم
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          ضغط الدم
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          إدخال
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          إخراج
-                        </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          التفاصيل
-                        </TableCell>
-                      </TableRow>
+                    <TableCell align="center" sx={{ fontWeight: "bold" }}>
+  📅 التاريخ
+</TableCell>
+
+<TableCell align="center" sx={{ fontWeight: "bold" }}>
+  🌡️ درجة الحرارة
+</TableCell>
+
+<TableCell align="center" sx={{ fontWeight: "bold" }}>
+  🫀 النبض
+</TableCell>
+
+<TableCell align="center" sx={{ fontWeight: "bold" }}>
+  🩸 سكر الدم
+</TableCell>
+
+<TableCell align="center" sx={{ fontWeight: "bold" }}>
+  📈 ضغط الدم
+</TableCell>
+
+<TableCell align="center" sx={{ fontWeight: "bold" }}>
+  💧 إدخال
+</TableCell>
+
+<TableCell align="center" sx={{ fontWeight: "bold" }}>
+  🧪 إخراج
+</TableCell>
+
+<TableCell align="center" sx={{ fontWeight: "bold" }}>
+  ℹ️ التفاصيل
+</TableCell>
+
+</TableRow>
                     </TableHead>
 
 
@@ -501,129 +807,194 @@ export default function ElderlyCheckList() {
                                           <CircularProgress size={28} />
                                         </Box>
                                       ) : details ? (
-                                        <Box
-                                          sx={{
-                                            border:
-                                              "1px solid rgba(15, 15, 15, 0.14)",
-                                            borderRadius: 4,
-                                            background: "#ebebe0",
-                                            overflow: "hidden",
-                                          }}
-                                        >
-                                          <Box
-                                            sx={{
-                                              px: 2.5,
-                                              py: 1.5,
-                                              borderBottom:
-                                                "1px solid rgba(106,106,87,0.12)",
-                                              backgroundColor:
-                                                "rgba(106,106,87,0.05)",
-                                            }}
-                                          >
-                                            <Typography
+                                        <Box sx={nurseDetailsCardSx}>
+                                          <Box sx={nurseDetailsHeaderSx}>
+                                            <Box>
+                                              <Typography
+                                                sx={{
+                                                  fontWeight: 900,
+                                                  fontSize: 18,
+                                                  textAlign: "right",
+                                                }}
+                                              >
+                                                تفاصيل الفحص
+                                              </Typography>
+                                              <Typography
+                                                sx={{
+                                                  fontSize: 13,
+                                                  opacity: 0.9,
+                                                  mt: 0.5,
+                                                  textAlign: "right",
+                                                }}
+                                              >
+                                                معلومات الممرضة والملاحظات
+                                                الخاصة بالفحص
+                                              </Typography>
+                                            </Box>
+
+
+                                            <Box
                                               sx={{
-                                                fontWeight: 900,
-                                                fontSize: 17,
-                                                color: "#6a6a57",
-                                                textAlign: "right",
+                                                px: 1.5,
+                                                py: 0.6,
+                                                borderRadius: 999,
+                                                backgroundColor:
+                                                  "rgba(255,255,255,0.18)",
+                                                border:
+                                                  "1px solid rgba(255,255,255,0.25)",
+                                                fontSize: 12,
+                                                fontWeight: 700,
                                               }}
                                             >
-                                              تفاصيل الممرضة
-                                            </Typography>
+                                              رقم الفحص {item.checkListId}
+                                            </Box>
                                           </Box>
 
 
-                                          <Box
-                                            sx={{
-                                              px: 2.5,
-                                              py: 2,
-                                              display: "grid",
-                                              gridTemplateColumns:
-                                                "repeat(4, minmax(0, 1fr))",
-                                              gap: 3,
-                                              alignItems: "start",
-                                            }}
-                                          >
-                                            <Box sx={{ textAlign: "center" }}>
-                                              <Typography
-                                                sx={{
-                                                  fontSize: 12,
-                                                  color: "text.secondary",
-                                                  mb: 0.5,
-                                                }}
-                                              >
-                                                اسم الممرضة
-                                              </Typography>
-                                              <Typography
-                                                sx={{
-                                                  fontWeight: 800,
-                                                  fontSize: 15,
-                                                  color: "#2f2f27",
-                                                  whiteSpace: "normal",
-                                                  wordBreak: "break-word",
-                                                }}
-                                              >
-                                                {getValue(details.nurseName)}
-                                              </Typography>
+                                          <Box sx={{ p: 2.5 }}>
+                                            <Box
+                                              sx={{
+                                                display: "grid",
+                                                gridTemplateColumns: {
+                                                  xs: "1fr",
+                                                  sm: "repeat(2, minmax(0, 1fr))",
+                                                  md: "repeat(3, minmax(0, 1fr))",
+                                                },
+                                                gap: 2,
+                                                mb: 2,
+                                              }}
+                                            >
+                                              <Box sx={miniInfoCardSx}>
+                                                <PersonOutlineOutlinedIcon
+                                                  sx={{
+                                                    fontSize: 24,
+                                                    color: "#6a6a57",
+                                                    mb: 1,
+                                                  }}
+                                                />
+                                                <Typography
+                                                  sx={{
+                                                    fontSize: 12,
+                                                    color: "text.secondary",
+                                                    mb: 0.5,
+                                                  }}
+                                                >
+                                                  اسم الممرضة
+                                                </Typography>
+                                                <Typography
+                                                  sx={{
+                                                    fontWeight: 800,
+                                                    fontSize: 15,
+                                                    color: "#2f2f27",
+                                                    whiteSpace: "normal",
+                                                    wordBreak: "break-word",
+                                                  }}
+                                                >
+                                                  {getValue(details.nurseName)}
+                                                </Typography>
+                                              </Box>
+
+
+                                              <Box sx={miniInfoCardSx}>
+                                                <WorkOutlineOutlinedIcon
+                                                  sx={{
+                                                    fontSize: 24,
+                                                    color: "#6a6a57",
+                                                    mb: 1,
+                                                  }}
+                                                />
+                                                <Typography
+                                                  sx={{
+                                                    fontSize: 12,
+                                                    color: "text.secondary",
+                                                    mb: 0.5,
+                                                  }}
+                                                >
+                                                  الشفت
+                                                </Typography>
+                                                <Typography
+                                                  sx={{
+                                                    fontWeight: 800,
+                                                    fontSize: 15,
+                                                    color: "#2f2f27",
+                                                  }}
+                                                >
+                                                  {getValue(details.shift)}
+                                                </Typography>
+                                              </Box>
+
+
+                                              <Box sx={miniInfoCardSx}>
+                                                <AccessTimeOutlinedIcon
+                                                  sx={{
+                                                    fontSize: 24,
+                                                    color: "#6a6a57",
+                                                    mb: 1,
+                                                  }}
+                                                />
+                                                <Typography
+                                                  sx={{
+                                                    fontSize: 12,
+                                                    color: "text.secondary",
+                                                    mb: 0.5,
+                                                  }}
+                                                >
+                                                  الوقت
+                                                </Typography>
+                                                <Typography
+                                                  sx={{
+                                                    fontWeight: 800,
+                                                    fontSize: 15,
+                                                    color: "#2f2f27",
+                                                  }}
+                                                >
+                                                  {formatTimeWithPeriod(
+                                                    details.time,
+                                                  )}
+                                                </Typography>
+                                              </Box>
                                             </Box>
 
 
-                                            <Box sx={{ textAlign: "center" }}>
-                                              <Typography
+                                            <Box
+                                              sx={{
+                                                p: 2.2,
+                                                borderRadius: 3,
+                                                background:
+                                                  "rgba(255,255,255,0.85)",
+                                                border:
+                                                  "1px solid rgba(106,106,87,0.12)",
+                                                boxShadow:
+                                                  "0 4px 14px rgba(0,0,0,0.04)",
+                                                mb: 2,
+                                              }}
+                                            >
+                                              <Box
                                                 sx={{
-                                                  fontSize: 12,
-                                                  color: "text.secondary",
-                                                  mb: 0.5,
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: 1,
+                                                  mb: 1,
                                                 }}
                                               >
-                                                الشفت
-                                              </Typography>
-                                              <Typography
-                                                sx={{
-                                                  fontWeight: 800,
-                                                  fontSize: 15,
-                                                  color: "#2f2f27",
-                                                }}
-                                              >
-                                                {getValue(details.shift)}
-                                              </Typography>
-                                            </Box>
+                                                <NotesOutlinedIcon
+                                                  sx={{
+                                                    color: "#6a6a57",
+                                                    fontSize: 22,
+                                                  }}
+                                                />
+                                                <Typography
+                                                  sx={{
+                                                    fontSize: 14,
+                                                    fontWeight: 800,
+                                                    color: "#6a6a57",
+                                                  }}
+                                                >
+                                                  الملاحظات
+                                                </Typography>
+                                              </Box>
 
 
-                                            <Box sx={{ textAlign: "center" }}>
-                                              <Typography
-                                                sx={{
-                                                  fontSize: 12,
-                                                  color: "text.secondary",
-                                                  mb: 0.5,
-                                                }}
-                                              >
-                                                الوقت
-                                              </Typography>
-                                              <Typography
-                                                sx={{
-                                                  fontWeight: 800,
-                                                  fontSize: 15,
-                                                  color: "#2f2f27",
-                                                }}
-                                              >
-                                                {formatTimeWithPeriod(
-                                                  details.time,
-                                                )}
-                                              </Typography>
-                                            </Box>
-
-
-                                            <Box sx={{ textAlign: "center" }}>
-                                              <Typography
-                                                sx={{
-                                                  fontSize: 12,
-                                                  color: "text.secondary",
-                                                  mb: 0.5,
-                                                }}
-                                              >
-                                                الملاحظات
-                                              </Typography>
                                               <Typography
                                                 sx={{
                                                   fontWeight: 700,
@@ -631,11 +1002,72 @@ export default function ElderlyCheckList() {
                                                   color: "#2f2f27",
                                                   whiteSpace: "normal",
                                                   wordBreak: "break-word",
-                                                  lineHeight: 1.8,
+                                                  lineHeight: 1.9,
+                                                  textAlign: "right",
                                                 }}
                                               >
                                                 {getValue(details.notes)}
                                               </Typography>
+                                            </Box>
+
+
+                                            <Box
+                                              sx={{
+                                                display: "flex",
+                                                justifyContent: "flex-end",
+                                                gap: 1.2,
+                                                flexWrap: "wrap",
+                                              }}
+                                            >
+                                              <Button
+                                                variant="outlined"
+                                                startIcon={<EditOutlinedIcon />}
+                                                onClick={() =>
+                                                  handleOpenEdit(item)
+                                                }
+                                                sx={{
+                                                  ...actionBtnSx,
+                                                  gap: 1,
+                                                  color: "#6a6a57",
+                                                  borderColor:
+                                                    "rgba(106,106,87,0.35)",
+                                                  backgroundColor: "#fff",
+                                                  "&:hover": {
+                                                    borderColor: "#6a6a57",
+                                                    backgroundColor:
+                                                      "rgba(106,106,87,0.06)",
+                                                  },
+                                                }}
+                                              >
+                                                تعديل
+                                              </Button>
+
+
+                                              <Button
+                                                variant="contained"
+                                                startIcon={
+                                                  <DeleteOutlineOutlinedIcon />
+                                                }
+                                                onClick={() =>
+                                                  openDeleteDialog(
+                                                    item.checkListId,
+                                                  )
+                                                }
+                                                disabled={
+                                                  deleteLoadingId ===
+                                                  item.checkListId
+                                                }
+                                                sx={{
+                                                  ...actionBtnSx,
+                                                  gap: 1,
+                                                  backgroundColor: "#c62828",
+                                                  "&:hover": {
+                                                    backgroundColor: "#b71c1c",
+                                                  },
+                                                }}
+                                              >
+                                                حذف
+                                              </Button>
                                             </Box>
                                           </Box>
                                         </Box>
@@ -715,7 +1147,7 @@ export default function ElderlyCheckList() {
                             textAlign: "center",
                           }}
                         >
-                          {item.dateTime || "-"}
+                          {item.date || "-"}
                         </Box>
                       </Box>
 
@@ -790,6 +1222,38 @@ export default function ElderlyCheckList() {
                             {item.bloodPressure || "-"}
                           </Typography>
                         </Box>
+
+
+                        <Box sx={detailBoxSx}>
+                          <Typography
+                            sx={{
+                              fontSize: 12,
+                              color: "text.secondary",
+                              mb: 0.5,
+                            }}
+                          >
+                            إدخال
+                          </Typography>
+                          <Typography sx={{ fontWeight: 800 }}>
+                            {item.intake || "-"}
+                          </Typography>
+                        </Box>
+
+
+                        <Box sx={detailBoxSx}>
+                          <Typography
+                            sx={{
+                              fontSize: 12,
+                              color: "text.secondary",
+                              mb: 0.5,
+                            }}
+                          >
+                            إخراج
+                          </Typography>
+                          <Typography sx={{ fontWeight: 800 }}>
+                            {item.output || "-"}
+                          </Typography>
+                        </Box>
                       </Box>
 
 
@@ -832,83 +1296,182 @@ export default function ElderlyCheckList() {
                             </Box>
                           ) : details ? (
                             <>
-                              <Box sx={detailBoxSx}>
-                                <Typography
-                                  sx={{
-                                    fontSize: 12,
-                                    color: "text.secondary",
-                                    mb: 0.5,
-                                  }}
-                                >
-                                  اسم المسن
-                                </Typography>
-                                <Typography sx={{ fontWeight: 800 }}>
-                                  {getValue(details.elderlyName)}
-                                </Typography>
-                              </Box>
+                              <Box sx={nurseDetailsCardSx}>
+                                <Box sx={nurseDetailsHeaderSx}>
+                                  <Typography
+                                    sx={{ fontWeight: 900, fontSize: 16 }}
+                                  >
+                                    تفاصيل الفحص
+                                  </Typography>
 
 
-                              <Box sx={detailBoxSx}>
-                                <Typography
-                                  sx={{
-                                    fontSize: 12,
-                                    color: "text.secondary",
-                                    mb: 0.5,
-                                  }}
-                                >
-                                  اسم الممرضة
-                                </Typography>
-                                <Typography sx={{ fontWeight: 800 }}>
-                                  {getValue(details.nurseName)}
-                                </Typography>
-                              </Box>
+                                  <Box
+                                    sx={{
+                                      px: 1.2,
+                                      py: 0.5,
+                                      borderRadius: 999,
+                                      backgroundColor: "rgba(255,255,255,0.18)",
+                                      border:
+                                        "1px solid rgba(255,255,255,0.25)",
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                    }}
+                                  >
+                                    #{item.checkListId}
+                                  </Box>
+                                </Box>
 
 
-                              <Box sx={detailBoxSx}>
-                                <Typography
-                                  sx={{
-                                    fontSize: 12,
-                                    color: "text.secondary",
-                                    mb: 0.5,
-                                  }}
-                                >
-                                  الشيفت
-                                </Typography>
-                                <Typography sx={{ fontWeight: 800 }}>
-                                  {getValue(details.shift)}
-                                </Typography>
-                              </Box>
+                                <Box sx={{ p: 1.5 }}>
+                                  <Box
+                                    sx={{
+                                      display: "grid",
+                                      gridTemplateColumns: {
+                                        xs: "1fr",
+                                        sm: "repeat(2, minmax(0, 1fr))",
+                                      },
+                                      gap: 1.2,
+                                    }}
+                                  >
+                                    <Box sx={detailBoxSx}>
+                                      <Typography
+                                        sx={{
+                                          fontSize: 12,
+                                          color: "text.secondary",
+                                          mb: 0.5,
+                                        }}
+                                      >
+                                        اسم الممرضة
+                                      </Typography>
+                                      <Typography
+                                        sx={{
+                                          fontWeight: 800,
+                                          whiteSpace: "normal",
+                                          wordBreak: "break-word",
+                                        }}
+                                      >
+                                        {getValue(details.nurseName)}
+                                      </Typography>
+                                    </Box>
 
 
-                              <Box sx={detailBoxSx}>
-                                <Typography
-                                  sx={{
-                                    fontSize: 12,
-                                    color: "text.secondary",
-                                    mb: 0.5,
-                                  }}
-                                >
-                                  الوقت
-                                </Typography>
-                                <Typography sx={{ fontWeight: 800 }}>
-                                  {formatTimeWithPeriod(details.time)}
-                                </Typography>
-                              </Box>
+                                    <Box sx={detailBoxSx}>
+                                      <Typography
+                                        sx={{
+                                          fontSize: 12,
+                                          color: "text.secondary",
+                                          mb: 0.5,
+                                        }}
+                                      >
+                                        الشيفت
+                                      </Typography>
+                                      <Typography sx={{ fontWeight: 800 }}>
+                                        {getValue(details.shift)}
+                                      </Typography>
+                                    </Box>
 
 
-                              <Box sx={detailBoxSx}>
-                                <Typography
-                                  sx={{
-                                    fontSize: 12,
-                                    color: "text.secondary",
-                                    mb: 0.5,
-                                  }}
-                                >
-                                  الملاحظات
-                                </Typography>
-                                <Typography sx={{ fontWeight: 800 }}>
-                                  {getValue(details.notes)}
-                                </Typography>
+                                    <Box sx={detailBoxSx}>
+                                      <Typography
+                                        sx={{
+                                          fontSize: 12,
+                                          color: "text.secondary",
+                                          mb: 0.5,
+                                        }}
+                                      >
+                                        الوقت
+                                      </Typography>
+                                      <Typography sx={{ fontWeight: 800 }}>
+                                        {formatTimeWithPeriod(details.time)}
+                                      </Typography>
+                                    </Box>
+
+
+                                    <Box
+                                      sx={{
+                                        p: 2,
+                                        borderRadius: 3,
+                                        backgroundColor: "#F8F8F4",
+                                        border:
+                                          "1px solid rgba(106,106,87,0.12)",
+                                        textAlign: "center",
+                                        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                                        minHeight: 85,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Typography
+                                        sx={{
+                                          fontSize: 12,
+                                          color: "text.secondary",
+                                          mb: 0.8,
+                                        }}
+                                      >
+                                        الملاحظات
+                                      </Typography>
+                                      <Typography
+                                        sx={{
+                                          fontWeight: 700,
+                                          lineHeight: 1.8,
+                                          wordBreak: "break-word",
+                                        }}
+                                      >
+                                        {getValue(details.notes)}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+
+
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                      mt: 1.5,
+                                    }}
+                                  >
+                                    <Button
+                                      fullWidth
+                                      variant="outlined"
+                                      startIcon={<EditOutlinedIcon />}
+                                      onClick={() => handleOpenEdit(item)}
+                                      sx={{
+                                        ...actionBtnSx,
+                                        gap: 1,
+                                        color: "#6a6a57",
+                                        borderColor: "rgba(106,106,87,0.35)",
+                                        backgroundColor: "#fff",
+                                      }}
+                                    >
+                                      تعديل
+                                    </Button>
+
+
+                                    <Button
+                                      fullWidth
+                                      variant="contained"
+                                      startIcon={<DeleteOutlineOutlinedIcon />}
+                                      onClick={() =>
+                                        openDeleteDialog(item.checkListId)
+                                      }
+                                      disabled={
+                                        deleteLoadingId === item.checkListId
+                                      }
+                                      sx={{
+                                        ...actionBtnSx,
+                                        gap: 1,
+                                        backgroundColor: "#c62828",
+                                        "&:hover": {
+                                          backgroundColor: "#b71c1c",
+                                        },
+                                      }}
+                                    >
+                                      حذف
+                                    </Button>
+                                  </Box>
+                                </Box>
                               </Box>
                             </>
                           ) : (
@@ -928,6 +1491,163 @@ export default function ElderlyCheckList() {
           </Box>
         </>
       )}
+      <Dialog
+        open={editOpen}
+        onClose={() => !editLoading && setEditOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ fontWeight: 800, textAlign: "right" }}>
+          تعديل الفحص
+        </DialogTitle>
+
+
+        <DialogContent>
+          <Box
+            sx={{
+              mt: 1,
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+              gap: 2,
+            }}
+          >
+            <TextField
+              label="درجة الحرارة"
+              value={editForm.temperature}
+              onChange={(e) => handleEditChange("temperature", e.target.value)}
+              fullWidth
+            />
+
+
+            <TextField
+              label="النبض"
+              value={editForm.pulse}
+              onChange={(e) => handleEditChange("pulse", e.target.value)}
+              fullWidth
+            />
+
+
+            <TextField
+              label="سكر الدم"
+              value={editForm.bloodSugar}
+              onChange={(e) => handleEditChange("bloodSugar", e.target.value)}
+              fullWidth
+            />
+
+
+            <TextField
+              label="ضغط الدم"
+              value={editForm.bloodPressure}
+              onChange={(e) =>
+                handleEditChange("bloodPressure", e.target.value)
+              }
+              fullWidth
+            />
+
+
+            <TextField
+              label="إدخال"
+              value={editForm.intake}
+              onChange={(e) => handleEditChange("intake", e.target.value)}
+              fullWidth
+            />
+
+
+            <TextField
+              label="إخراج"
+              value={editForm.output}
+              onChange={(e) => handleEditChange("output", e.target.value)}
+              fullWidth
+            />
+
+
+            <TextField
+              label="الملاحظات"
+              value={editForm.notes}
+              onChange={(e) => handleEditChange("notes", e.target.value)}
+              fullWidth
+              multiline
+              minRows={3}
+              sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" } }}
+            />
+          </Box>
+        </DialogContent>
+
+
+        <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+          <Button
+            onClick={() => setEditOpen(false)}
+            variant="outlined"
+            sx={deleteDialogCancelBtnSx}
+          >
+            إلغاء
+          </Button>
+
+
+          <Button
+            onClick={handleUpdate}
+            disabled={editLoading}
+            variant="contained"
+            sx={{
+              ...deleteDialogCancelBtnSx,
+              backgroundColor: "#6a6a57",
+              "&:hover": {
+                backgroundColor: "#5a5a49",
+              },
+              color: "#fff",
+            }}
+          >
+            {editLoading ? "جارٍ الحفظ..." : "حفظ التعديلات"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        sx={deleteDialogSx}
+      >
+        <DialogTitle sx={deleteDialogTitleSx}>تأكيد حذف الفحص</DialogTitle>
+
+
+        <DialogContent dividers sx={deleteDialogContentSx}>
+          <Typography sx={deleteDialogMainTextSx}>
+            هل أنت متأكد أنك تريد حذف هذا الفحص؟
+          </Typography>
+
+
+          <Typography sx={deleteDialogSubTextSx}>
+            هذا الإجراء لا يمكن التراجع عنه.
+          </Typography>
+        </DialogContent>
+
+
+        <DialogActions sx={deleteDialogActionsSx}>
+          <Button
+            onClick={handleDelete}
+            disabled={deleteLoadingId === selectedDeleteId}
+            variant="contained"
+            sx={{
+              ...deleteDialogConfirmBtnSx,
+              opacity: deleteLoadingId === selectedDeleteId ? 0.8 : 1,
+            }}
+          >
+            {deleteLoadingId === selectedDeleteId ? "جارٍ الحذف..." : "حذف"}
+          </Button>
+
+
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            variant="outlined"
+            sx={deleteDialogCancelBtnSx}
+          >
+            إلغاء
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
       <Snackbar
@@ -943,6 +1663,4 @@ export default function ElderlyCheckList() {
     </Box>
   );
 }
-
-
 

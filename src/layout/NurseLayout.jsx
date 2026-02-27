@@ -148,7 +148,6 @@ export default function NurseLayout() {
       if (isSmallScreen) setOpen(false);
     }
 
-
     handleMenuClose();
   };
 

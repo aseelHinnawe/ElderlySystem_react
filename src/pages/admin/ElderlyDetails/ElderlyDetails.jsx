@@ -208,7 +208,7 @@ export default function ElderlyDetails() {
   const basicFields = useMemo(() => {
     if (!elderly) return [];
     return [
-      { label: "الرقم الوطني", value: elderly.nationalId, icon: <BadgeIcon /> },
+      { label: "رقم الهوية", value: elderly.nationalId, icon: <BadgeIcon /> },
       { label: "المدينة", value: elderly.city, icon: <LocationOnIcon /> },
       { label: "الشارع", value: elderly.street, icon: <LocationOnIcon /> },
       { label: "الديانة", value: elderly.doctrine, icon: <FavoriteIcon /> },

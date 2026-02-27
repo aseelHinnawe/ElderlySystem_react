@@ -85,7 +85,7 @@ export default function UserDetail() {
     { label: "البريد الإلكتروني", value: user.email, icon: <EmailIcon /> },
     { label: "رقم الهاتف", value: user.phoneNumber, icon: <PhoneIcon /> },
     { label: "المدينة", value: user.city, icon: <LocationOnIcon /> },
-    { label: "الرقم الوطني", value: user.nationalId, icon: <BadgeIcon /> },
+    { label: "رقم الهوية", value: user.nationalId, icon: <BadgeIcon /> },
     { label: "الجنس", value: user.gender, icon: <WcIcon /> },
 
 
