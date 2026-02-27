@@ -28,7 +28,6 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import ScienceIcon from "@mui/icons-material/Science";
 import InfoIcon from "@mui/icons-material/Info";
 
-
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -47,7 +46,6 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 
-
 const deleteDialogSx = {
   "& .MuiDialog-paper": {
     borderRadius: "10px",
@@ -56,7 +54,6 @@ const deleteDialogSx = {
     minHeight: 260,
   },
 };
-
 
 const deleteDialogTitleSx = {
   fontWeight: 900,
@@ -68,13 +65,11 @@ const deleteDialogTitleSx = {
   pb: 2.5,
 };
 
-
 const deleteDialogContentSx = {
   textAlign: "center",
   py: 4,
   px: 4,
 };
-
 
 const deleteDialogMainTextSx = {
   fontWeight: 900,
@@ -84,7 +79,6 @@ const deleteDialogMainTextSx = {
   mb: 1.5,
 };
 
-
 const deleteDialogSubTextSx = {
   fontWeight: 800,
   textAlign: "right",
@@ -92,13 +86,11 @@ const deleteDialogSubTextSx = {
   color: "#757575",
 };
 
-
 const deleteDialogActionsSx = {
   p: 3,
   gap: 2,
   justifyContent: "center",
 };
-
 
 const deleteDialogCancelBtnSx = {
   borderRadius: "16px",
@@ -118,7 +110,6 @@ const deleteDialogCancelBtnSx = {
   },
 };
 
-
 const deleteDialogConfirmBtnSx = {
   borderRadius: "16px",
   fontWeight: 900,
@@ -136,7 +127,6 @@ const deleteDialogConfirmBtnSx = {
   },
 };
 
-
 const headerCardStyles = {
   mb: 4,
   borderRadius: 5,
@@ -145,13 +135,11 @@ const headerCardStyles = {
   boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
 };
 
-
 const pageWrapperSx = {
   p: "16px",
   minHeight: "100vh",
   background: "#f0f0ea",
 };
-
 
 const checklistCardSx = {
   mb: "16px",
@@ -161,7 +149,6 @@ const checklistCardSx = {
   background: "rgba(255, 255, 255, 0.65)",
   backdropFilter: "blur(8px)",
 };
-
 
 const titleSx = {
   fontWeight: 900,
@@ -173,7 +160,6 @@ const titleSx = {
   color: "#2f2f27",
 };
 
-
 const nurseDetailsCardSx = {
   borderRadius: 4,
   overflow: "hidden",
@@ -182,7 +168,6 @@ const nurseDetailsCardSx = {
     "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(245,245,238,0.95) 100%)",
   boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
 };
-
 
 const nurseDetailsHeaderSx = {
   px: 2.5,
@@ -195,7 +180,6 @@ const nurseDetailsHeaderSx = {
   background: "linear-gradient(135deg, #6a6a57, #8b8b6d)",
   color: "#fff",
 };
-
 
 const miniInfoCardSx = {
   p: 2,
@@ -211,7 +195,6 @@ const miniInfoCardSx = {
   textAlign: "center",
 };
 
-
 const actionBtnSx = {
   borderRadius: 3,
   textTransform: "none",
@@ -225,7 +208,6 @@ const detailsButtonStyles = {
   fontWeight: 800,
 };
 
-
 const selectPaperStyle = {
   p: { xs: 2.5, sm: 3 },
   mb: 3,
@@ -235,14 +217,12 @@ const selectPaperStyle = {
   boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
 };
 
-
 const inputStyle = {
   "& .MuiOutlinedInput-root": {
     borderRadius: "14px",
     background: "rgba(255,255,255,0.5)",
   },
 };
-
 
 const detailBoxSx = {
   p: 2,
@@ -258,47 +238,40 @@ const detailBoxSx = {
   textAlign: "center",
 };
 
-
 const getValue = (value) => {
   if (value === null || value === undefined) return "-";
   if (typeof value === "string" && value.trim() === "") return "-";
   return value;
 };
 
-
 const formatTimeWithPeriod = (time) => {
   if (!time) return "-";
-
 
   const [hoursStr, minutes] = time.split(":");
   const hours = parseInt(hoursStr, 10);
 
-
   if (isNaN(hours) || minutes === undefined) return time;
-
 
   const period = hours < 12 ? "صباحًا" : "مساءً";
   const normalHour = hours % 12 === 0 ? 12 : hours % 12;
 
-
   return `${normalHour}:${minutes} ${period}`;
 };
-
 
 export default function ElderlyCheckList() {
   const [elderlies, setElderlies] = useState([]);
   const [selectedElderlyId, setSelectedElderlyId] = useState("");
   const [checklists, setChecklists] = useState([]);
 
-
   const [openRowId, setOpenRowId] = useState(null);
   const [detailsById, setDetailsById] = useState({});
   const [detailsLoadingId, setDetailsLoadingId] = useState(null);
 
-
   const [loadingElderlies, setLoadingElderlies] = useState(true);
   const [loadingChecklists, setLoadingChecklists] = useState(false);
 
+  const [showAllMobile, setShowAllMobile] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(1);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -337,10 +310,8 @@ export default function ElderlyCheckList() {
       }
     };
 
-
     fetchElderlies();
   }, []);
-
 
   useEffect(() => {
     if (!selectedElderlyId) {
@@ -349,7 +320,6 @@ export default function ElderlyCheckList() {
       setDetailsById({});
       return;
     }
-
 
     const fetchChecklists = async () => {
       setLoadingChecklists(true);
@@ -369,7 +339,6 @@ export default function ElderlyCheckList() {
         setLoadingChecklists(false);
       }
     };
-
 
     fetchChecklists();
   }, [selectedElderlyId]);
@@ -398,21 +367,16 @@ export default function ElderlyCheckList() {
       return;
     }
 
-
     setOpenRowId(checkListId);
 
-
     if (detailsById[checkListId]) return;
-
 
     try {
       setDetailsLoadingId(checkListId);
 
-
       const res = await AxiosUserInstance.get(
         `/Nurse/ElderlyDailyCheck/${checkListId}`,
       );
-
 
       setDetailsById((prev) => ({
         ...prev,
@@ -431,10 +395,8 @@ export default function ElderlyCheckList() {
   const handleUpdate = async () => {
     if (!editForm.checkListId) return;
 
-
     try {
       setEditLoading(true);
-
 
       const payload = {
         notes: editForm.notes,
@@ -446,12 +408,10 @@ export default function ElderlyCheckList() {
         output: editForm.output,
       };
 
-
       await AxiosUserInstance.put(
         `/Nurse/ElderlyDailyCheck/${editForm.checkListId}`,
         payload,
       );
-
 
       setChecklists((prev) =>
         prev.map((item) =>
@@ -464,7 +424,6 @@ export default function ElderlyCheckList() {
         ),
       );
 
-
       setDetailsById((prev) => ({
         ...prev,
         [editForm.checkListId]: prev[editForm.checkListId]
@@ -475,13 +434,11 @@ export default function ElderlyCheckList() {
           : prev[editForm.checkListId],
       }));
 
-
       setSnackbar({
         open: true,
         message: "تم تعديل الفحص بنجاح",
         severity: "success",
       });
-
 
       setEditOpen(false);
     } catch (err) {
@@ -497,20 +454,16 @@ export default function ElderlyCheckList() {
   const handleDelete = async () => {
     if (!selectedDeleteId) return;
 
-
     try {
       setDeleteLoadingId(selectedDeleteId);
-
 
       await AxiosUserInstance.delete(
         `/Nurse/ElderlyDailyCheck/${selectedDeleteId}`,
       );
 
-
       setChecklists((prev) =>
         prev.filter((item) => item.checkListId !== selectedDeleteId),
       );
-
 
       setDetailsById((prev) => {
         const updated = { ...prev };
@@ -518,18 +471,15 @@ export default function ElderlyCheckList() {
         return updated;
       });
 
-
       if (openRowId === selectedDeleteId) {
         setOpenRowId(null);
       }
-
 
       setSnackbar({
         open: true,
         message: "تم حذف الفحص بنجاح",
         severity: "success",
       });
-
 
       setDeleteDialogOpen(false);
       setSelectedDeleteId(null);
@@ -575,12 +525,10 @@ export default function ElderlyCheckList() {
                 الفحوصات اليومية للمسنين
               </Typography>
 
-
               <AssignmentOutlinedIcon
                 sx={{ fontSize: { xs: 26, lg: 34 }, color: "#fff" }}
               />
             </Box>
-
 
             <Typography
               sx={{
@@ -592,7 +540,6 @@ export default function ElderlyCheckList() {
               اختر اسم المسن لعرض جميع الفحوصات اليومية الخاصة به
             </Typography>
           </Box>
-
 
           <Box
             sx={{
@@ -612,7 +559,6 @@ export default function ElderlyCheckList() {
         </CardContent>
       </Card>
 
-
       <Paper elevation={0} sx={selectPaperStyle}>
         <Typography
           variant="h6"
@@ -620,7 +566,6 @@ export default function ElderlyCheckList() {
         >
           اختيار المسن
         </Typography>
-
 
         <TextField
           select
@@ -640,7 +585,6 @@ export default function ElderlyCheckList() {
             {loadingElderlies ? "جارٍ تحميل المسنين..." : "اختر المسن"}
           </MenuItem>
 
-
           {elderlies.map((elderly) => (
             <MenuItem key={elderly.elderlyId} value={elderly.elderlyId}>
               {elderly.name}
@@ -648,7 +592,6 @@ export default function ElderlyCheckList() {
           ))}
         </TextField>
       </Paper>
-
 
       {!selectedElderlyId ? (
         <Paper
@@ -679,44 +622,42 @@ export default function ElderlyCheckList() {
             >
               <CardContent sx={{ p: 0 }}>
                 <Box sx={{ overflowX: "auto" }}>
-                  <Table sx={{ minWidth: 1100, direction: "rtl" }}>
+                  <Table sx={{ minWidth: 450, direction: "rtl" }}>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                    <TableCell align="center" sx={{ fontWeight: "bold" }}>
-  📅 التاريخ
-</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                           التاريخ
+                        </TableCell>
 
-<TableCell align="center" sx={{ fontWeight: "bold" }}>
-  🌡️ درجة الحرارة
-</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                           درجة الحرارة
+                        </TableCell>
 
-<TableCell align="center" sx={{ fontWeight: "bold" }}>
-  🫀 النبض
-</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                           النبض
+                        </TableCell>
 
-<TableCell align="center" sx={{ fontWeight: "bold" }}>
-  🩸 سكر الدم
-</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                           سكر الدم
+                        </TableCell>
 
-<TableCell align="center" sx={{ fontWeight: "bold" }}>
-  📈 ضغط الدم
-</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                           ضغط الدم
+                        </TableCell>
 
-<TableCell align="center" sx={{ fontWeight: "bold" }}>
-  💧 إدخال
-</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                           إدخال
+                        </TableCell>
 
-<TableCell align="center" sx={{ fontWeight: "bold" }}>
-  🧪 إخراج
-</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                           إخراج
+                        </TableCell>
 
-<TableCell align="center" sx={{ fontWeight: "bold" }}>
-  ℹ️ التفاصيل
-</TableCell>
-
-</TableRow>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                           التفاصيل
+                        </TableCell>
+                      </TableRow>
                     </TableHead>
-
 
                     <TableBody>
                       {checklists.length > 0 ? (
@@ -725,7 +666,6 @@ export default function ElderlyCheckList() {
                           const isOpen = openRowId === item.checkListId;
                           const isLoadingDetails =
                             detailsLoadingId === item.checkListId;
-
 
                           return (
                             <>
@@ -780,7 +720,6 @@ export default function ElderlyCheckList() {
                                 </TableCell>
                               </TableRow>
 
-
                               <TableRow>
                                 <TableCell
                                   colSpan={8}
@@ -832,7 +771,6 @@ export default function ElderlyCheckList() {
                                               </Typography>
                                             </Box>
 
-
                                             <Box
                                               sx={{
                                                 px: 1.5,
@@ -849,7 +787,6 @@ export default function ElderlyCheckList() {
                                               رقم الفحص {item.checkListId}
                                             </Box>
                                           </Box>
-
 
                                           <Box sx={{ p: 2.5 }}>
                                             <Box
@@ -894,7 +831,6 @@ export default function ElderlyCheckList() {
                                                 </Typography>
                                               </Box>
 
-
                                               <Box sx={miniInfoCardSx}>
                                                 <WorkOutlineOutlinedIcon
                                                   sx={{
@@ -922,7 +858,6 @@ export default function ElderlyCheckList() {
                                                   {getValue(details.shift)}
                                                 </Typography>
                                               </Box>
-
 
                                               <Box sx={miniInfoCardSx}>
                                                 <AccessTimeOutlinedIcon
@@ -954,7 +889,6 @@ export default function ElderlyCheckList() {
                                                 </Typography>
                                               </Box>
                                             </Box>
-
 
                                             <Box
                                               sx={{
@@ -994,7 +928,6 @@ export default function ElderlyCheckList() {
                                                 </Typography>
                                               </Box>
 
-
                                               <Typography
                                                 sx={{
                                                   fontWeight: 700,
@@ -1009,7 +942,6 @@ export default function ElderlyCheckList() {
                                                 {getValue(details.notes)}
                                               </Typography>
                                             </Box>
-
 
                                             <Box
                                               sx={{
@@ -1041,7 +973,6 @@ export default function ElderlyCheckList() {
                                               >
                                                 تعديل
                                               </Button>
-
 
                                               <Button
                                                 variant="contained"
@@ -1097,394 +1028,355 @@ export default function ElderlyCheckList() {
             </Card>
           </Box>
 
-
           {/* Mobile Cards */}
           <Box sx={{ display: { xs: "block", lg: "none" } }}>
             {checklists.length > 0 ? (
-              checklists.map((item, idx) => {
-                const details = detailsById[item.checkListId];
-                const isOpen = openRowId === item.checkListId;
-                const isLoadingDetails = detailsLoadingId === item.checkListId;
-
+              (() => {
+                const sortedChecklists = [...checklists].sort(
+                  (a, b) => new Date(b.date) - new Date(a.date),
+                );
+                const visibleChecklists = sortedChecklists.slice(
+                  0,
+                  visibleCount,
+                );
 
                 return (
-                  <Card key={item.checkListId ?? idx} sx={checklistCardSx}>
-                    <CardContent sx={{ p: 2.2 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          mb: 1.5,
-                          gap: 1,
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            ...titleSx,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
-                          }}
+                  <>
+                    {visibleChecklists.map((item, idx) => {
+                      const details = detailsById[item.checkListId];
+                      const isOpen = openRowId === item.checkListId;
+                      const isLoadingDetails =
+                        detailsLoadingId === item.checkListId;
+
+                      return (
+                        <Card
+                          key={item.checkListId ?? idx}
+                          sx={checklistCardSx}
                         >
-                          <TableRowsOutlinedIcon
-                            sx={{ color: "#6a6a57", fontSize: 20 }}
-                          />
-                          فحص رقم #{item.checkListId}
-                        </Typography>
-
-
-                        <Box
-                          sx={{
-                            px: 1.5,
-                            py: 0.5,
-                            borderRadius: 3,
-                            backgroundColor: "#F0F0EA",
-                            border: "1px solid rgba(106,106,87,0.25)",
-                            fontSize: 13,
-                            fontWeight: 700,
-                            color: "#6a6a57",
-                            textAlign: "center",
-                          }}
-                        >
-                          {item.date || "-"}
-                        </Box>
-                      </Box>
-
-
-                      <Box
-                        sx={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                          gap: 1.2,
-                          mb: 2,
-                        }}
-                      >
-                        <Box sx={detailBoxSx}>
-                          <Typography
-                            sx={{
-                              fontSize: 12,
-                              color: "text.secondary",
-                              mb: 0.5,
-                            }}
-                          >
-                            درجة الحرارة
-                          </Typography>
-                          <Typography sx={{ fontWeight: 800 }}>
-                            {item.temperature || "-"}
-                          </Typography>
-                        </Box>
-
-
-                        <Box sx={detailBoxSx}>
-                          <Typography
-                            sx={{
-                              fontSize: 12,
-                              color: "text.secondary",
-                              mb: 0.5,
-                            }}
-                          >
-                            النبض
-                          </Typography>
-                          <Typography sx={{ fontWeight: 800 }}>
-                            {item.pulse || "-"}
-                          </Typography>
-                        </Box>
-
-
-                        <Box sx={detailBoxSx}>
-                          <Typography
-                            sx={{
-                              fontSize: 12,
-                              color: "text.secondary",
-                              mb: 0.5,
-                            }}
-                          >
-                            سكر الدم
-                          </Typography>
-                          <Typography sx={{ fontWeight: 800 }}>
-                            {item.bloodSugar || "-"}
-                          </Typography>
-                        </Box>
-
-
-                        <Box sx={detailBoxSx}>
-                          <Typography
-                            sx={{
-                              fontSize: 12,
-                              color: "text.secondary",
-                              mb: 0.5,
-                            }}
-                          >
-                            ضغط الدم
-                          </Typography>
-                          <Typography sx={{ fontWeight: 800 }}>
-                            {item.bloodPressure || "-"}
-                          </Typography>
-                        </Box>
-
-
-                        <Box sx={detailBoxSx}>
-                          <Typography
-                            sx={{
-                              fontSize: 12,
-                              color: "text.secondary",
-                              mb: 0.5,
-                            }}
-                          >
-                            إدخال
-                          </Typography>
-                          <Typography sx={{ fontWeight: 800 }}>
-                            {item.intake || "-"}
-                          </Typography>
-                        </Box>
-
-
-                        <Box sx={detailBoxSx}>
-                          <Typography
-                            sx={{
-                              fontSize: 12,
-                              color: "text.secondary",
-                              mb: 0.5,
-                            }}
-                          >
-                            إخراج
-                          </Typography>
-                          <Typography sx={{ fontWeight: 800 }}>
-                            {item.output || "-"}
-                          </Typography>
-                        </Box>
-                      </Box>
-
-
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        onClick={() => handleToggleDetails(item.checkListId)}
-                        startIcon={<VisibilityOutlinedIcon />}
-                        endIcon={
-                          isOpen ? (
-                            <KeyboardArrowUpOutlinedIcon />
-                          ) : (
-                            <KeyboardArrowDownOutlinedIcon />
-                          )
-                        }
-                        sx={{
-                          ...detailsButtonStyles,
-                          gap: 1,
-                          backgroundColor: "#FFF8E1",
-                          color: "#8D6E63",
-                          border: "1px solid rgba(141,110,99,0.35)",
-                          boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-                        }}
-                      >
-                        {isOpen ? "إخفاء التفاصيل" : "تفاصيل"}
-                      </Button>
-
-
-                      <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                        <Box sx={{ mt: 2, display: "grid", gap: 1.2 }}>
-                          {isLoadingDetails ? (
+                          <CardContent sx={{ p: 2.2 }}>
                             <Box
                               sx={{
                                 display: "flex",
-                                justifyContent: "center",
-                                py: 2,
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                mb: 1.5,
+                                gap: 1,
                               }}
                             >
-                              <CircularProgress size={28} />
+                              <Typography
+                                sx={{
+                                  ...titleSx,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
+                                <TableRowsOutlinedIcon
+                                  sx={{ color: "#6a6a57", fontSize: 20 }}
+                                />
+                                فحص رقم #{item.checkListId}
+                              </Typography>
+
+                              <Box
+                                sx={{
+                                  px: 1.5,
+                                  py: 0.5,
+                                  borderRadius: 3,
+                                  backgroundColor: "#F0F0EA",
+                                  border: "1px solid rgba(106,106,87,0.25)",
+                                  fontSize: 13,
+                                  fontWeight: 700,
+                                  color: "#6a6a57",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {item.date || "-"}
+                              </Box>
                             </Box>
-                          ) : details ? (
-                            <>
-                              <Box sx={nurseDetailsCardSx}>
-                                <Box sx={nurseDetailsHeaderSx}>
-                                  <Typography
-                                    sx={{ fontWeight: 900, fontSize: 16 }}
-                                  >
-                                    تفاصيل الفحص
-                                  </Typography>
 
+                            <Box
+                              sx={{
+                                display: "grid",
+                                gridTemplateColumns:
+                                  "repeat(2, minmax(0, 1fr))",
+                                gap: 1.2,
+                                mb: 2,
+                              }}
+                            >
+                              <Box sx={detailBoxSx}>
+                                <Typography sx={{ fontSize: 12, mb: 0.5 }}>
+                                  درجة الحرارة
+                                </Typography>
+                                <Typography sx={{ fontWeight: 800 }}>
+                                  {item.temperature || "-"}
+                                </Typography>
+                              </Box>
 
-                                  <Box
-                                    sx={{
-                                      px: 1.2,
-                                      py: 0.5,
-                                      borderRadius: 999,
-                                      backgroundColor: "rgba(255,255,255,0.18)",
-                                      border:
-                                        "1px solid rgba(255,255,255,0.25)",
-                                      fontSize: 11,
-                                      fontWeight: 700,
-                                    }}
-                                  >
-                                    #{item.checkListId}
-                                  </Box>
-                                </Box>
+                              <Box sx={detailBoxSx}>
+                                <Typography sx={{ fontSize: 12, mb: 0.5 }}>
+                                  النبض
+                                </Typography>
+                                <Typography sx={{ fontWeight: 800 }}>
+                                  {item.pulse || "-"}
+                                </Typography>
+                              </Box>
 
+                              <Box sx={detailBoxSx}>
+                                <Typography sx={{ fontSize: 12, mb: 0.5 }}>
+                                  سكر الدم
+                                </Typography>
+                                <Typography sx={{ fontWeight: 800 }}>
+                                  {item.bloodSugar || "-"}
+                                </Typography>
+                              </Box>
 
-                                <Box sx={{ p: 1.5 }}>
-                                  <Box
-                                    sx={{
-                                      display: "grid",
-                                      gridTemplateColumns: {
-                                        xs: "1fr",
-                                        sm: "repeat(2, minmax(0, 1fr))",
-                                      },
-                                      gap: 1.2,
-                                    }}
-                                  >
-                                    <Box sx={detailBoxSx}>
-                                      <Typography
-                                        sx={{
-                                          fontSize: 12,
-                                          color: "text.secondary",
-                                          mb: 0.5,
-                                        }}
-                                      >
-                                        اسم الممرضة
-                                      </Typography>
-                                      <Typography
-                                        sx={{
-                                          fontWeight: 800,
-                                          whiteSpace: "normal",
-                                          wordBreak: "break-word",
-                                        }}
-                                      >
-                                        {getValue(details.nurseName)}
-                                      </Typography>
-                                    </Box>
+                              <Box sx={detailBoxSx}>
+                                <Typography sx={{ fontSize: 12, mb: 0.5 }}>
+                                  ضغط الدم
+                                </Typography>
+                                <Typography sx={{ fontWeight: 800 }}>
+                                  {item.bloodPressure || "-"}
+                                </Typography>
+                              </Box>
 
+                              <Box sx={detailBoxSx}>
+                                <Typography sx={{ fontSize: 12, mb: 0.5 }}>
+                                  إدخال
+                                </Typography>
+                                <Typography sx={{ fontWeight: 800 }}>
+                                  {item.intake || "-"}
+                                </Typography>
+                              </Box>
 
-                                    <Box sx={detailBoxSx}>
-                                      <Typography
-                                        sx={{
-                                          fontSize: 12,
-                                          color: "text.secondary",
-                                          mb: 0.5,
-                                        }}
-                                      >
-                                        الشيفت
-                                      </Typography>
-                                      <Typography sx={{ fontWeight: 800 }}>
-                                        {getValue(details.shift)}
-                                      </Typography>
-                                    </Box>
+                              <Box sx={detailBoxSx}>
+                                <Typography sx={{ fontSize: 12, mb: 0.5 }}>
+                                  إخراج
+                                </Typography>
+                                <Typography sx={{ fontWeight: 800 }}>
+                                  {item.output || "-"}
+                                </Typography>
+                              </Box>
+                            </Box>
 
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              onClick={() =>
+                                handleToggleDetails(item.checkListId)
+                              }
+                              startIcon={<VisibilityOutlinedIcon />}
+                              endIcon={
+                                isOpen ? (
+                                  <KeyboardArrowUpOutlinedIcon />
+                                ) : (
+                                  <KeyboardArrowDownOutlinedIcon />
+                                )
+                              }
+                              sx={{
+                                ...detailsButtonStyles,
+                                gap: 1,
+                                backgroundColor: "#FFF8E1",
+                                color: "#8D6E63",
+                                border: "1px solid rgba(141,110,99,0.35)",
+                                boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                              }}
+                            >
+                              {isOpen ? "إخفاء التفاصيل" : "تفاصيل"}
+                            </Button>
 
-                                    <Box sx={detailBoxSx}>
-                                      <Typography
-                                        sx={{
-                                          fontSize: 12,
-                                          color: "text.secondary",
-                                          mb: 0.5,
-                                        }}
-                                      >
-                                        الوقت
-                                      </Typography>
-                                      <Typography sx={{ fontWeight: 800 }}>
-                                        {formatTimeWithPeriod(details.time)}
-                                      </Typography>
-                                    </Box>
-
-
-                                    <Box
-                                      sx={{
-                                        p: 2,
-                                        borderRadius: 3,
-                                        backgroundColor: "#F8F8F4",
-                                        border:
-                                          "1px solid rgba(106,106,87,0.12)",
-                                        textAlign: "center",
-                                        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                                        minHeight: 85,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                      }}
-                                    >
-                                      <Typography
-                                        sx={{
-                                          fontSize: 12,
-                                          color: "text.secondary",
-                                          mb: 0.8,
-                                        }}
-                                      >
-                                        الملاحظات
-                                      </Typography>
-                                      <Typography
-                                        sx={{
-                                          fontWeight: 700,
-                                          lineHeight: 1.8,
-                                          wordBreak: "break-word",
-                                        }}
-                                      >
-                                        {getValue(details.notes)}
-                                      </Typography>
-                                    </Box>
-                                  </Box>
-
-
+                            <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                              <Box sx={{ mt: 2, display: "grid", gap: 1.2 }}>
+                                {isLoadingDetails ? (
                                   <Box
                                     sx={{
                                       display: "flex",
-                                      gap: 1,
-                                      mt: 1.5,
+                                      justifyContent: "center",
+                                      py: 2,
                                     }}
                                   >
-                                    <Button
-                                      fullWidth
-                                      variant="outlined"
-                                      startIcon={<EditOutlinedIcon />}
-                                      onClick={() => handleOpenEdit(item)}
-                                      sx={{
-                                        ...actionBtnSx,
-                                        gap: 1,
-                                        color: "#6a6a57",
-                                        borderColor: "rgba(106,106,87,0.35)",
-                                        backgroundColor: "#fff",
-                                      }}
-                                    >
-                                      تعديل
-                                    </Button>
-
-
-                                    <Button
-                                      fullWidth
-                                      variant="contained"
-                                      startIcon={<DeleteOutlineOutlinedIcon />}
-                                      onClick={() =>
-                                        openDeleteDialog(item.checkListId)
-                                      }
-                                      disabled={
-                                        deleteLoadingId === item.checkListId
-                                      }
-                                      sx={{
-                                        ...actionBtnSx,
-                                        gap: 1,
-                                        backgroundColor: "#c62828",
-                                        "&:hover": {
-                                          backgroundColor: "#b71c1c",
-                                        },
-                                      }}
-                                    >
-                                      حذف
-                                    </Button>
+                                    <CircularProgress size={28} />
                                   </Box>
-                                </Box>
+                                ) : details ? (
+                                  <>
+                                    {/* ⚠️ نفس كود التفاصيل تبعك حرفياً */}
+                                    <Box sx={nurseDetailsCardSx}>
+                                      <Box sx={nurseDetailsHeaderSx}>
+                                        <Typography
+                                          sx={{ fontWeight: 900, fontSize: 16 }}
+                                        >
+                                          تفاصيل الفحص
+                                        </Typography>
+
+                                        <Box
+                                          sx={{
+                                            px: 1.2,
+                                            py: 0.5,
+                                            borderRadius: 999,
+                                            backgroundColor:
+                                              "rgba(255,255,255,0.18)",
+                                            border:
+                                              "1px solid rgba(255,255,255,0.25)",
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                          }}
+                                        >
+                                          #{item.checkListId}
+                                        </Box>
+                                      </Box>
+
+                                      <Box sx={{ p: 1.5 }}>
+                                        <Box
+                                          sx={{
+                                            display: "grid",
+                                            gridTemplateColumns: {
+                                              xs: "1fr",
+                                              sm: "repeat(2, minmax(0, 1fr))",
+                                            },
+                                            gap: 1.2,
+                                          }}
+                                        >
+                                          <Box sx={detailBoxSx}>
+                                            <Typography
+                                              sx={{ fontSize: 12, mb: 0.5 }}
+                                            >
+                                              اسم الممرضة
+                                            </Typography>
+                                            <Typography
+                                              sx={{ fontWeight: 800 }}
+                                            >
+                                              {getValue(details.nurseName)}
+                                            </Typography>
+                                          </Box>
+
+                                          <Box sx={detailBoxSx}>
+                                            <Typography
+                                              sx={{ fontSize: 12, mb: 0.5 }}
+                                            >
+                                              الشيفت
+                                            </Typography>
+                                            <Typography
+                                              sx={{ fontWeight: 800 }}
+                                            >
+                                              {getValue(details.shift)}
+                                            </Typography>
+                                          </Box>
+
+                                          <Box sx={detailBoxSx}>
+                                            <Typography
+                                              sx={{ fontSize: 12, mb: 0.5 }}
+                                            >
+                                              الوقت
+                                            </Typography>
+                                            <Typography
+                                              sx={{ fontWeight: 800 }}
+                                            >
+                                              {formatTimeWithPeriod(
+                                                details.time,
+                                              )}
+                                            </Typography>
+                                          </Box>
+
+                                          <Box sx={detailBoxSx}>
+                                            <Typography
+                                              sx={{ fontSize: 12, mb: 0.5 }}
+                                            >
+                                              الملاحظات
+                                            </Typography>
+                                            <Typography
+                                              sx={{ fontWeight: 700 }}
+                                            >
+                                              {getValue(details.notes)}
+                                            </Typography>
+                                          </Box>
+                                        </Box>
+
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            gap: 1,
+                                            mt: 1.5,
+                                          }}
+                                        >
+                                          {" "}
+                                          <Button
+                                            fullWidth
+                                            variant="outlined"
+                                            startIcon={<EditOutlinedIcon />}
+                                            onClick={() => handleOpenEdit(item)}
+                                            sx={{
+                                              ...actionBtnSx,
+                                              gap: 1,
+                                              color: "#6a6a57",
+                                              borderColor:
+                                                "rgba(106,106,87,0.35)",
+                                              backgroundColor: "#fff",
+                                            }}
+                                          >
+                                            {" "}
+                                            تعديل{" "}
+                                          </Button>{" "}
+                                          <Button
+                                            fullWidth
+                                            variant="contained"
+                                            startIcon={
+                                              <DeleteOutlineOutlinedIcon />
+                                            }
+                                            onClick={() =>
+                                              openDeleteDialog(item.checkListId)
+                                            }
+                                            disabled={
+                                              deleteLoadingId ===
+                                              item.checkListId
+                                            }
+                                            sx={{
+                                              ...actionBtnSx,
+                                              gap: 1,
+                                              backgroundColor: "#c62828",
+                                              "&:hover": {
+                                                backgroundColor: "#b71c1c",
+                                              },
+                                            }}
+                                          >
+                                            {" "}
+                                            حذف{" "}
+                                          </Button>{" "}
+                                        </Box>
+                                      </Box>
+                                    </Box>
+                                  </>
+                                ) : (
+                                  <Typography align="center">
+                                    لا توجد تفاصيل
+                                  </Typography>
+                                )}
                               </Box>
-                            </>
-                          ) : (
-                            <Typography align="center">
-                              لا توجد تفاصيل
-                            </Typography>
-                          )}
-                        </Box>
-                      </Collapse>
-                    </CardContent>
-                  </Card>
+                            </Collapse>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+
+                    {/* زر عرض الباقي */}
+                    {visibleCount < checklists.length && (
+                      <Button
+                        fullWidth
+                        onClick={() => setVisibleCount((prev) => prev + 2)}
+                        sx={{
+                          mt: 1.5,
+                          borderRadius: 3,
+                          fontWeight: 800,
+                          textTransform: "none",
+                          backgroundColor: "#F0F0EA",
+                          color: "#6a6a57",
+                          border: "1px solid rgba(106,106,87,0.25)",
+                        }}
+                      >
+                        عرض المزيد ({checklists.length - visibleCount})
+                      </Button>
+                    )}
+                  </>
                 );
-              })
+              })()
             ) : (
               <Typography align="center">لا توجد بيانات</Typography>
             )}
@@ -1500,7 +1392,6 @@ export default function ElderlyCheckList() {
         <DialogTitle sx={{ fontWeight: 800, textAlign: "right" }}>
           تعديل الفحص
         </DialogTitle>
-
 
         <DialogContent>
           <Box
@@ -1518,7 +1409,6 @@ export default function ElderlyCheckList() {
               fullWidth
             />
 
-
             <TextField
               label="النبض"
               value={editForm.pulse}
@@ -1526,14 +1416,12 @@ export default function ElderlyCheckList() {
               fullWidth
             />
 
-
             <TextField
               label="سكر الدم"
               value={editForm.bloodSugar}
               onChange={(e) => handleEditChange("bloodSugar", e.target.value)}
               fullWidth
             />
-
 
             <TextField
               label="ضغط الدم"
@@ -1544,7 +1432,6 @@ export default function ElderlyCheckList() {
               fullWidth
             />
 
-
             <TextField
               label="إدخال"
               value={editForm.intake}
@@ -1552,14 +1439,12 @@ export default function ElderlyCheckList() {
               fullWidth
             />
 
-
             <TextField
               label="إخراج"
               value={editForm.output}
               onChange={(e) => handleEditChange("output", e.target.value)}
               fullWidth
             />
-
 
             <TextField
               label="الملاحظات"
@@ -1573,7 +1458,6 @@ export default function ElderlyCheckList() {
           </Box>
         </DialogContent>
 
-
         <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
           <Button
             onClick={() => setEditOpen(false)}
@@ -1582,7 +1466,6 @@ export default function ElderlyCheckList() {
           >
             إلغاء
           </Button>
-
 
           <Button
             onClick={handleUpdate}
@@ -1602,7 +1485,6 @@ export default function ElderlyCheckList() {
         </DialogActions>
       </Dialog>
 
-
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -1612,18 +1494,15 @@ export default function ElderlyCheckList() {
       >
         <DialogTitle sx={deleteDialogTitleSx}>تأكيد حذف الفحص</DialogTitle>
 
-
         <DialogContent dividers sx={deleteDialogContentSx}>
           <Typography sx={deleteDialogMainTextSx}>
             هل أنت متأكد أنك تريد حذف هذا الفحص؟
           </Typography>
 
-
           <Typography sx={deleteDialogSubTextSx}>
             هذا الإجراء لا يمكن التراجع عنه.
           </Typography>
         </DialogContent>
-
 
         <DialogActions sx={deleteDialogActionsSx}>
           <Button
@@ -1638,7 +1517,6 @@ export default function ElderlyCheckList() {
             {deleteLoadingId === selectedDeleteId ? "جارٍ الحذف..." : "حذف"}
           </Button>
 
-
           <Button
             onClick={() => setDeleteDialogOpen(false)}
             variant="outlined"
@@ -1648,7 +1526,6 @@ export default function ElderlyCheckList() {
           </Button>
         </DialogActions>
       </Dialog>
-
 
       <Snackbar
         open={snackbar.open}
@@ -1663,4 +1540,3 @@ export default function ElderlyCheckList() {
     </Box>
   );
 }
-
