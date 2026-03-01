@@ -36,6 +36,7 @@ import ElderlyCheckList from "./pages/nurse/ElderlyCheckList/ElderlyCheckList.js
 import NurseProfile from "./pages/nurse/NurseProfile/NurseProfile.jsx";
 import NurseShifts from "./pages/admin/NurseShifts/NurseShifts.jsx";
 import AddShifts from "./pages/admin/AddShifts/AddShifts.jsx";
+import MyShifts from "./pages/nurse/MyShifts/MyShifts.jsx";
 
 const router = createBrowserRouter([
   {
@@ -104,6 +105,10 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <NurseProfile />,
+      },
+      {
+        path: "MyShifts",
+        element: <MyShifts />,
       },
       {
         path: "elderlies",

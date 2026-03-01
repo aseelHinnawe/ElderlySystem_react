@@ -29,9 +29,9 @@ import {
   FactCheck,
   PlaylistAddCheck,
   ListAlt,
+  CalendarMonth
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-
 
 const navBtnSx = (open, isChild = false) => ({
   px: open ? 2 : 0,
@@ -52,7 +52,6 @@ const navBtnSx = (open, isChild = false) => ({
   "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
   "&::before": { display: "none" },
 });
-
 
 const navIconSx = {
   color: "white",
@@ -135,6 +134,11 @@ export default function NurseLayout() {
       setDailyChecksOpen(true);
       return;
     }
+
+    if (path.startsWith("/Nurse/MyShifts")) {
+    setActivePage("مناوباتي الأسبوعية");
+    return;
+  }
   }, [location.pathname]);
 
 
@@ -263,6 +267,30 @@ export default function NurseLayout() {
               {open && <ListItemText primary="الرئيسية" sx={navTextSx} />}
             </ListItemButton>
           </ListItem>
+
+            {/* مناوباتي الأسبوعية */}
+<ListItem disablePadding>
+  <ListItemButton
+    onClick={() => goTo("مناوباتي الأسبوعية", "/Nurse/MyShifts")}
+    sx={{
+      ...navBtnSx(open),
+      backgroundColor:
+        activePage === "مناوباتي الأسبوعية"
+          ? "rgba(255,255,255,0.15)"
+          : "transparent",
+    }}
+  >
+    <ListItemIcon sx={navIconSx}>
+      <CalendarMonth />
+    </ListItemIcon>
+    {open && (
+      <ListItemText
+        primary="مناوباتي الأسبوعية"
+        sx={navTextSx}
+      />
+    )}
+  </ListItemButton>
+</ListItem>
 
 
           {/* إدارة المسنين */}
