@@ -35,6 +35,9 @@ import {
   AddCircleOutline,
   VolunteerActivism,
   Payments,
+  LocalHospital,
+  Schedule,
+  PostAdd  ,
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
@@ -105,6 +108,7 @@ export default function AdminLayout() {
   const [roomsFolderOpen, setRoomsFolderOpen] = useState(true);
   const [activitiesFolderOpen, setActivitiesFolderOpen] = useState(true);
   const [donationsFolderOpen, setDonationsFolderOpen] = useState(true);
+  const [shiftsFolderOpen, setShiftsFolderOpen] = useState(true);
 
 
   const [activePage, setActivePage] = useState("الرئيسية");
@@ -194,6 +198,17 @@ export default function AdminLayout() {
       setActivePage("الحساب الشخصي");
       return;
     }
+    if (path.startsWith("/Admin/NurseShifts")) {
+    setActivePage("الشفتات");
+    setShiftsFolderOpen(true);
+    return;
+  }
+
+  if (path.startsWith("/Admin/AddShifts")) {
+    setActivePage("إضافة شفتات");
+    setShiftsFolderOpen(true);
+    return;
+  }
   }, [location.pathname]);
 
 
@@ -262,6 +277,15 @@ export default function AdminLayout() {
     }
     setDonationsFolderOpen((prev) => !prev);
   };
+
+  const toggleShiftsFolder = () => {
+  if (isSmallScreen && !open) {
+    setOpen(true);
+    setShiftsFolderOpen(true);
+    return;
+  }
+  setShiftsFolderOpen((prev) => !prev);
+};
 
 
   const goTo = (label, path) => {
@@ -658,6 +682,62 @@ export default function AdminLayout() {
                     <AddCircleOutline fontSize="small" />
                   </ListItemIcon>
                   {open && <ListItemText primary="إضافة تبرع" sx={navTextSx} />}
+                </ListItemButton>
+              </ListItem>
+            </Box>
+          </Collapse>
+
+           {/* إدارة الشفتات */}
+          <ListItem disablePadding>
+            <ListItemButton onClick={toggleShiftsFolder} sx={navBtnSx(open)}>
+              <ListItemIcon sx={navIconSx}>
+                <LocalHospital />
+              </ListItemIcon>
+
+
+              {open && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    minWidth: 0,
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 700 }} noWrap>
+                    إدارة الممرضين
+                  </Typography>
+                  {donationsFolderOpen ? <ExpandLess /> : <ExpandMore />}
+                </Box>
+              )}
+            </ListItemButton>
+          </ListItem>
+
+          <Collapse in={shiftsFolderOpen} timeout="auto" unmountOnExit>
+            <Box sx={{ mt: 0.5 }}>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => goTo("الشفتات", "/Admin/NurseShifts")}
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <Schedule fontSize="small" />
+                  </ListItemIcon>
+                  {open && <ListItemText primary="الشفتات" sx={navTextSx} />}
+                </ListItemButton>
+              </ListItem>
+
+
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => goTo("إضافة شفتات", "/Admin/AddShifts")}
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <PostAdd fontSize="small" />
+                  </ListItemIcon>
+                  {open && <ListItemText primary="إضافة شفتات" sx={navTextSx} />}
                 </ListItemButton>
               </ListItem>
             </Box>
