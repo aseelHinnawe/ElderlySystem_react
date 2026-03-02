@@ -29,9 +29,13 @@ import {
   FactCheck,
   PlaylistAddCheck,
   ListAlt,
-  CalendarMonth
+  CalendarMonth,
+  RestaurantMenu,
+  PostAdd,
+  ReceiptLong,
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+
 
 const navBtnSx = (open, isChild = false) => ({
   px: open ? 2 : 0,
@@ -52,6 +56,7 @@ const navBtnSx = (open, isChild = false) => ({
   "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
   "&::before": { display: "none" },
 });
+
 
 const navIconSx = {
   color: "white",
@@ -91,6 +96,7 @@ export default function NurseLayout() {
   const [open, setOpen] = useState(!isSmallScreen);
   const [anchorEl, setAnchorEl] = useState(null);
   const [elderlyFolderOpen, setElderlyFolderOpen] = useState(true);
+  const [mealsOpen, setMealsOpen] = useState(true);
   const [dailyChecksOpen, setDailyChecksOpen] = useState(true);
   const [activePage, setActivePage] = useState("الرئيسية");
   const isMenuOpen = Boolean(anchorEl);
@@ -135,10 +141,23 @@ export default function NurseLayout() {
       return;
     }
 
+
     if (path.startsWith("/Nurse/MyShifts")) {
-    setActivePage("مناوباتي الأسبوعية");
-    return;
-  }
+      setActivePage("مناوباتي الأسبوعية");
+      return;
+    }
+    if (path.startsWith("/Nurse/AddMeal")) {
+      setActivePage("إضافة وجبة");
+      setMealsOpen(true);
+      return;
+    }
+
+
+    if (path.startsWith("/Nurse/Elderly-Meal")) {
+      setActivePage("عرض الوجبات");
+      setMealsOpen(true);
+      return;
+    }
   }, [location.pathname]);
 
 
@@ -151,6 +170,7 @@ export default function NurseLayout() {
       navigate("/Nurse/profile");
       if (isSmallScreen) setOpen(false);
     }
+
 
     handleMenuClose();
   };
@@ -167,6 +187,14 @@ export default function NurseLayout() {
       return;
     }
     setElderlyFolderOpen((prev) => !prev);
+  };
+  const toggleMealsFolder = () => {
+    if (isSmallScreen && !open) {
+      setOpen(true);
+      setMealsOpen(true);
+      return;
+    }
+    setMealsOpen((prev) => !prev);
   };
   const toggleDailyChecksFolder = () => {
     if (isSmallScreen && !open) {
@@ -268,29 +296,27 @@ export default function NurseLayout() {
             </ListItemButton>
           </ListItem>
 
-            {/* مناوباتي الأسبوعية */}
-<ListItem disablePadding>
-  <ListItemButton
-    onClick={() => goTo("مناوباتي الأسبوعية", "/Nurse/MyShifts")}
-    sx={{
-      ...navBtnSx(open),
-      backgroundColor:
-        activePage === "مناوباتي الأسبوعية"
-          ? "rgba(255,255,255,0.15)"
-          : "transparent",
-    }}
-  >
-    <ListItemIcon sx={navIconSx}>
-      <CalendarMonth />
-    </ListItemIcon>
-    {open && (
-      <ListItemText
-        primary="مناوباتي الأسبوعية"
-        sx={navTextSx}
-      />
-    )}
-  </ListItemButton>
-</ListItem>
+
+          {/* مناوباتي الأسبوعية */}
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => goTo("مناوباتي الأسبوعية", "/Nurse/MyShifts")}
+              sx={{
+                ...navBtnSx(open),
+                backgroundColor:
+                  activePage === "مناوباتي الأسبوعية"
+                    ? "rgba(255,255,255,0.15)"
+                    : "transparent",
+              }}
+            >
+              <ListItemIcon sx={navIconSx}>
+                <CalendarMonth />
+              </ListItemIcon>
+              {open && (
+                <ListItemText primary="مناوباتي الأسبوعية" sx={navTextSx} />
+              )}
+            </ListItemButton>
+          </ListItem>
 
 
           {/* إدارة المسنين */}
@@ -343,7 +369,7 @@ export default function NurseLayout() {
               sx={navBtnSx(open)}
             >
               <ListItemIcon sx={navIconSx}>
-               <FactCheck />
+                <FactCheck />
               </ListItemIcon>
 
 
@@ -392,10 +418,68 @@ export default function NurseLayout() {
                   sx={navBtnSx(open, true)}
                 >
                   <ListItemIcon sx={navIconSx}>
-                   <ListAlt fontSize="small" />
+                    <ListAlt fontSize="small" />
+                  </ListItemIcon>
+                  {open && <ListItemText primary="الفحوصات" sx={navTextSx} />}
+                </ListItemButton>
+              </ListItem>
+            </Box>
+          </Collapse>
+          {/* إدارة الوجبات */}
+          <ListItem disablePadding>
+            <ListItemButton onClick={toggleMealsFolder} sx={navBtnSx(open)}>
+              <ListItemIcon sx={navIconSx}>
+                <RestaurantMenu />
+              </ListItemIcon>
+
+
+              {open && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    minWidth: 0,
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 700 }} noWrap>
+                    إدارة الوجبات
+                  </Typography>
+                  {mealsOpen ? <ExpandLess /> : <ExpandMore />}
+                </Box>
+              )}
+            </ListItemButton>
+          </ListItem>
+
+
+          <Collapse in={mealsOpen} timeout="auto" unmountOnExit>
+            <Box sx={{ mt: 0.5 }}>
+              {/* إضافة وجبة */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => goTo("إضافة وجبة", "/Nurse/AddMeal")}
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <PostAdd fontSize="small" />
+                  </ListItemIcon>
+                  {open && <ListItemText primary="إضافة وجبة" sx={navTextSx} />}
+                </ListItemButton>
+              </ListItem>
+
+
+              {/* عرض الوجبات */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => goTo("عرض الوجبات", "/Nurse/Elderly-Meal")}
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <ReceiptLong fontSize="small" />
                   </ListItemIcon>
                   {open && (
-                    <ListItemText primary="الفحوصات" sx={navTextSx} />
+                    <ListItemText primary="عرض الوجبات" sx={navTextSx} />
                   )}
                 </ListItemButton>
               </ListItem>
@@ -484,6 +568,8 @@ export default function NurseLayout() {
     </Box>
   );
 }
+
+
 
 
 

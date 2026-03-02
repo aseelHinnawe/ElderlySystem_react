@@ -37,6 +37,8 @@ import NurseProfile from "./pages/nurse/NurseProfile/NurseProfile.jsx";
 import NurseShifts from "./pages/admin/NurseShifts/NurseShifts.jsx";
 import AddShifts from "./pages/admin/AddShifts/AddShifts.jsx";
 import MyShifts from "./pages/nurse/MyShifts/MyShifts.jsx";
+import AddElderlyMeal from "./pages/nurse/AddElderlyMeal/AddElderlyMeal.jsx";
+import GetElderlyMeal from "./pages/nurse/GetElderlyMeal/GetElderlyMeal.jsx";
 
 const router = createBrowserRouter([
   {
@@ -125,6 +127,14 @@ const router = createBrowserRouter([
       {
         path: "elderly/checklist",
         element: <ElderlyCheckList />,
+      },
+      {
+        path: "AddMeal",
+        element: <AddElderlyMeal />,
+      },
+      {
+        path: "Elderly-Meal",
+        element: <GetElderlyMeal />,
       },
     
     ],

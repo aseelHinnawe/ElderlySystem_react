@@ -487,7 +487,7 @@ export default function AddShifts() {
                   elevation={0}
                 >
                   <Typography sx={{ fontWeight: 900, mb: 1.5 }}>
-                    شفت A
+                    شفت A 
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12 }}>

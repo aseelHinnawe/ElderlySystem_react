@@ -196,6 +196,16 @@ const isMobile = useMediaQuery(theme.breakpoints.down("md"));
                   sx={{ fontSize: { xs: 24, md: 32 }, color: "#fff" }}
                 />
               </Box>
+              <Typography
+        sx={{
+          mt: 1, // مسافة صغيرة تحت العنوان
+          fontSize: { xs: 12, md: 14 },
+          color: "rgba(255,255,255,0.85)", // أبيض شفاف قليلاً
+          fontWeight: 400,
+        }}
+      >
+        هنا يمكن متابعة مواعيد الشفتات لكل ممرضة حسب الأسبوع المحدد
+      </Typography>
             </Box>
 
 
@@ -427,6 +437,124 @@ const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 )}
         </Paper>
 
+{/* ================== Shift Time Info - Theme Matched ================== */}
+<Box
+  sx={{
+    mt: 6,
+    p: { xs: 3, md: 5 },
+    borderRadius: 5,
+    background: "linear-gradient(135deg, #f8f8f3, #ececdf)",
+    border: "1px solid rgba(106,106,87,0.18)",
+  }}
+>
+  <Typography
+    sx={{
+      fontWeight: 900,
+      fontSize: { xs: 18, md: 22 },
+      mb: 4,
+      textAlign: "center",
+      color: "#5c5c47",
+      letterSpacing: 0.5,
+    }}
+  >
+    مواعيد الدوام
+  </Typography>
+
+  <Grid container spacing={4}>
+    {[
+      {
+        title: "الدوام في الأيام العادية",
+        shifts: [
+          { name: "شفت A", time: "3:00 AM - 10:00 AM" },
+          { name: "شفت B", time: "10:00 AM - 5:00 PM" },
+          { name: "شفت C", time: "5:00 PM - 12:00 AM" },
+        ],
+      },
+      {
+        title: "الدوام في شهر رمضان",
+        shifts: [
+          { name: "شفت A", time: "2:00 AM - 9:00 AM" },
+          { name: "شفت B", time: "9:00 AM - 4:00 PM" },
+          { name: "شفت C", time: "4:00 PM - 11:00 PM" },
+        ],
+      },
+    ].map((section, index) => (
+      <Grid size={{xs:12,md:6}} key={index}>
+        <Box
+          sx={{
+            p: 4,
+            borderRadius: 4,
+            background: "#ffffff",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+            transition: "0.25s",
+            "&:hover": {
+              transform: "translateY(-3px)",
+              boxShadow: "0 12px 25px rgba(0,0,0,0.08)",
+            },
+          }}
+        >
+          {/* ===== عنوان القسم + زر التعديل ===== */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
+            }}
+          >
+            <Typography
+              sx={{
+                fontWeight: 900,
+                fontSize: 16,
+                color: "#6a6a57",
+              }}
+            >
+              {section.title}
+            </Typography>
+
+         
+          </Box>
+
+          {/* ===== قائمة الشفتات ===== */}
+          {section.shifts.map((shift, i) => (
+            <Box
+              key={i}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+                p: 1.5,
+                borderRadius: 3,
+                background: "rgba(106,106,87,0.08)",
+                border: "1px solid rgba(106,106,87,0.15)",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  color: "#4f4f3e",
+                }}
+              >
+                {shift.name}
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  color: "#3d3d2f",
+                }}
+                dir="ltr"
+              >
+                {shift.time}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Grid>
+    ))}
+  </Grid>
+</Box>
 
         <Snackbar
           open={snackbar.open}

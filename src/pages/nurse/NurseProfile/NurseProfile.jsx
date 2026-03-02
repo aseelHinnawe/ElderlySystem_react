@@ -273,97 +273,89 @@ export default function NurseProfile() {
             </Paper>
 
 
-            {/* الشهادة: Preview + Dialog */}
-            {user.imageCertificate && (
-              <Paper
-                sx={{
-                  p: 3,
-                  borderRadius: 4,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontWeight: 900,
-                    mb: 3,
-                    fontSize: 16,
-                    borderRight: "4px solid #6a6a57",
-                    pr: 1,
-                    alignSelf: "flex-start",
-                  }}
-                >
-                  الشهادة
-                </Typography>
+           {/* الشهادة: Preview + Dialog */}
+{user.imageCertificate && (
+  <Paper
+    sx={{
+      p: 3,
+      borderRadius: 4,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+    }}
+  >
+    <Typography
+      sx={{
+        fontWeight: 900,
+        mb: 3,
+        fontSize: 16,
+        borderRight: "4px solid #6a6a57",
+        pr: 1,
+        alignSelf: "flex-start",
+      }}
+    >
+      الشهادة
+    </Typography>
+
+    {/* Preview */}
+    <Box
+      component="img"
+      src={user.imageCertificate}
+      onClick={() => setOpenCert(true)}
+      sx={{
+        width: { xs: "100%", sm: "80%", md: "60%" },
+        maxHeight: "80vh", // بدل ارتفاع ثابت
+        objectFit: "contain", // بدل cover
+        borderRadius: 3,
+        border: "1px solid #e0e0e0",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.15)", // ظل أقوى
+        backgroundColor: "#fff",
+        p: 1,
+        cursor: "pointer",
+      }}
+    />
 
 
-                {/* Preview */}
-                <Box
-                  component="img"
-                  src={user.imageCertificate}
-                  onClick={() => setOpenCert(true)}
-                  sx={{
-                    width: { xs: "100%", sm: "80%", md: "60%" },
-                    height: 180,
-                    objectFit: "cover",
-                    borderRadius: 3,
-                    border: "1px solid #e0e0e0",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
-                    backgroundColor: "#fff",
-                    p: 1,
-                    cursor: "pointer",
-                  }}
-                />
+    {/* Dialog */}
+    <Dialog
+      open={openCert}
+      onClose={() => setOpenCert(false)}
+      fullScreen={fullScreen}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogContent sx={{ p: 2, position: "relative" }}>
+        <IconButton
+          onClick={() => setOpenCert(false)}
+          sx={{
+            position: "absolute",
+            top: 10,
+            right: 10,
+            bgcolor: "rgba(0,0,0,0.05)",
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
 
+        <Typography fontWeight="bold" sx={{ mb: 2, pr: 5 }}>
+          الشهادة
+        </Typography>
 
-                <Typography sx={{ mt: 1, fontSize: 13, color: "#777" }}>
-                  اضغط على الصورة للتكبير
-                </Typography>
-
-
-                {/* Dialog */}
-                <Dialog
-                  open={openCert}
-                  onClose={() => setOpenCert(false)}
-                  fullScreen={fullScreen}
-                  maxWidth="md"
-                  fullWidth
-                >
-                  <DialogContent sx={{ p: 2, position: "relative" }}>
-                    <IconButton
-                      onClick={() => setOpenCert(false)}
-                      sx={{
-                        position: "absolute",
-                        top: 10,
-                        right: 10,
-                        bgcolor: "rgba(0,0,0,0.05)",
-                      }}
-                    >
-                      <CloseIcon />
-                    </IconButton>
-
-
-                    <Typography fontWeight="bold" sx={{ mb: 2, pr: 5 }}>
-                      الشهادة
-                    </Typography>
-
-
-                    <Box
-                      component="img"
-                      src={user.imageCertificate}
-                      sx={{
-                        width: "100%",
-                        maxHeight: "85vh",
-                        objectFit: "contain",
-                        borderRadius: 2,
-                        background: "#fff",
-                      }}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </Paper>
-            )}
+        <Box
+          component="img"
+          src={user.imageCertificate}
+          sx={{
+            width: "100%",
+            maxHeight: "80vh",
+            objectFit: "contain",
+            borderRadius: 3,
+            background: "#fff",
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  </Paper>
+)}
           </Box>
         </Grid>
 
