@@ -37,8 +37,9 @@ import {
   Payments,
   LocalHospital,
   Schedule,
-  PostAdd  ,
+  PostAdd,
 } from "@mui/icons-material";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 
@@ -192,6 +193,10 @@ export default function AdminLayout() {
       setDonationsFolderOpen(true);
       return;
     }
+    if (path.startsWith("/Admin/ContactMessage")) {
+      setActivePage("رسائل التواصل");
+      return;
+    }
 
 
     if (path.startsWith("/Admin/profile")) {
@@ -199,16 +204,17 @@ export default function AdminLayout() {
       return;
     }
     if (path.startsWith("/Admin/NurseShifts")) {
-    setActivePage("الشفتات");
-    setShiftsFolderOpen(true);
-    return;
-  }
+      setActivePage("الشفتات");
+      setShiftsFolderOpen(true);
+      return;
+    }
 
-  if (path.startsWith("/Admin/AddShifts")) {
-    setActivePage("إضافة شفتات");
-    setShiftsFolderOpen(true);
-    return;
-  }
+
+    if (path.startsWith("/Admin/AddShifts")) {
+      setActivePage("إضافة شفتات");
+      setShiftsFolderOpen(true);
+      return;
+    }
   }, [location.pathname]);
 
 
@@ -278,14 +284,15 @@ export default function AdminLayout() {
     setDonationsFolderOpen((prev) => !prev);
   };
 
+
   const toggleShiftsFolder = () => {
-  if (isSmallScreen && !open) {
-    setOpen(true);
-    setShiftsFolderOpen(true);
-    return;
-  }
-  setShiftsFolderOpen((prev) => !prev);
-};
+    if (isSmallScreen && !open) {
+      setOpen(true);
+      setShiftsFolderOpen(true);
+      return;
+    }
+    setShiftsFolderOpen((prev) => !prev);
+  };
 
 
   const goTo = (label, path) => {
@@ -687,7 +694,8 @@ export default function AdminLayout() {
             </Box>
           </Collapse>
 
-           {/* إدارة الشفتات */}
+
+          {/* إدارة الشفتات */}
           <ListItem disablePadding>
             <ListItemButton onClick={toggleShiftsFolder} sx={navBtnSx(open)}>
               <ListItemIcon sx={navIconSx}>
@@ -714,6 +722,7 @@ export default function AdminLayout() {
             </ListItemButton>
           </ListItem>
 
+
           <Collapse in={shiftsFolderOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               <ListItem disablePadding>
@@ -737,11 +746,26 @@ export default function AdminLayout() {
                   <ListItemIcon sx={navIconSx}>
                     <PostAdd fontSize="small" />
                   </ListItemIcon>
-                  {open && <ListItemText primary="إضافة شفتات" sx={navTextSx} />}
+                  {open && (
+                    <ListItemText primary="إضافة شفتات" sx={navTextSx} />
+                  )}
                 </ListItemButton>
               </ListItem>
             </Box>
           </Collapse>
+
+
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => goTo("رسائل التواصل", "/Admin/ContactMessage")}
+              sx={navBtnSx(open)}
+            >
+              <ListItemIcon sx={navIconSx}>
+                <MailOutlineIcon />
+              </ListItemIcon>
+              {open && <ListItemText primary="رسائل التواصل" sx={navTextSx} />}
+            </ListItemButton>
+          </ListItem>
         </List>
       </Box>
 
@@ -825,6 +849,4 @@ export default function AdminLayout() {
     </Box>
   );
 }
-
-
 

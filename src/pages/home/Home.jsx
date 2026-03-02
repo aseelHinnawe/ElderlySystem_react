@@ -39,6 +39,7 @@ const heroSectionStyle = {
 const featureItemSx = (index) => ({
   display: { xs: index > 2 ? "none" : "flex", md: "flex" },
 
+
   "&::after": {
     content: '""',
     position: "absolute",
@@ -139,6 +140,7 @@ const contactButtonStyle = {
   },
 };
 
+
 const services = [
   {
     title: "الرعاية الصحية اليومية",
@@ -204,7 +206,91 @@ const features = [
   },
 ];
 
+
 export default function Home() {
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState({ type: "", text: "" }); // type: "success" | "error"
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFeedback({ type: "", text: "" });
+
+
+    // Validation بسيط
+    if (!form.fullName.trim() || form.fullName.trim().length < 2)
+      return setFeedback({
+        type: "error",
+        text: "الاسم مطلوب .",
+      });
+
+
+    if (!form.email.trim() || !form.email.includes("@"))
+      return setFeedback({
+        type: "error",
+        text: "البريد الإلكتروني غير صحيح.",
+      });
+
+
+    if (!form.message.trim() || form.message.trim().length < 5)
+      return setFeedback({ type: "error", text: "نص الرسالة قصير جدًا." });
+
+
+    setLoading(true);
+
+
+    try {
+      const res = await fetch(
+        "https://localhost:7160/api/ContactMessage/msgUser",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: form.fullName,
+            email: form.email,
+            subject: form.subject,
+            message: form.message,
+          }),
+        },
+      );
+
+
+      const data = await res.json().catch(() => ({}));
+
+
+      if (!res.ok) {
+        throw new Error(data?.message || "حدث خطأ أثناء إرسال الرسالة.");
+      }
+
+
+      setFeedback({
+        type: "success",
+        text: data?.message || "تم إرسال رسالتك بنجاح.",
+      });
+
+
+      setForm({ fullName: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      setFeedback({
+        type: "error",
+        text: err.message || "تعذر إرسال الرسالة.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <Box id="home">
@@ -213,20 +299,20 @@ export default function Home() {
 
 
       <Box sx={{ py: 5, backgroundColor: "#f0f0ea" }}>
-  <Container maxWidth="lg">
-    <Box className={style.featuresWrapper}>
-      {features.map((feature, index) => (
-        <Box
-          key={index}
-          sx={featureItemSx(index)}
-          className={style.featureItem}
-        >
-          {feature.icon}
-        </Box>
-      ))}
-    </Box>
-  </Container>
-</Box>
+        <Container maxWidth="lg">
+          <Box className={style.featuresWrapper}>
+            {features.map((feature, index) => (
+              <Box
+                key={index}
+                sx={featureItemSx(index)}
+                className={style.featureItem}
+              >
+                {feature.icon}
+              </Box>
+            ))}
+          </Box>
+        </Container>
+      </Box>
 
 
       <Box
@@ -263,6 +349,7 @@ export default function Home() {
               من نحن{" "}
             </Typography>
 
+
             <Typography
               variant="h3"
               sx={{
@@ -273,6 +360,7 @@ export default function Home() {
             >
               مرحبًا بكم في دار المحبة والوئام للمسنين
             </Typography>
+
 
             <Typography
               variant="h6"
@@ -285,10 +373,12 @@ export default function Home() {
               بالاهتمام.
             </Typography>
 
+
             <Button variant="contained" sx={aboutButtonStyle} href="#contact">
               تواصل معنا
             </Button>
           </Box>
+
 
           <Box className={`${style.imageWrapper}`}>
             <MovingIcon sx={movingIconStyle} />
@@ -306,6 +396,7 @@ export default function Home() {
           </Box>
         </Container>
       </Box>
+
 
       <Box
         id="services"
@@ -332,6 +423,7 @@ export default function Home() {
             خدماتنا
           </Typography>
 
+
           <Grid container spacing={4} justifyContent="center">
             {services.map((service, index) => (
               <Grid key={index} size={{ xs: 12, sm: 6, md: 4 }}>
@@ -353,6 +445,7 @@ export default function Home() {
                     {service.icon}
                   </Box>
 
+
                   <Typography
                     variant="h5"
                     sx={{ fontFamily: "Tajawal", fontWeight: "bold", mb: 2 }}
@@ -368,6 +461,7 @@ export default function Home() {
           </Grid>
         </Container>
       </Box>
+
 
       <Box
         id="contact"
@@ -405,56 +499,97 @@ export default function Home() {
                 تواصل معنا
               </Typography>
 
+
               <Typography color="text.secondary" mb={3}>
                 نحن هنا للإجابة عن جميع استفساراتكم
               </Typography>
 
+
               <Box
                 component="form"
+                onSubmit={handleSubmit}
                 sx={contactFormBoxStyle}
                 className={`${style.contactForm}`}
               >
                 <TextField
                   label="الاسم"
-                  id="name"
-                  name="name"
+                  name="fullName"
+                  value={form.fullName}
+                  onChange={handleChange}
                   fullWidth
                   sx={contactInputStyle}
                 />
+
+
                 <TextField
                   label="البريد الإلكتروني"
-                  id="email"
                   name="email"
+                  value={form.email}
+                  onChange={handleChange}
                   fullWidth
                   sx={contactInputStyle}
                 />
+
+
                 <TextField
                   label="الموضوع"
-                  id="subject"
                   name="subject"
+                  value={form.subject}
+                  onChange={handleChange}
                   fullWidth
                   sx={contactInputStyle}
                 />
+
+
                 <TextField
                   label="الرسالة"
-                  id="message"
                   name="message"
+                  value={form.message}
+                  onChange={handleChange}
                   multiline
                   rows={4}
                   fullWidth
                   sx={contactInputStyle}
                 />
 
-                <Button variant="contained" sx={contactButtonStyle}>
-                  إرسال
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={contactButtonStyle}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <CircularProgress size={22} color="inherit" />
+                  ) : (
+                    "إرسال"
+                  )}
                 </Button>
+                {feedback.text && (
+                  <Typography
+                    sx={{
+                      mt: 2,
+                      fontFamily: "Cairo",
+                      textAlign: "center",
+                      color:
+                        feedback.type === "success"
+                          ? "success.main"
+                          : "error.main",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {feedback.text}
+                  </Typography>
+                )}
               </Box>
             </Box>
+
 
             <Box className={`${style.contactInfo}`}>
               <Typography variant="h5" fontWeight="bold">
                 معلومات التواصل
               </Typography>
+
 
               <Card
                 sx={{
@@ -470,6 +605,7 @@ export default function Home() {
                   <Typography color="text.secondary">09-2330220</Typography>
                 </CardContent>
               </Card>
+
 
               <Card
                 sx={{
@@ -487,6 +623,7 @@ export default function Home() {
                   </Typography>
                 </CardContent>
               </Card>
+
 
               <Card
                 sx={{
@@ -525,3 +662,6 @@ export default function Home() {
     </>
   );
 }
+
+
+

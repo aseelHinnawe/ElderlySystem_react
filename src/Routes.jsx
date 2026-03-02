@@ -39,6 +39,7 @@ import AddShifts from "./pages/admin/AddShifts/AddShifts.jsx";
 import MyShifts from "./pages/nurse/MyShifts/MyShifts.jsx";
 import AddElderlyMeal from "./pages/nurse/AddElderlyMeal/AddElderlyMeal.jsx";
 import GetElderlyMeal from "./pages/nurse/GetElderlyMeal/GetElderlyMeal.jsx";
+import ContactMessage from "./pages/admin/ContactMessage/ContactMessage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -219,6 +220,10 @@ const router = createBrowserRouter([
       {
         path: "AddShifts",
         element: <AddShifts />,
+      },
+      {
+        path : "ContactMessage",
+        element : <ContactMessage />
       },
     ],
   },
