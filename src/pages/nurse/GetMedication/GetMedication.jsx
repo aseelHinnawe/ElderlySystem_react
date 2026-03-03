@@ -107,11 +107,14 @@ const dayNameAr = (dateStr) => {
 
 // ========== cell rendering ==========
 const getSummaryStyle = (cell) => {
-  // cell: { inPlanPeriod, takenCount, requiredCount }
   if (!cell || !cell.inPlanPeriod)
     return { bg: "rgba(0,0,0,0.04)", color: "#555" };
+
+
   const taken = Number(cell.takenCount || 0);
   const req = Number(cell.requiredCount || 0);
+
+
   if (req > 0 && taken >= req)
     return { bg: "rgba(46,125,50,0.12)", color: "#2E7D32" }; // done
   if (taken > 0) return { bg: "rgba(141,110,99,0.12)", color: "#8D6E63" }; // partial
@@ -135,32 +138,60 @@ const renderMedicationCell = (cell) => {
 
 
   const tooltipContent = (
-    <Box sx={{ p: 1, minWidth: 220 , textAlign: "center", }}>
-      <Typography sx={{ fontWeight: 900, mb: 0.8 }}>تفاصيل الجرعات</Typography>
+    <Box sx={{ p: 1.2, minWidth: 280, textAlign: "center" }}>
+      <Typography sx={{ fontWeight: 900, mb: 1 }}>تفاصيل الجرعات</Typography>
 
 
       {!hasTaken ? (
         <Typography sx={{ opacity: 0.8 }}>لا توجد جرعات مسجلة</Typography>
       ) : (
-        <Stack gap={0.8}>
+        <Stack gap={1}>
           {takenList.map((t, i) => (
             <Box
               key={i}
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 2,
                 borderRadius: 2,
-                px: 1,
-                py: 0.6,
-                background: "rgba(255,255,255,0.65)",
+                px: 1.2,
+                py: 1,
+                background: "rgba(255,255,255,0.70)",
                 border: "1px solid rgba(106,106,87,0.15)",
               }}
             >
-              <Typography sx={{ fontWeight: 900 }}>{t.time}</Typography>
-              <Typography sx={{ fontWeight: 700, opacity: 0.9 }}>
-                {t.dose}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 2,
+                  alignItems: "center",
+                  mb: 0.6,
+                }}
+              >
+                <Typography sx={{ fontWeight: 900 }}>{t.time}</Typography>
+
+
+                <Chip
+                  size="small"
+                  label={`شفت ${t.shiftKey || "-"}`}
+                  sx={{
+                    fontWeight: 900,
+                    borderRadius: 2,
+                    background: "rgba(106,106,87,0.10)",
+                    border: "1px solid rgba(106,106,87,0.18)",
+                  }}
+                />
+              </Box>
+
+
+              <Typography sx={{ fontWeight: 800, opacity: 0.9 }}>
+                الجرعة: {t.dose}
               </Typography>
+
+
+              {!!t.nurseName && (
+                <Typography sx={{ mt: 0.4, fontSize: 12, opacity: 0.85 }}>
+                  الممرضة: {t.nurseName}
+                </Typography>
+              )}
             </Box>
           ))}
         </Stack>
@@ -309,6 +340,8 @@ export default function GetMedication() {
         <Typography sx={{ fontWeight: 900, lineHeight: 1.2 }}>
           {r.medicineName || "-"}
         </Typography>
+
+
         <Typography sx={{ fontSize: 12, opacity: 0.8, mt: 0.3 }}>
           {r.medicineTypeName || ""}{" "}
           {r.dailyIntake ? `— ${r.dailyIntake} جرعة/يوم` : ""}
@@ -316,7 +349,12 @@ export default function GetMedication() {
 
 
         {times.length > 0 && (
-          <Stack direction="row" flexWrap="wrap" gap={0.6} sx={{ mt: 0.8 ,justifyContent: "center",}}>
+          <Stack
+            direction="row"
+            flexWrap="wrap"
+            gap={0.6}
+            sx={{ mt: 0.8, justifyContent: "center" }}
+          >
             {times.map((t, i) => (
               <Chip
                 key={i}
@@ -376,6 +414,8 @@ export default function GetMedication() {
                 >
                   جدول الجرعات الأسبوعي
                 </Typography>
+
+
                 <MedicationOutlinedIcon
                   sx={{ fontSize: { xs: 24, md: 32 }, color: "#fff" }}
                 />
@@ -418,7 +458,7 @@ export default function GetMedication() {
         <Paper elevation={0} sx={paperStyle}>
           {/* اختيار المسنة + أزرار الأسبوع */}
           <Grid container spacing={1.5} alignItems="center">
-            <Grid size={{ xs: 12}}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 select
                 fullWidth
@@ -498,7 +538,7 @@ export default function GetMedication() {
             </Grid>
 
 
-            <Grid size={{ xs: 12 }}>
+            <Grid item xs={12}>
               <Divider sx={{ my: 1, opacity: 0.6 }} />
             </Grid>
           </Grid>
@@ -562,7 +602,7 @@ export default function GetMedication() {
                             fontWeight: 900,
                             background: "rgba(106,106,87,0.18)",
                             width: 260,
-                            textAlign : "center",
+                            textAlign: "center",
                           }}
                         >
                           الدواء
@@ -600,7 +640,9 @@ export default function GetMedication() {
                       ) : (
                         rows.map((r) => (
                           <TableRow key={r.drugPlanId} hover>
-                            <TableCell sx={{ fontWeight: 800 , textAlign : "center" }}>
+                            <TableCell
+                              sx={{ fontWeight: 800, textAlign: "center" }}
+                            >
                               {renderMedicineHeader(r)}
                             </TableCell>
 
@@ -660,6 +702,8 @@ export default function GetMedication() {
                             const taken = Array.isArray(cell?.taken)
                               ? cell.taken
                               : [];
+
+
                             return (
                               <Box
                                 key={`${r.drugPlanId}-${d}`}
@@ -688,6 +732,34 @@ export default function GetMedication() {
                                         ? `— ${r.dailyIntake} جرعة/يوم`
                                         : ""}
                                     </Typography>
+
+
+                                    {/* Scheduled times */}
+                                    {Array.isArray(r?.scheduledTimes) &&
+                                      r.scheduledTimes.length > 0 && (
+                                        <Stack
+                                          direction="row"
+                                          flexWrap="wrap"
+                                          gap={0.6}
+                                          sx={{ mt: 0.8 }}
+                                        >
+                                          {r.scheduledTimes.map((t, i) => (
+                                            <Chip
+                                              key={i}
+                                              label={t}
+                                              size="small"
+                                              sx={{
+                                                borderRadius: 2,
+                                                fontWeight: 800,
+                                                background:
+                                                  "rgba(106,106,87,0.10)",
+                                                border:
+                                                  "1px solid rgba(106,106,87,0.15)",
+                                              }}
+                                            />
+                                          ))}
+                                        </Stack>
+                                      )}
                                   </Box>
 
 
@@ -698,25 +770,40 @@ export default function GetMedication() {
                                 {/* taken details chips */}
                                 {cell?.inPlanPeriod && taken.length > 0 && (
                                   <Stack
-                                    direction="row"
-                                    flexWrap="wrap"
+                                    direction="column"
                                     gap={0.8}
-                                    sx={{ mt: 1 }}
+                                    sx={{ mt: 1.2 }}
                                   >
                                     {taken.map((t, i) => (
                                       <Chip
                                         key={i}
-                                        label={`${t.time} — ${t.dose}`}
+                                        label={`${t.time} — ${t.dose} — شفت ${t.shiftKey || "-"} `}
                                         size="small"
                                         sx={{
                                           borderRadius: 2,
                                           fontWeight: 800,
-                                          background: "rgba(255,255,255,0.65)",
+                                          background: "rgba(255,255,255,0.70)",
                                           border:
                                             "1px solid rgba(106,106,87,0.15)",
+                                          justifyContent: "space-between",
                                         }}
                                       />
                                     ))}
+
+
+                                    {/* أسماء الممرضات (كقائمة خفيفة) */}
+                                    <Box sx={{ mt: 0.2 }}>
+                                      {taken.map((t, i) =>
+                                        t?.nurseName ? (
+                                          <Typography
+                                            key={i}
+                                            sx={{ fontSize: 12, opacity: 0.85 }}
+                                          >
+                                            • {t.nurseName}
+                                          </Typography>
+                                        ) : null,
+                                      )}
+                                    </Box>
                                   </Stack>
                                 )}
                               </Box>
@@ -753,6 +840,8 @@ export default function GetMedication() {
     </Box>
   );
 }
+
+
 
 
 
