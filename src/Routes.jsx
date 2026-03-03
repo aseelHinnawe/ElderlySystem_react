@@ -43,6 +43,7 @@ import ContactMessage from "./pages/admin/ContactMessage/ContactMessage.jsx";
 import AddMedicine from "./pages/nurse/AddMedicine/AddMedicine.jsx";
 import ElderlyMedicine from "./pages/nurse/ElderlyMedicine/ElderlyMedicine.jsx";
 import AddMediciation from "./pages/nurse/AddMediciation/AddMediciation.jsx";
+import GetMedication from "./pages/nurse/GetMedication/GetMedication.jsx";
 
 const router = createBrowserRouter([
   {
@@ -152,7 +153,10 @@ const router = createBrowserRouter([
         path: "Elderly-Medication",
         element: <AddMediciation />,
       },
-    
+      {
+        path: "Medication",
+        element: <GetMedication />,
+      },    
     ],
   },
   {

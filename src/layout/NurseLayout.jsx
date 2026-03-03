@@ -37,6 +37,7 @@ import {
   Medication,
 } from "@mui/icons-material";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
+import MedicationIcon from "@mui/icons-material/Medication";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 
@@ -160,6 +161,11 @@ export default function NurseLayout() {
     }
     if (path.startsWith("/Nurse/Elderly-Medication")) {
       setActivePage("إضافة جرعة");
+      setMedicinesOpen(true);
+      return;
+    }
+    if (path.startsWith("/Nurse/Medication")) {
+      setActivePage("عرض الجرعات");
       setMedicinesOpen(true);
       return;
     }
@@ -531,6 +537,19 @@ export default function NurseLayout() {
                   )}
                 </ListItemButton>
               </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => goTo("عرض الجرعات", "/Nurse/Medication")}
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <MedicationIcon fontSize="small" />
+                  </ListItemIcon>
+                  {open && (
+                    <ListItemText primary="عرض الجرعات " sx={navTextSx} />
+                  )}
+                </ListItemButton>
+              </ListItem>
             </Box>
           </Collapse>
           {/* إدارة الوجبات */}
@@ -676,6 +695,3 @@ export default function NurseLayout() {
     </Box>
   );
 }
-
-
-
