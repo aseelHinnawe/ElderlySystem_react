@@ -33,7 +33,10 @@ import {
   RestaurantMenu,
   PostAdd,
   ReceiptLong,
+  LocalPharmacy,
+  Medication,
 } from "@mui/icons-material";
+import VaccinesIcon from "@mui/icons-material/Vaccines";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 
@@ -98,6 +101,9 @@ export default function NurseLayout() {
   const [elderlyFolderOpen, setElderlyFolderOpen] = useState(true);
   const [mealsOpen, setMealsOpen] = useState(true);
   const [dailyChecksOpen, setDailyChecksOpen] = useState(true);
+  const [medicinesOpen, setMedicinesOpen] = useState(true);
+
+
   const [activePage, setActivePage] = useState("الرئيسية");
   const isMenuOpen = Boolean(anchorEl);
 
@@ -138,6 +144,23 @@ export default function NurseLayout() {
     if (path.startsWith("/Nurse/elderly/checklist")) {
       setActivePage("عرض الفحوصات");
       setDailyChecksOpen(true);
+      return;
+    }
+    if (path.startsWith("/Nurse/Add-Medicine")) {
+      setActivePage("إضافة دواء");
+      setMedicinesOpen(true);
+      return;
+    }
+
+
+    if (path.startsWith("/Nurse/Elderly-Medicine")) {
+      setActivePage("عرض أدوية ");
+      setMedicinesOpen(true);
+      return;
+    }
+    if (path.startsWith("/Nurse/Elderly-Medication")) {
+      setActivePage("إضافة جرعة");
+      setMedicinesOpen(true);
       return;
     }
 
@@ -195,6 +218,14 @@ export default function NurseLayout() {
       return;
     }
     setMealsOpen((prev) => !prev);
+  };
+  const toggleMedicinesFolder = () => {
+    if (isSmallScreen && !open) {
+      setOpen(true);
+      setMedicinesOpen(true);
+      return;
+    }
+    setMedicinesOpen((prev) => !prev);
   };
   const toggleDailyChecksFolder = () => {
     if (isSmallScreen && !open) {
@@ -425,6 +456,83 @@ export default function NurseLayout() {
               </ListItem>
             </Box>
           </Collapse>
+          {/* إدارة الأدوية */}
+          <ListItem disablePadding>
+            <ListItemButton onClick={toggleMedicinesFolder} sx={navBtnSx(open)}>
+              <ListItemIcon sx={navIconSx}>
+                <LocalPharmacy />
+              </ListItemIcon>
+
+
+              {open && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    minWidth: 0,
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 700 }} noWrap>
+                    إدارة الأدوية
+                  </Typography>
+                  {medicinesOpen ? <ExpandLess /> : <ExpandMore />}
+                </Box>
+              )}
+            </ListItemButton>
+          </ListItem>
+
+
+          <Collapse in={medicinesOpen} timeout="auto" unmountOnExit>
+            <Box sx={{ mt: 0.5 }}>
+              {/* إضافة دواء */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => goTo("إضافة دواء", "/Nurse/Add-Medicine")}
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <Medication fontSize="small" />
+                  </ListItemIcon>
+                  {open && <ListItemText primary="إضافة دواء" sx={navTextSx} />}
+                </ListItemButton>
+              </ListItem>
+
+
+              {/* عرض أدوية المسن */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() =>
+                    goTo("عرض أدوية المسن", "/Nurse/Elderly-Medicine")
+                  }
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <ReceiptLong fontSize="small" />
+                  </ListItemIcon>
+                  {open && (
+                    <ListItemText primary="عرض الأدوية " sx={navTextSx} />
+                  )}
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() =>
+                    goTo("إضافة جرعة ", "/Nurse/Elderly-Medication")
+                  }
+                  sx={navBtnSx(open, true)}
+                >
+                  <ListItemIcon sx={navIconSx}>
+                    <VaccinesIcon fontSize="small" />
+                  </ListItemIcon>
+                  {open && (
+                    <ListItemText primary="إضافة جرعة " sx={navTextSx} />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            </Box>
+          </Collapse>
           {/* إدارة الوجبات */}
           <ListItem disablePadding>
             <ListItemButton onClick={toggleMealsFolder} sx={navBtnSx(open)}>
@@ -568,8 +676,6 @@ export default function NurseLayout() {
     </Box>
   );
 }
-
-
 
 
 

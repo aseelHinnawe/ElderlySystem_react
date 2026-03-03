@@ -40,6 +40,9 @@ import MyShifts from "./pages/nurse/MyShifts/MyShifts.jsx";
 import AddElderlyMeal from "./pages/nurse/AddElderlyMeal/AddElderlyMeal.jsx";
 import GetElderlyMeal from "./pages/nurse/GetElderlyMeal/GetElderlyMeal.jsx";
 import ContactMessage from "./pages/admin/ContactMessage/ContactMessage.jsx";
+import AddMedicine from "./pages/nurse/AddMedicine/AddMedicine.jsx";
+import ElderlyMedicine from "./pages/nurse/ElderlyMedicine/ElderlyMedicine.jsx";
+import AddMediciation from "./pages/nurse/AddMediciation/AddMediciation.jsx";
 
 const router = createBrowserRouter([
   {
@@ -136,6 +139,18 @@ const router = createBrowserRouter([
       {
         path: "Elderly-Meal",
         element: <GetElderlyMeal />,
+      },
+      {
+        path: "Add-Medicine",
+        element: <AddMedicine />,
+      },
+      {
+        path: "Elderly-Medicine",
+        element: <ElderlyMedicine />,
+      },
+      {
+        path: "Elderly-Medication",
+        element: <AddMediciation />,
       },
     
     ],
