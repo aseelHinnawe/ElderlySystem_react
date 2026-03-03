@@ -29,7 +29,12 @@ import {
 import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosUserInstance from "../../../api/AxiosUserInstance.jsx";
-
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import MedicationOutlinedIcon from "@mui/icons-material/MedicationOutlined";
 import LocalPharmacyOutlinedIcon from "@mui/icons-material/LocalPharmacyOutlined";
@@ -1013,7 +1018,7 @@ export default function ElderlyMedicine() {
             >
               <CardContent sx={{ p: 0 }}>
                 <Box sx={{ overflowX: "auto" }}>
-                  <Table sx={{ minWidth: 1100, direction: "rtl" }}>
+                  <Table sx={{ minWidth: 450, direction: "rtl" }}>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
@@ -1035,7 +1040,7 @@ export default function ElderlyMedicine() {
                           حالة إعطاء الدواء
                         </TableCell>
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          تفاصيل
+                          تفاصيل/تعديل
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -1334,83 +1339,123 @@ export default function ElderlyMedicine() {
                   </Box>
 
 
-                  <Box sx={{ ...detailBoxSx, alignItems: "center", mb: 1.2 }}>
-                    <Typography
-                      sx={{ fontSize: 14, mb: 1, color: "text.secondary" }}
-                    >
-                      الأوقات
-                    </Typography>
-                    {Array.isArray(row?.times) && row.times.length > 0 ? (
-                      <Stack
-                        direction="row"
-                        gap={1}
-                        flexWrap="wrap"
-                        justifyContent="center"
-                      >
-                        {row.times.map((t, i) => (
-                          <Chip
-                            key={i}
-                            label={formatTimeWithPeriod(t)}
-                            size="small"
-                          />
-                        ))}
-                      </Stack>
-                    ) : (
-                      <Typography sx={{ fontWeight: 800, color: "#2f2f27" }}>
-                        -
-                      </Typography>
-                    )}
-                  </Box>
+             <Accordion
+  disableGutters
+  elevation={0}
+  sx={{
+    borderRadius: 3,
+    background: "#f8f8f4",
+    border: "1px solid rgba(106,106,87,0.15)",
+    "&:before": { display: "none" },
+    mt: 1,
+  }}
+>
+ <AccordionSummary
+  expandIcon={<ExpandMoreIcon />}
+  sx={{
+    px: 2,
+    minHeight: 48,
+    "& .MuiAccordionSummary-content": {
+      margin: "8px 0",
+      justifyContent: "center",   // يخلي النص بالنص أفقياً
+    },
+  }}
+>
+  <Typography
+    sx={{
+      fontWeight: 900,
+      fontSize: 14,
+      textAlign: "center",        // تأكيد توسيط النص
+      width: "100%",
+    }}
+  >
+    عرض التفاصيل/تعديل
+  </Typography>
+</AccordionSummary>
 
+  <AccordionDetails sx={{ px: 2, pb: 2 }}>
 
-                  <Box
-                    sx={{
-                      ...detailBoxSx,
-                      alignItems: "flex-start",
-                      textAlign: "right",
-                    }}
-                  >
-                    <Typography
-                      sx={{ fontSize: 14, mb: 0.8, color: "text.secondary" }}
-                    >
-                      ملاحظات
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: 800,
-                        color: "#2f2f27",
-                        whiteSpace: "pre-wrap",
-                        width: "100%",
-                      }}
-                    >
-                      {row?.notes ?? "-"}
-                    </Typography>
-                  </Box>
+    {/* ===== الأوقات ===== */}
+    <Box sx={{ ...detailBoxSx, alignItems: "center", mb: 1.5 }}>
+      <Typography
+        sx={{ fontSize: 14, mb: 1, color: "text.secondary" }}
+      >
+        الأوقات
+      </Typography>
 
+      {Array.isArray(row?.times) && row.times.length > 0 ? (
+        <Stack
+          direction="row"
+          gap={1}
+          flexWrap="wrap"
+          justifyContent="center"
+        >
+          {row.times.map((t, i) => (
+            <Chip
+              key={i}
+              label={formatTimeWithPeriod(t)}
+              size="small"
+            />
+          ))}
+        </Stack>
+      ) : (
+        <Typography sx={{ fontWeight: 800, color: "#2f2f27" }}>
+          -
+        </Typography>
+      )}
+    </Box>
 
-                  <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      startIcon={<EditOutlinedIcon />}
-                      onClick={() => openEditDialog(row)}
-                      sx={{
-                        borderRadius: 3,
-                        textTransform: "none",
-                        fontWeight: 900,
-                        color: "#6a6a57",
-                        borderColor: "rgba(106,106,87,0.35)",
-                        backgroundColor: "#fff",
-                        "&:hover": {
-                          borderColor: "#6a6a57",
-                          backgroundColor: "rgba(106,106,87,0.06)",
-                        },
-                        gap: 1,
-                      }}
-                    >
-                      تعديل الخطة
-                    </Button>
-                  </Box>
+    {/* ===== الملاحظات ===== */}
+    <Box
+      sx={{
+        ...detailBoxSx,
+        alignItems: "flex-start",
+        textAlign: "right",
+        mb: 1.5,
+      }}
+    >
+      <Typography
+        sx={{ fontSize: 14, mb: 0.8, color: "text.secondary" }}
+      >
+        ملاحظات
+      </Typography>
+
+      <Typography
+        sx={{
+          fontWeight: 800,
+          color: "#2f2f27",
+          whiteSpace: "pre-wrap",
+          width: "100%",
+        }}
+      >
+        {row?.notes ?? "-"}
+      </Typography>
+    </Box>
+
+    {/* ===== زر التعديل ===== */}
+    <Button
+      fullWidth
+      variant="outlined"
+      startIcon={<EditOutlinedIcon />}
+      onClick={() => openEditDialog(row)}
+      sx={{
+        borderRadius: 3,
+        textTransform: "none",
+        fontWeight: 900,
+        color: "#6a6a57",
+        borderColor: "rgba(106,106,87,0.35)",
+        backgroundColor: "#fff",
+        "&:hover": {
+          borderColor: "#6a6a57",
+          backgroundColor: "rgba(106,106,87,0.06)",
+        },
+        gap: 1,
+      }}
+    >
+      تعديل الخطة
+    </Button>
+  </AccordionDetails>
+</Accordion>
                 </CardContent>
               </Card>
             ))}
