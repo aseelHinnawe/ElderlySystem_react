@@ -111,7 +111,7 @@ export default function Login() {
         const role = decodedToken[roleClaim];
         if (role === "Admin") {
           navigate("/Admin");
-        } else if (role === "Sponsor") {
+        } else if (role === "FirstSponsor" || role === "SecondSponsor") {
           navigate("/Sponsor");
         } else if (role === "Nurse") {
           navigate("/Nurse");
