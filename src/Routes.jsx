@@ -44,6 +44,7 @@ import AddMedicine from "./pages/nurse/AddMedicine/AddMedicine.jsx";
 import ElderlyMedicine from "./pages/nurse/ElderlyMedicine/ElderlyMedicine.jsx";
 import AddMediciation from "./pages/nurse/AddMediciation/AddMediciation.jsx";
 import GetMedication from "./pages/nurse/GetMedication/GetMedication.jsx";
+import ElderlyDetailsSponsor from "./pages/sponsor/ElderlyDetailsSponsor/ElderlyDetailsSponsor.jsx";
 
 const router = createBrowserRouter([
   {
@@ -257,6 +258,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomeSponsore />,
+      },
+      {
+      path: "Elderly-Details/:id",
+      element: <ElderlyDetailsSponsor />,
       },
     ],
   },
