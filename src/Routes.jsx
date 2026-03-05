@@ -26,7 +26,6 @@ import ActivityDetails from "./pages/admin/ActivityDetails/ActivityDetails";
 import Donation from "./pages/admin/Donation/Donation";
 import AddDonation from "./pages/admin/AddDonation/AddDonation";
 import DonationDetails from "./pages/admin/DonationDetails/DonationDetails";
-import HomeSponsore from "./pages/sponsor/HomeSponsore/HomeSponsore";
 import ElderlyStays from "./pages/admin/ElderlyStays/ElderlyStays";
 import AuthProtectedRoute from "./component/protected/AuthProtectedRoute.jsx";
 import Elderlies from "./pages/nurse/Elderlies/Elderlies.jsx";
@@ -44,7 +43,6 @@ import AddMedicine from "./pages/nurse/AddMedicine/AddMedicine.jsx";
 import ElderlyMedicine from "./pages/nurse/ElderlyMedicine/ElderlyMedicine.jsx";
 import AddMediciation from "./pages/nurse/AddMediciation/AddMediciation.jsx";
 import GetMedication from "./pages/nurse/GetMedication/GetMedication.jsx";
-import ElderlyDetailsSponsor from "./pages/sponsor/ElderlyDetailsSponsor/ElderlyDetailsSponsor.jsx";
 
 const router = createBrowserRouter([
   {
@@ -254,16 +252,7 @@ const router = createBrowserRouter([
         <SponsorLayout />
       </ProtectedRouter>
     ),
-    children: [
-      {
-        index: true,
-        element: <HomeSponsore />,
-      },
-      {
-      path: "Elderly-Details/:id",
-      element: <ElderlyDetailsSponsor />,
-      },
-    ],
+    
   },
 ]);
 
