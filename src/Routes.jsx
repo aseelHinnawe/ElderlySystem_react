@@ -43,6 +43,7 @@ import AddMedicine from "./pages/nurse/AddMedicine/AddMedicine.jsx";
 import ElderlyMedicine from "./pages/nurse/ElderlyMedicine/ElderlyMedicine.jsx";
 import AddMediciation from "./pages/nurse/AddMediciation/AddMediciation.jsx";
 import GetMedication from "./pages/nurse/GetMedication/GetMedication.jsx";
+import SponsorHome from "./pages/sponsor/SponsorHome/SponsorHome.jsx";
 
 const router = createBrowserRouter([
   {
@@ -252,6 +253,12 @@ const router = createBrowserRouter([
         <SponsorLayout />
       </ProtectedRouter>
     ),
+    children: [
+      {
+        index: true,
+        element: <SponsorHome />,
+      },
+    ]
     
   },
 ]);

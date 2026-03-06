@@ -10,7 +10,7 @@ export default function AuthProtectedRoute({ children }) {
     const role = decodedToken[roleClaim];
     if (role === "Admin") {
       return <Navigate to={"/Admin"} replace />;
-    } else if (role === "Sponsor") {
+    } else if (role === "FirstSponsor" || role === "SecondSponsor") {
       return <Navigate to={"/Sponsor"} replace />;
     } else if (role === "Nurse") {
       return <Navigate to={"/Nurse"} replace />;
