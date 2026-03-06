@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -24,13 +25,15 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import NotificationsActiveOutlinedIcon from "@mui/icons-material/NotificationsActiveOutlined";
-import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
-import LocalPharmacyOutlinedIcon from "@mui/icons-material/LocalPharmacyOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 
 
+
+
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
+
+
 
 
 // ✅ Theme palette (colors only)
@@ -50,6 +53,8 @@ const COLORS = {
 };
 
 
+
+
 const arabicDayName = (date) => {
   const names = [
     "الأحد",
@@ -64,26 +69,13 @@ const arabicDayName = (date) => {
 };
 
 
+
+
 const shiftLabel = (k) => {
   if (!k) return "—";
   if (k === "-") return "—";
   if (k === "A" || k === "B" || k === "C") return `شفت ${k}`;
   return k;
-};
-
-
-const stockBadge = (status) => {
-  if (status === 2)
-    return {
-      text: "قرب الانتهاء",
-      icon: <WarningAmberOutlinedIcon fontSize="small" />,
-    };
-  if (status === 3)
-    return {
-      text: "منتهي",
-      icon: <WarningAmberOutlinedIcon fontSize="small" />,
-    };
-  return { text: "—", icon: null };
 };
 
 
@@ -124,6 +116,8 @@ const StatCard = ({ icon, title, value, subtitle }) => {
           </Stack>
 
 
+
+
           <Box
             sx={{
               width: 44,
@@ -145,7 +139,9 @@ const StatCard = ({ icon, title, value, subtitle }) => {
 };
 
 
-const SectionCard = ({ title, icon, right, children }) => {
+
+
+const SectionCard = ({ title, icon, right, children, sx: sxProp }) => {
   return (
     <Card
       elevation={0}
@@ -154,6 +150,9 @@ const SectionCard = ({ title, icon, right, children }) => {
         border: `1px solid ${COLORS.border}`,
         overflow: "hidden",
         backgroundColor: COLORS.surface,
+        display: "flex",         // ← إضافة flex
+        flexDirection: "column", // ← عمودي
+        ...sxProp,               // ← دمج أي sx من الخارج
       }}
     >
       <Box sx={{ px: 2, py: 1.5, bgcolor: COLORS.soft2 }}>
@@ -172,10 +171,14 @@ const SectionCard = ({ title, icon, right, children }) => {
         </Stack>
       </Box>
       <Divider />
-      <CardContent sx={{ p: 2 }}>{children}</CardContent>
+      <CardContent sx={{ p: 2, flexGrow: 1 }}> {/* <- flexGrow يجعل المحتوى يتمدد */}
+        {children}
+      </CardContent>
     </Card>
   );
 };
+
+
 
 
 export default function HomeNurse() {
@@ -184,17 +187,25 @@ export default function HomeNurse() {
   const [data, setData] = useState(null);
 
 
+
+
   const fetchHome = useCallback(async () => {
     setLoading(true);
     setErr("");
+
+
 
 
     try {
       const res = await AxiosUserInstance.get("/Nurse/Nurse/home");
 
 
+
+
       const payload = res?.data?.data;
       if (!payload) throw new Error("Invalid response shape");
+
+
 
 
       setData(payload);
@@ -210,9 +221,13 @@ export default function HomeNurse() {
   }, []);
 
 
+
+
   useEffect(() => {
     fetchHome();
   }, [fetchHome]);
+
+
 
 
   const todayKey = useMemo(() => {
@@ -238,6 +253,8 @@ export default function HomeNurse() {
     overdueCount + expiringCount + stockCount + dueSoonCount;
 
 
+
+
   if (loading) {
     return (
       <Box sx={{ p: 3, display: "grid", placeItems: "center", minHeight: 420 }}>
@@ -250,6 +267,8 @@ export default function HomeNurse() {
       </Box>
     );
   }
+
+
 
 
   if (err) {
@@ -277,6 +296,8 @@ export default function HomeNurse() {
       </Box>
     );
   }
+
+
 
 
   return (
@@ -320,6 +341,8 @@ export default function HomeNurse() {
       </Paper>
 
 
+
+
       {/* Stats */}
       <Grid container spacing={2} sx={{ mb: 2.5 }}>
         <Grid size={{ xs: 12, md: 6 }}>
@@ -329,6 +352,8 @@ export default function HomeNurse() {
             value={data?.activeElderliesCount ?? 0}
           />
         </Grid>
+
+
 
 
         <Grid size={{ xs: 12, md: 6 }}>
@@ -343,12 +368,15 @@ export default function HomeNurse() {
       </Grid>
 
 
-      <Grid container spacing={2}>
+
+
+      <Grid container spacing={2} >
         {/* Weekly Shift */}
-        <Grid size={{ xs: 12, lg: 7 }}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <SectionCard
             title="جدول شفتاتي (الأسبوع الحالي)"
             icon={<ScheduleOutlinedIcon sx={{ color: COLORS.main }} />}
+            sx={{ height: "100%" }}
           >
             {!weeklyDates.length ? (
               <Alert
@@ -372,12 +400,16 @@ export default function HomeNurse() {
                   const val = weeklyDays?.[k] ?? "-";
 
 
+
+
                   const nice = `${arabicDayName(dt)} • ${String(
                     dt.getDate(),
                   ).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(
                     2,
                     "0",
                   )}`;
+
+
 
 
                   return (
@@ -399,6 +431,8 @@ export default function HomeNurse() {
                         >
                           {nice}
                         </Typography>
+
+
 
 
                         <Stack
@@ -426,120 +460,16 @@ export default function HomeNurse() {
                 })}
               </Grid>
             )}
-          </SectionCard>
-
-
-          <Box sx={{ mt: 2 }}>
-            <SectionCard
-              title="نشاطات اليوم"
-              icon={<HistoryOutlinedIcon sx={{ color: COLORS.main }} />}
-              right={
-                <Chip
-                  size="small"
-                  label={`${data?.todayActivity?.length ?? 0} نشاط`}
-                  variant="outlined"
-                  sx={{
-                    borderRadius: 2,
-                    fontWeight: 900,
-                    borderColor: COLORS.border,
-                    bgcolor: COLORS.soft2,
-                    color: COLORS.dark,
-                  }}
-                />
-              }
-            >
-              {!data?.todayActivity?.length ? (
-                <Alert
-                  icon={false}
-                  sx={{
-                    borderRadius: 3,
-                    border: `1px solid ${COLORS.border}`,
-                    background: COLORS.soft2,
-                    color: COLORS.dark,
-                    fontWeight: 900,
-                    "& .MuiAlert-message": {
-                      width: "100%",
-                      textAlign: "center",
-                    },
-                  }}
-                >
-                  لا يوجد نشاطات مسجلة اليوم.
-                </Alert>
-              ) : (
-                <List
-                  sx={{
-                    borderRadius: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    overflow: "hidden",
-                  }}
-                >
-                  {data.todayActivity.map((a, idx) => (
-                    <ListItem key={`${a.drugPlanId}-${idx}`} divider>
-                      <ListItemAvatar>
-                        <Avatar
-                          sx={{
-                            bgcolor: COLORS.soft,
-                            color: COLORS.dark,
-                            border: `1px solid ${COLORS.border}`,
-                            fontWeight: 900,
-                          }}
-                        >
-                          {(a.nurseName || "?").slice(0, 1)}
-                        </Avatar>
-                      </ListItemAvatar>
-
-
-                      <ListItemText
-                        primary={
-                          <Stack
-                            direction={{ xs: "column", sm: "row" }}
-                            spacing={1}
-                            alignItems={{ xs: "flex-start", sm: "center" }}
-                          >
-                            <Typography sx={{ fontWeight: 900 }}>
-                              {a.action || "تم تسجيل جرعة"}
-                            </Typography>
-                            <Chip
-                              size="small"
-                              label={a.time}
-                              variant="outlined"
-                              sx={{
-                                borderRadius: 2,
-                                borderColor: COLORS.border,
-                                bgcolor: COLORS.soft2,
-                                color: COLORS.dark,
-                                fontWeight: 900,
-                              }}
-                            />
-                          </Stack>
-                        }
-                        secondary={
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ fontWeight: 900, textAlign: "right" }}
-                          >
-                            تم إعطاء جرعة من {a.medicineName} للمسنة{" "}
-                            {a.elderlyName} بواسطة الممرضة {a.nurseName} (شفت{" "}
-                            {a.shiftKey || "-"}).
-                          </Typography>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </SectionCard>
-          </Box>
+          </SectionCard>    
         </Grid>
 
 
         {/* Team Today */}
-        <Grid size={{ xs: 12, lg: 5 }}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <SectionCard
             title="أسماء الممرضات بنفس شفت اليوم"
-            icon={<GroupOutlinedIcon sx={{ color: COLORS.main }} />}
+            icon={<GroupOutlinedIcon sx={{ color: COLORS.main }} />}  
+            sx={{ height: "100%" }}
           >
             {!data?.todayTeam?.length ? (
               <Alert
@@ -574,385 +504,124 @@ export default function HomeNurse() {
               </Stack>
             )}
           </SectionCard>
+     
+        </Grid>
 
 
-          <Box sx={{ mt: 2 }}>
-            <SectionCard
-              title="الإشعارات"
-              icon={
-                <NotificationsActiveOutlinedIcon sx={{ color: COLORS.main }} />
-              }
+            <Grid size={{xs:12}} sx={{ mt: 2 }}>
+            <SectionCard          
+              title="نشاطات اليوم"
+              icon={<HistoryOutlinedIcon sx={{ color: COLORS.main }} />}
+             
               right={
                 <Chip
                   size="small"
-                  label={`${notificationsCount} إشعار`}
+                  label={`${data?.todayActivity?.length ?? 0} نشاط`}
                   variant="outlined"
                   sx={{
                     borderRadius: 2,
                     fontWeight: 900,
-                    borderColor: notificationsCount
-                      ? "rgba(198,40,40,0.35)"
-                      : COLORS.border,
-                    color: notificationsCount ? COLORS.danger : COLORS.dark,
-                    bgcolor: notificationsCount
-                      ? "rgba(198,40,40,0.06)"
-                      : COLORS.soft2,
+                    borderColor: COLORS.border,
+                    bgcolor: COLORS.soft2,
+                    color: COLORS.dark,
                   }}
                 />
               }
+             
             >
-              <Stack spacing={2}>
-                {/* Overdue */}
-                <Box>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    sx={{ mb: 1 }}
-                    gap={1}
-                  >
-                    <WarningAmberOutlinedIcon
-                      fontSize="small"
-                      sx={{ color: COLORS.warn }}
-                    />
-                    <Typography sx={{ fontWeight: 900 }}>
-                      جرعات متأخرة
-                    </Typography>
-                    <Chip
-                      size="small"
-                      label={overdueCount}
-                      sx={{
-                        borderRadius: 2,
-                        fontWeight: 900,
-                        bgcolor: "rgba(141,110,99,0.12)",
-                        color: COLORS.warn,
-                        border: "1px solid rgba(141,110,99,0.25)",
-                      }}
-                      variant="outlined"
-                    />
-                  </Stack>
-
-
-                  {!overdueCount ? (
-                    <Typography variant="body2" color="text.secondary">
-                      لا يوجد جرعات متأخرة
-                    </Typography>
-                  ) : (
-                    <List
-                      dense
-                      sx={{
-                        bgcolor: "background.paper",
-                        borderRadius: 2,
-                        border: "1px solid",
-                        borderColor: "divider",
-                      }}
-                    >
-                      {data.overdueDoses.slice(0, 6).map((a, idx) => (
-                        <ListItem key={`${a.drugPlanId}-${idx}`} divider>
-                          <ListItemText
-                            primary={
-                              <Typography
-                                sx={{ fontWeight: 900, textAlign: "right" }}
-                              >
-                                {a.elderlyName}
-                              </Typography>
-                            }
-                            secondary={
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ fontWeight: 900, textAlign: "right" }}
-                              >
-                                جرعة <b>{a.medicineName}</b> كانت الساعة{" "}
-                                <b>{a.dueTime}</b> — متأخرة{" "}
-                                <b>{a.lateMinutes}</b> دقيقة.
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
-                </Box>
-                {/* Due Soon */}
-                <Box>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    sx={{ mb: 1 }}
-                    gap={1}
-                  >
-                    <NotificationsActiveOutlinedIcon
-                      fontSize="small"
-                      sx={{ color: COLORS.ok }}
-                    />
-                    <Typography sx={{ fontWeight: 900 }}>
-                      جرعات قرب موعدها
-                    </Typography>
-
-
-                    <Chip
-                      size="small"
-                      label={dueSoonCount}
-                      variant="outlined"
-                      sx={{
-                        borderRadius: 2,
-                        fontWeight: 900,
-                        bgcolor: "rgba(46,125,50,0.10)",
-                        color: COLORS.ok,
-                        border: "1px solid rgba(46,125,50,0.25)",
-                      }}
-                    />
-                  </Stack>
-
-
-                  {!dueSoonCount ? (
-                    <Typography variant="body2" color="text.secondary">
-                      لا يوجد جرعات قريبة حالياً.
-                    </Typography>
-                  ) : (
-                    <List
-                      dense
-                      sx={{
-                        bgcolor: "background.paper",
-                        borderRadius: 2,
-                        border: "1px solid",
-                        borderColor: "divider",
-                      }}
-                    >
-                      {data.dueSoonDoses.slice(0, 6).map((a, idx) => (
-                        <ListItem
-                          key={`${a.reminderKey || a.drugPlanId}-${idx}`}
-                          divider
+              {!data?.todayActivity?.length ? (
+                <Alert
+               
+                  icon={false}
+                  sx={{
+                    borderRadius: 3,
+                    border: `1px solid ${COLORS.border}`,
+                    background: COLORS.soft2,
+                    color: COLORS.dark,
+                    fontWeight: 900,
+                    "& .MuiAlert-message": {
+                      width: "100%",
+                      textAlign: "center",
+                    },
+                  }}
+                >
+                  لا يوجد نشاطات مسجلة اليوم.
+                </Alert>
+              ) : (
+                <List
+               
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    overflow: "hidden",
+                  }}
+                >
+                  {data.todayActivity.map((a, idx) => (
+                    <ListItem key={`${a.drugPlanId}-${idx}`} divider>
+                      <ListItemAvatar>
+                        <Avatar
+                          sx={{
+                            bgcolor: COLORS.soft,
+                            color: COLORS.dark,
+                            border: `1px solid ${COLORS.border}`,
+                            fontWeight: 900,
+                          }}
                         >
-                          <ListItemText
-                            primary={
-                              <Typography
-                                sx={{ fontWeight: 900, textAlign: "right" }}
-                              >
-                                {a.elderlyName}
-                              </Typography>
-                            }
-                            secondary={
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ fontWeight: 900, textAlign: "right" }}
-                              >
-                                جرعة <b>{a.medicineName}</b> موعدها الساعة{" "}
-                                <b>{a.dueTime}</b> — متبقي{" "}
-                                <b>{a.minutesLeft}</b> دقيقة.
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
-                </Box>
-                {/* Expiring */}
-                <Box>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    sx={{ mb: 1 }}
-                    gap={1}
-                  >
-                    <ScheduleOutlinedIcon
-                      fontSize="small"
-                      sx={{ color: COLORS.main }}
-                    />
-                    <Typography sx={{ fontWeight: 900 }}>
-                      خطط قربت تنتهي
-                    </Typography>
-                    <Chip
-                      size="small"
-                      label={expiringCount}
-                      variant="outlined"
-                      sx={{
-                        borderRadius: 2,
-                        fontWeight: 900,
-                        borderColor: COLORS.border,
-                        bgcolor: COLORS.soft2,
-                        color: COLORS.dark,
-                      }}
-                    />
-                  </Stack>
+                          {(a.nurseName || "?").slice(0, 1)}
+                        </Avatar>
+                      </ListItemAvatar>
 
 
-                  {!expiringCount ? (
-                    <Typography variant="body2" color="text.secondary">
-                      لا يوجد خطط قريبة الانتهاء.
-                    </Typography>
-                  ) : (
-                    <List
-                      dense
-                      sx={{
-                        bgcolor: "background.paper",
-                        borderRadius: 2,
-                        border: "1px solid",
-                        borderColor: "divider",
-                      }}
-                    >
-                      {data.plansExpiringSoon.slice(0, 6).map((a, idx) => (
-                        <ListItem key={`${a.drugPlanId}-${idx}`} divider>
-                          <ListItemText
-                            primary={
-                              <Typography
-                                sx={{ fontWeight: 900, textAlign: "right" }}
-                              >
-                                {a.elderlyName}
-                              </Typography>
-                            }
-                            secondary={
-                              <Typography
-                                sx={{ fontWeight: 900, textAlign: "right" }}
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                متبقي {a.daysLeft} يوم لانتهاء إعطاء{" "}
-                                {a.medicineName} للمسنة {a.elderlyName}
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
-                </Box>
 
 
-                {/* Stock */}
-                <Box>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    sx={{ mb: 1 }}
-                    gap={1}
-                  >
-                    <LocalPharmacyOutlinedIcon
-                      fontSize="small"
-                      sx={{ color: COLORS.main }}
-                    />
-                    <Typography sx={{ fontWeight: 900 }}>
-                      كمية الدواء
-                    </Typography>
-                    <Chip
-                      size="small"
-                      label={stockCount}
-                      variant="outlined"
-                      sx={{
-                        borderRadius: 2,
-                        fontWeight: 900,
-                        borderColor: COLORS.border,
-                        bgcolor: COLORS.soft2,
-                        color: COLORS.dark,
-                      }}
-                    />
-                  </Stack>
-
-
-                  {!stockCount ? (
-                    <Typography variant="body2" color="text.secondary">
-                      لا يوجد تنبيهات كمية.
-                    </Typography>
-                  ) : (
-                    <List
-                      dense
-                      sx={{
-                        bgcolor: "background.paper",
-                        borderRadius: 2,
-                        border: "1px solid",
-                        borderColor: "divider",
-                      }}
-                    >
-                      {data.lowOrOutStock.slice(0, 8).map((a, idx) => {
-                        const badge = stockBadge(a.stockStatus);
-                        const isOut = a.stockStatus === 3;
-
-
-                        return (
-                          <ListItem key={`${a.drugPlanId}-${idx}`} divider>
-                            <ListItemAvatar>
-                              <Avatar
-                                sx={{
-                                  bgcolor: isOut
-                                    ? "rgba(198,40,40,0.10)"
-                                    : "rgba(141,110,99,0.12)",
-                                  color: isOut ? COLORS.danger : COLORS.warn,
-                                  border: `1px solid ${
-                                    isOut
-                                      ? "rgba(198,40,40,0.25)"
-                                      : "rgba(141,110,99,0.25)"
-                                  }`,
-                                }}
-                              >
-                                {badge.icon || (
-                                  <LocalPharmacyOutlinedIcon fontSize="small" />
-                                )}
-                              </Avatar>
-                            </ListItemAvatar>
-
-
-                            <ListItemText
-                              primary={
-                                <Stack
-                                  direction="row"
-                                  spacing={1}
-                                  alignItems="center"
-                                  flexWrap="wrap"
-                                  gap={1}
-                                >
-                                  <Typography sx={{ fontWeight: 900 }}>
-                                    {a.elderlyName}
-                                  </Typography>
-                                  <Chip
-                                    size="small"
-                                    label={a.stockStatusText || badge.text}
-                                    variant="outlined"
-                                    sx={{
-                                      borderRadius: 2,
-                                      fontWeight: 900,
-                                      borderColor: isOut
-                                        ? "rgba(198,40,40,0.35)"
-                                        : "rgba(141,110,99,0.35)",
-                                      color: isOut
-                                        ? COLORS.danger
-                                        : COLORS.warn,
-                                      bgcolor: isOut
-                                        ? "rgba(198,40,40,0.06)"
-                                        : "rgba(141,110,99,0.08)",
-                                    }}
-                                  />
-                                </Stack>
-                              }
-                              secondary={
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  sx={{ fontWeight: 800, textAlign: "right" }}
-                                >
-                                  اسم الدواء : {a.medicineName}
-                                </Typography>
-                              }
+                      <ListItemText
+                        primary={
+                          <Stack
+                          gap={1}
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={1}
+                            alignItems={{ xs: "flex-start", sm: "center" }}
+                          >
+                            <Typography sx={{ fontWeight: 900 }}>
+                              {a.action || "تم تسجيل جرعة"}
+                            </Typography>
+                            <Chip
+                              size="small"
+                              label={a.time}
+                              variant="outlined"
+                              sx={{
+                                borderRadius: 2,
+                                borderColor: COLORS.border,
+                                bgcolor: COLORS.soft2,
+                                color: COLORS.dark,
+                                fontWeight: 900,
+                               
+                              }}
                             />
-                          </ListItem>
-                        );
-                      })}
-                    </List>
-                  )}
-                </Box>
-              </Stack>
+                          </Stack>
+                        }
+                        secondary={
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontWeight: 900, textAlign: "right" }}
+                          >
+                            تم إعطاء جرعة من {a.medicineName} للمسنة{" "}
+                            {a.elderlyName} بواسطة الممرضة {a.nurseName} (شفت{" "}
+                            {a.shiftKey || "-"}).
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              )}
             </SectionCard>
-          </Box>
-        </Grid>
+          </Grid>
       </Grid>
     </Box>
   );
 }
-
 
 

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   AppBar,
@@ -16,6 +17,8 @@ import {
   useMediaQuery,
   useTheme,
   Collapse,
+  Card,
+  CardContent,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -39,6 +42,28 @@ import {
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import MedicationIcon from "@mui/icons-material/Medication";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import NotificationsActiveOutlinedIcon from "@mui/icons-material/NotificationsActiveOutlined";
+import { Chip, Popover, Stack, ListItemAvatar, Avatar } from "@mui/material";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
+import LocalPharmacyOutlinedIcon from "@mui/icons-material/LocalPharmacyOutlined";
+import AxiosUserInstance from "../api/AxiosUserInstance";
+
+
+const COLORS = {
+  main: "#6a6a57",
+  dark: "#5a5a4a",
+  light: "#a0a078",
+  bg: "#f0f0ea",
+  surface: "#ffffff",
+  border: "rgba(106,106,87,0.18)",
+  soft: "rgba(106,106,87,0.10)",
+  soft2: "rgba(106,106,87,0.06)",
+  whiteSoft: "rgba(255,255,255,0.20)",
+  ok: "#2E7D32",
+  warn: "#8D6E63",
+  danger: "#C62828",
+};
 
 
 const navBtnSx = (open, isChild = false) => ({
@@ -49,6 +74,8 @@ const navBtnSx = (open, isChild = false) => ({
   borderRadius: 2,
 
 
+
+
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
@@ -56,10 +83,14 @@ const navBtnSx = (open, isChild = false) => ({
   gap: open ? 1 : 0,
 
 
+
+
   backgroundColor: "transparent",
   "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
   "&::before": { display: "none" },
 });
+
+
 
 
 const navIconSx = {
@@ -73,6 +104,8 @@ const navIconSx = {
   ml: 0,
   flexShrink: 0,
 };
+
+
 
 
 const navTextSx = {
@@ -90,23 +123,120 @@ const navTextSx = {
 };
 
 
+const stockBadge = (status) => {
+  if (status === 2)
+    return {
+      text: "قرب الانتهاء",
+      icon: <WarningAmberOutlinedIcon fontSize="small" />,
+    };
+  if (status === 3)
+    return {
+      text: "منتهي",
+      icon: <WarningAmberOutlinedIcon fontSize="small" />,
+    };
+  return { text: "—", icon: null };
+};
+
+
+const SectionCard = ({ title, icon, right, children }) => {
+  return (
+    <Card
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        border: `1px solid ${COLORS.border}`,
+        overflow: "hidden",
+        backgroundColor: COLORS.surface,
+      }}
+    >
+      <Box sx={{ px: 2, py: 1.5, bgcolor: COLORS.soft2 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            {icon}
+            <Typography sx={{ fontWeight: 900, color: COLORS.dark }}>
+              {title}
+            </Typography>
+          </Stack>
+          {right}
+        </Stack>
+      </Box>
+      <Divider />
+      <CardContent sx={{ p: 2 }}>{children}</CardContent>
+    </Card>
+  );
+};
+
+
 export default function NurseLayout() {
+ 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
 
 
+
+
+  const [loading, setLoading] = useState(false);
+const [err, setErr] = useState("");
   const [open, setOpen] = useState(!isSmallScreen);
   const [anchorEl, setAnchorEl] = useState(null);
   const [elderlyFolderOpen, setElderlyFolderOpen] = useState(true);
   const [mealsOpen, setMealsOpen] = useState(true);
   const [dailyChecksOpen, setDailyChecksOpen] = useState(true);
   const [medicinesOpen, setMedicinesOpen] = useState(true);
+  const [data, setData] = useState(null);
+
+
+  const fetchHome = useCallback(async () => {
+      setLoading(true);
+      setErr("");
+ 
+ 
+      try {
+        const res = await AxiosUserInstance.get("/Nurse/Nurse/home");
+ 
+ 
+        const payload = res?.data?.data;
+        if (!payload) throw new Error("Invalid response shape");
+ 
+ 
+        setData(payload);
+      } catch (e) {
+        setErr(
+          e?.response?.data?.message ||
+            e?.message ||
+            "حدث خطأ أثناء جلب البيانات.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, []);
+ 
+ 
+    useEffect(() => {
+      fetchHome();
+    }, [fetchHome]);
+
+
 
 
   const [activePage, setActivePage] = useState("الرئيسية");
   const isMenuOpen = Boolean(anchorEl);
+
+
+  const [notificationsAnchor, setNotificationsAnchor] = useState(null);
+const openNotifications = Boolean(notificationsAnchor);
+
+
+const handleNotificationsClick = (event) => setNotificationsAnchor(event.currentTarget);
+const handleNotificationsClose = () => setNotificationsAnchor(null);
+
+
 
 
   useEffect(() => {
@@ -114,8 +244,12 @@ export default function NurseLayout() {
   }, [isSmallScreen]);
 
 
+
+
   useEffect(() => {
     const path = location.pathname;
+
+
 
 
     if (path === "/Nurse" || path === "/Nurse/") {
@@ -124,10 +258,14 @@ export default function NurseLayout() {
     }
 
 
+
+
     if (path.startsWith("/Nurse/profile")) {
       setActivePage("الحساب الشخصي");
       return;
     }
+
+
 
 
     if (path.startsWith("/Nurse/elderlies")) {
@@ -142,6 +280,8 @@ export default function NurseLayout() {
     }
 
 
+
+
     if (path.startsWith("/Nurse/elderly/checklist")) {
       setActivePage("عرض الفحوصات");
       setDailyChecksOpen(true);
@@ -152,6 +292,8 @@ export default function NurseLayout() {
       setMedicinesOpen(true);
       return;
     }
+
+
 
 
     if (path.startsWith("/Nurse/Elderly-Medicine")) {
@@ -171,6 +313,8 @@ export default function NurseLayout() {
     }
 
 
+
+
     if (path.startsWith("/Nurse/MyShifts")) {
       setActivePage("مناوباتي الأسبوعية");
       return;
@@ -182,12 +326,16 @@ export default function NurseLayout() {
     }
 
 
+
+
     if (path.startsWith("/Nurse/Elderly-Meal")) {
       setActivePage("عرض الوجبات");
       setMealsOpen(true);
       return;
     }
   }, [location.pathname]);
+
+
 
 
   const handleMenuClick = (option) => {
@@ -201,12 +349,18 @@ export default function NurseLayout() {
     }
 
 
+
+
     handleMenuClose();
   };
 
 
+
+
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
+
+
 
 
   const toggleElderlyFolder = () => {
@@ -248,6 +402,17 @@ export default function NurseLayout() {
   };
 
 
+
+
+  const overdueCount = data?.overdueDoses?.length || 0;
+  const expiringCount = data?.plansExpiringSoon?.length || 0;
+  const dueSoonCount = data?.dueSoonDoses?.length || 0;
+  const stockCount = data?.lowOrOutStock?.length || 0;
+
+
+  const notificationsCount = overdueCount + expiringCount + stockCount + dueSoonCount;
+
+
   return (
     <Box
       sx={{
@@ -268,6 +433,8 @@ export default function NurseLayout() {
           }}
         />
       )}
+
+
 
 
       <Box
@@ -303,6 +470,8 @@ export default function NurseLayout() {
               </Typography>
 
 
+
+
               {isSmallScreen && (
                 <IconButton
                   onClick={() => setOpen(false)}
@@ -314,9 +483,13 @@ export default function NurseLayout() {
             </Box>
 
 
+
+
             <Divider sx={{ bgcolor: "rgba(255,255,255,0.25)", mb: 1.5 }} />
           </>
         )}
+
+
 
 
         <List sx={{ mt: 1 }}>
@@ -332,6 +505,8 @@ export default function NurseLayout() {
               {open && <ListItemText primary="الرئيسية" sx={navTextSx} />}
             </ListItemButton>
           </ListItem>
+
+
 
 
           {/* مناوباتي الأسبوعية */}
@@ -356,12 +531,16 @@ export default function NurseLayout() {
           </ListItem>
 
 
+
+
           {/* إدارة المسنين */}
           <ListItem disablePadding>
             <ListItemButton onClick={toggleElderlyFolder} sx={navBtnSx(open)}>
               <ListItemIcon sx={navIconSx}>
                 <ElderlyWoman />
               </ListItemIcon>
+
+
 
 
               {open && (
@@ -382,6 +561,8 @@ export default function NurseLayout() {
               )}
             </ListItemButton>
           </ListItem>
+
+
 
 
           <Collapse in={elderlyFolderOpen} timeout="auto" unmountOnExit>
@@ -410,6 +591,8 @@ export default function NurseLayout() {
               </ListItemIcon>
 
 
+
+
               {open && (
                 <Box
                   sx={{
@@ -430,6 +613,8 @@ export default function NurseLayout() {
           </ListItem>
 
 
+
+
           <Collapse in={dailyChecksOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               <ListItem disablePadding>
@@ -445,6 +630,8 @@ export default function NurseLayout() {
                   {open && <ListItemText primary="إضافة فحص" sx={navTextSx} />}
                 </ListItemButton>
               </ListItem>
+
+
 
 
               <ListItem disablePadding>
@@ -470,6 +657,8 @@ export default function NurseLayout() {
               </ListItemIcon>
 
 
+
+
               {open && (
                 <Box
                   sx={{
@@ -490,6 +679,8 @@ export default function NurseLayout() {
           </ListItem>
 
 
+
+
           <Collapse in={medicinesOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               {/* إضافة دواء */}
@@ -504,6 +695,8 @@ export default function NurseLayout() {
                   {open && <ListItemText primary="إضافة دواء" sx={navTextSx} />}
                 </ListItemButton>
               </ListItem>
+
+
 
 
               {/* عرض أدوية المسن */}
@@ -560,6 +753,8 @@ export default function NurseLayout() {
               </ListItemIcon>
 
 
+
+
               {open && (
                 <Box
                   sx={{
@@ -580,6 +775,8 @@ export default function NurseLayout() {
           </ListItem>
 
 
+
+
           <Collapse in={mealsOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               {/* إضافة وجبة */}
@@ -594,6 +791,8 @@ export default function NurseLayout() {
                   {open && <ListItemText primary="إضافة وجبة" sx={navTextSx} />}
                 </ListItemButton>
               </ListItem>
+
+
 
 
               {/* عرض الوجبات */}
@@ -616,6 +815,8 @@ export default function NurseLayout() {
       </Box>
 
 
+
+
       <Box
         sx={{
           flexGrow: 1,
@@ -636,9 +837,12 @@ export default function NurseLayout() {
             </IconButton>
 
 
+             
             <Typography variant="h6" sx={{ flexGrow: 1, mr: 2 }}>
               {activePage}
             </Typography>
+
+
 
 
             <Box
@@ -663,9 +867,416 @@ export default function NurseLayout() {
             </Box>
 
 
+            <IconButton color="inherit" onClick={handleNotificationsClick}>
+  <NotificationsActiveOutlinedIcon />
+  {notificationsCount > 0 && (
+    <Chip size="small" label={notificationsCount} sx={{ ml: 0.5, bgcolor: "red", color: "white" }} />
+  )}
+</IconButton>
+<Popover
+  open={openNotifications}
+  anchorEl={notificationsAnchor}
+  onClose={handleNotificationsClose}
+  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+  transformOrigin={{ vertical: "top", horizontal: "right" }}
+>
+  <Box sx={{ p: 2, maxWidth: 400, maxHeight: 500, overflowY: "auto" }}>
+   
+            <SectionCard
+              title="الإشعارات"
+              icon={
+                <NotificationsActiveOutlinedIcon sx={{ color: COLORS.main }} />
+              }
+              right={
+                <Chip
+                  size="small"
+                  label={`${notificationsCount} إشعار`}
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 2,
+                    fontWeight: 900,
+                    borderColor: notificationsCount
+                      ? "rgba(198,40,40,0.35)"
+                      : COLORS.border,
+                    color: notificationsCount ? COLORS.danger : COLORS.dark,
+                    bgcolor: notificationsCount
+                      ? "rgba(198,40,40,0.06)"
+                      : COLORS.soft2,
+                  }}
+                />
+              }
+            >
+              <Stack spacing={2}>
+                {/* Overdue */}
+                <Box>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ mb: 1 }}
+                    gap={1}
+                  >
+                    <WarningAmberOutlinedIcon
+                      fontSize="small"
+                      sx={{ color: COLORS.warn }}
+                    />
+                    <Typography sx={{ fontWeight: 900 }}>
+                      جرعات متأخرة
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={overdueCount}
+                      sx={{
+                        borderRadius: 2,
+                        fontWeight: 900,
+                        bgcolor: "rgba(141,110,99,0.12)",
+                        color: COLORS.warn,
+                        border: "1px solid rgba(141,110,99,0.25)",
+                      }}
+                      variant="outlined"
+                    />
+                  </Stack>
+
+
+
+
+                  {!overdueCount ? (
+                    <Typography variant="body2" color="text.secondary">
+                      لا يوجد جرعات متأخرة
+                    </Typography>
+                  ) : (
+                    <List
+                      dense
+                      sx={{
+                        bgcolor: "background.paper",
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    >
+                      {data.overdueDoses.slice(0, 6).map((a, idx) => (
+                        <ListItem key={`${a.drugPlanId}-${idx}`} divider>
+                          <ListItemText
+                            primary={
+                              <Typography
+                                sx={{ fontWeight: 900, textAlign: "right" }}
+                              >
+                                {a.elderlyName}
+                              </Typography>
+                            }
+                            secondary={
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ fontWeight: 900, textAlign: "right" }}
+                              >
+                                جرعة <b>{a.medicineName}</b> كانت الساعة{" "}
+                                <b>{a.dueTime}</b> — متأخرة{" "}
+                                <b>{a.lateMinutes}</b> دقيقة.
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </Box>
+                {/* Due Soon */}
+                <Box>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ mb: 1 }}
+                    gap={1}
+                  >
+                    <NotificationsActiveOutlinedIcon
+                      fontSize="small"
+                      sx={{ color: COLORS.ok }}
+                    />
+                    <Typography sx={{ fontWeight: 900 }}>
+                      جرعات قرب موعدها
+                    </Typography>
+
+
+
+
+                    <Chip
+                      size="small"
+                      label={dueSoonCount}
+                      variant="outlined"
+                      sx={{
+                        borderRadius: 2,
+                        fontWeight: 900,
+                        bgcolor: "rgba(46,125,50,0.10)",
+                        color: COLORS.ok,
+                        border: "1px solid rgba(46,125,50,0.25)",
+                      }}
+                    />
+                  </Stack>
+
+
+
+
+                  {!dueSoonCount ? (
+                    <Typography variant="body2" color="text.secondary">
+                      لا يوجد جرعات قريبة حالياً.
+                    </Typography>
+                  ) : (
+                    <List
+                      dense
+                      sx={{
+                        bgcolor: "background.paper",
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    >
+                      {data.dueSoonDoses.slice(0, 6).map((a, idx) => (
+                        <ListItem
+                          key={`${a.reminderKey || a.drugPlanId}-${idx}`}
+                          divider
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography
+                                sx={{ fontWeight: 900, textAlign: "right" }}
+                              >
+                                {a.elderlyName}
+                              </Typography>
+                            }
+                            secondary={
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ fontWeight: 900, textAlign: "right" }}
+                              >
+                                جرعة <b>{a.medicineName}</b> موعدها الساعة{" "}
+                                <b>{a.dueTime}</b> — متبقي{" "}
+                                <b>{a.minutesLeft}</b> دقيقة.
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </Box>
+                {/* Expiring */}
+                <Box>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ mb: 1 }}
+                    gap={1}
+                  >
+                    <ScheduleOutlinedIcon
+                      fontSize="small"
+                      sx={{ color: COLORS.main }}
+                    />
+                    <Typography sx={{ fontWeight: 900 }}>
+                      خطط قربت تنتهي
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={expiringCount}
+                      variant="outlined"
+                      sx={{
+                        borderRadius: 2,
+                        fontWeight: 900,
+                        borderColor: COLORS.border,
+                        bgcolor: COLORS.soft2,
+                        color: COLORS.dark,
+                      }}
+                    />
+                  </Stack>
+
+
+
+
+                  {!expiringCount ? (
+                    <Typography variant="body2" color="text.secondary">
+                      لا يوجد خطط قريبة الانتهاء.
+                    </Typography>
+                  ) : (
+                    <List
+                      dense
+                      sx={{
+                        bgcolor: "background.paper",
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    >
+                      {data.plansExpiringSoon.slice(0, 6).map((a, idx) => (
+                        <ListItem key={`${a.drugPlanId}-${idx}`} divider>
+                          <ListItemText
+                            primary={
+                              <Typography
+                                sx={{ fontWeight: 900, textAlign: "right" }}
+                              >
+                                {a.elderlyName}
+                              </Typography>
+                            }
+                            secondary={
+                              <Typography
+                                sx={{ fontWeight: 900, textAlign: "right" }}
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                متبقي {a.daysLeft} يوم لانتهاء إعطاء{" "}
+                                {a.medicineName} للمسنة {a.elderlyName}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </Box>
+
+
+
+
+                {/* Stock */}
+                <Box>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ mb: 1 }}
+                    gap={1}
+                  >
+                    <LocalPharmacyOutlinedIcon
+                      fontSize="small"
+                      sx={{ color: COLORS.main }}
+                    />
+                    <Typography sx={{ fontWeight: 900 }}>
+                      كمية الدواء
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={stockCount}
+                      variant="outlined"
+                      sx={{
+                        borderRadius: 2,
+                        fontWeight: 900,
+                        borderColor: COLORS.border,
+                        bgcolor: COLORS.soft2,
+                        color: COLORS.dark,
+                      }}
+                    />
+                  </Stack>
+
+
+
+
+                  {!stockCount ? (
+                    <Typography variant="body2" color="text.secondary">
+                      لا يوجد تنبيهات كمية.
+                    </Typography>
+                  ) : (
+                    <List
+                      dense
+                      sx={{
+                        bgcolor: "background.paper",
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    >
+                      {data.lowOrOutStock.slice(0, 8).map((a, idx) => {
+                        const badge = stockBadge(a.stockStatus);
+                        const isOut = a.stockStatus === 3;
+
+
+
+
+                        return (
+                          <ListItem key={`${a.drugPlanId}-${idx}`} divider>
+                            <ListItemAvatar>
+                              <Avatar
+                                sx={{
+                                  bgcolor: isOut
+                                    ? "rgba(198,40,40,0.10)"
+                                    : "rgba(141,110,99,0.12)",
+                                  color: isOut ? COLORS.danger : COLORS.warn,
+                                  border: `1px solid ${
+                                    isOut
+                                      ? "rgba(198,40,40,0.25)"
+                                      : "rgba(141,110,99,0.25)"
+                                  }`,
+                                }}
+                              >
+                                {badge.icon || (
+                                  <LocalPharmacyOutlinedIcon fontSize="small" />
+                                )}
+                              </Avatar>
+                            </ListItemAvatar>
+
+
+
+
+                            <ListItemText
+                              primary={
+                                <Stack
+                                  direction="row"
+                                  spacing={1}
+                                  alignItems="center"
+                                  flexWrap="wrap"
+                                  gap={1}
+                                >
+                                  <Typography sx={{ fontWeight: 900 }}>
+                                    {a.elderlyName}
+                                  </Typography>
+                                  <Chip
+                                    size="small"
+                                    label={a.stockStatusText || badge.text}
+                                    variant="outlined"
+                                    sx={{
+                                      borderRadius: 2,
+                                      fontWeight: 900,
+                                      borderColor: isOut
+                                        ? "rgba(198,40,40,0.35)"
+                                        : "rgba(141,110,99,0.35)",
+                                      color: isOut
+                                        ? COLORS.danger
+                                        : COLORS.warn,
+                                      bgcolor: isOut
+                                        ? "rgba(198,40,40,0.06)"
+                                        : "rgba(141,110,99,0.08)",
+                                    }}
+                                  />
+                                </Stack>
+                              }
+                              secondary={
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ fontWeight: 800, textAlign: "right" }}
+                                >
+                                  اسم الدواء : {a.medicineName}
+                                </Typography>
+                              }
+                            />
+                          </ListItem>
+                        );
+                      })}
+                    </List>
+                  )}
+                </Box>
+              </Stack>
+            </SectionCard>
+          </Box>
+</Popover>
+
+
             <IconButton color="inherit" onClick={handleMenuOpen}>
               <AccountCircle sx={{ fontSize: 40 }} />
             </IconButton>
+
+
 
 
             <Menu
@@ -684,6 +1295,8 @@ export default function NurseLayout() {
             </Menu>
           </Toolbar>
         </AppBar>
+
+
 
 
         <Box
