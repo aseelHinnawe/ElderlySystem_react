@@ -907,6 +907,87 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
               }
             >
               <Stack spacing={2}>
+
+                   {/* Due Soon */}
+                <Box>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ mb: 1 }}
+                    gap={1}
+                  >
+                    <NotificationsActiveOutlinedIcon
+                      fontSize="small"
+                      sx={{ color: COLORS.ok }}
+                    />
+                    <Typography sx={{ fontWeight: 900 }}>
+                      جرعات اقترب موعدها
+                    </Typography>
+
+
+
+
+                    <Chip
+                      size="small"
+                      label={dueSoonCount}
+                      variant="outlined"
+                      sx={{
+                        borderRadius: 2,
+                        fontWeight: 900,
+                        bgcolor: "rgba(46,125,50,0.10)",
+                        color: COLORS.ok,
+                        border: "1px solid rgba(46,125,50,0.25)",
+                      }}
+                    />
+                  </Stack>
+
+
+                  {!dueSoonCount ? (
+                    <Typography variant="body2" color="text.secondary">
+                      لا يوجد جرعات قريبة حالياً.
+                    </Typography>
+                  ) : (
+                    <List
+                      dense
+                      sx={{
+                        bgcolor: "background.paper",
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    >
+                      {data.dueSoonDoses.slice(0, 6).map((a, idx) => (
+                        <ListItem
+                          key={`${a.reminderKey || a.drugPlanId}-${idx}`}
+                          divider
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography
+                                sx={{ fontWeight: 900, textAlign: "right" }}
+                              >
+                                {a.elderlyName}
+                              </Typography>
+                            }
+                            secondary={
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ fontWeight: 900, textAlign: "right" }}
+                              >
+                                جرعة <b>{a.medicineName}</b> موعدها الساعة{" "}
+                                <b>{a.dueTime}</b> — متبقي{" "}
+                                <b>{a.minutesLeft}</b> دقيقة.
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </Box>
+
                 {/* Overdue */}
                 <Box>
                   <Stack
@@ -981,87 +1062,7 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                     </List>
                   )}
                 </Box>
-                {/* Due Soon */}
-                <Box>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    sx={{ mb: 1 }}
-                    gap={1}
-                  >
-                    <NotificationsActiveOutlinedIcon
-                      fontSize="small"
-                      sx={{ color: COLORS.ok }}
-                    />
-                    <Typography sx={{ fontWeight: 900 }}>
-                      جرعات قرب موعدها
-                    </Typography>
-
-
-
-
-                    <Chip
-                      size="small"
-                      label={dueSoonCount}
-                      variant="outlined"
-                      sx={{
-                        borderRadius: 2,
-                        fontWeight: 900,
-                        bgcolor: "rgba(46,125,50,0.10)",
-                        color: COLORS.ok,
-                        border: "1px solid rgba(46,125,50,0.25)",
-                      }}
-                    />
-                  </Stack>
-
-
-
-
-                  {!dueSoonCount ? (
-                    <Typography variant="body2" color="text.secondary">
-                      لا يوجد جرعات قريبة حالياً.
-                    </Typography>
-                  ) : (
-                    <List
-                      dense
-                      sx={{
-                        bgcolor: "background.paper",
-                        borderRadius: 2,
-                        border: "1px solid",
-                        borderColor: "divider",
-                      }}
-                    >
-                      {data.dueSoonDoses.slice(0, 6).map((a, idx) => (
-                        <ListItem
-                          key={`${a.reminderKey || a.drugPlanId}-${idx}`}
-                          divider
-                        >
-                          <ListItemText
-                            primary={
-                              <Typography
-                                sx={{ fontWeight: 900, textAlign: "right" }}
-                              >
-                                {a.elderlyName}
-                              </Typography>
-                            }
-                            secondary={
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ fontWeight: 900, textAlign: "right" }}
-                              >
-                                جرعة <b>{a.medicineName}</b> موعدها الساعة{" "}
-                                <b>{a.dueTime}</b> — متبقي{" "}
-                                <b>{a.minutesLeft}</b> دقيقة.
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
-                </Box>
+             
                 {/* Expiring */}
                 <Box>
                   <Stack
@@ -1076,7 +1077,7 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                       sx={{ color: COLORS.main }}
                     />
                     <Typography sx={{ fontWeight: 900 }}>
-                      خطط قربت تنتهي
+                      خطط دواء اقتربت من الانتهاء
                     </Typography>
                     <Chip
                       size="small"
@@ -1295,8 +1296,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
             </Menu>
           </Toolbar>
         </AppBar>
-
-
 
 
         <Box

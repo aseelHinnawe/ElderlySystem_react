@@ -1,7 +1,6 @@
-
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
+
 
 import {
   Box,
@@ -114,11 +113,11 @@ function FieldRow({ icon, label, value }) {
     </Box>
   );
 }
+
+
 export default function ElderlyDetailsSponsor() {
-  const { id } = useParams();
-
-
   const [elderly, setElderly] = useState(null);
+  const [sponsorInfo, setSponsorInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState(null);
   const [loadingReport, setLoadingReport] = useState(false);
@@ -130,7 +129,6 @@ export default function ElderlyDetailsSponsor() {
   });
 
 
-  // ✅ Preview Dialog
   const [openPreview, setOpenPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
@@ -173,11 +171,25 @@ export default function ElderlyDetailsSponsor() {
   const fetchElderly = async () => {
     setLoading(true);
     try {
-      const res = await AxiosUserInstance.get(`/Sponsor/Elderly/${id}/details`);
-      const data = res?.data?.data || null;
-      setElderly(data);
-      setSelectedReport(data?.latestMedicalReport || null);
-      setSelectedReportId(data?.latestMedicalReport?.reportId ?? "");
+      const [detailsRes, mineRes] = await Promise.all([
+        AxiosUserInstance.get("/Sponsor/Elderly/details"),
+        AxiosUserInstance.get("/Sponsor/Elderly/mine"),
+      ]);
+
+
+      const detailsData = detailsRes?.data?.data || null;
+      const mineData = mineRes?.data?.data || null;
+
+
+      const sponsorData = Array.isArray(mineData)
+        ? mineData[0]?.sponsor ?? null
+        : mineData?.sponsor ?? null;
+
+
+      setElderly(detailsData);
+      setSponsorInfo(sponsorData);
+      setSelectedReport(detailsData?.latestMedicalReport || null);
+      setSelectedReportId(detailsData?.latestMedicalReport?.reportId ?? "");
     } catch (err) {
       setSnackbar({
         open: true,
@@ -185,6 +197,7 @@ export default function ElderlyDetailsSponsor() {
         severity: "error",
       });
       setElderly(null);
+      setSponsorInfo(null);
       setSelectedReport(null);
     } finally {
       setLoading(false);
@@ -194,18 +207,22 @@ export default function ElderlyDetailsSponsor() {
 
   useEffect(() => {
     fetchElderly();
-  }, [id]);
+  }, []);
+
+
   const handleReportChange = async (e) => {
     const reportId = e.target.value;
     setSelectedReportId(reportId);
     await fetchReportById(reportId);
   };
+
+
   const fetchReportById = async (reportId) => {
     if (!reportId) return;
     setLoadingReport(true);
     try {
       const res = await AxiosUserInstance.get(
-        `/Sponsor/Elderly/medical-reports/${reportId}`,
+        `/Sponsor/Elderly/medical-reports/${reportId}`
       );
       setSelectedReport(res?.data?.data || null);
     } catch (err) {
@@ -218,6 +235,8 @@ export default function ElderlyDetailsSponsor() {
       setLoadingReport(false);
     }
   };
+
+
   const isActive = elderly?.status === "نشط";
 
 
@@ -262,7 +281,29 @@ export default function ElderlyDetailsSponsor() {
   }
 
 
-  if (!elderly) return null;
+  if (!elderly && !loading) {
+    return (
+      <>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+          <Typography sx={{ fontWeight: 700, color: "#777" }}>
+            لا توجد بيانات لعرضها
+          </Typography>
+        </Box>
+
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+        </Snackbar>
+      </>
+    );
+  }
+
+
   const roomImgs = elderly?.currentStay?.room?.images ?? [];
   const hasDiseases =
     Array.isArray(elderly.diseases) && elderly.diseases.length > 0;
@@ -272,6 +313,8 @@ export default function ElderlyDetailsSponsor() {
 
 
   const isPdf = (url = "") => url.toLowerCase().includes(".pdf");
+
+
   return (
     <Box
       sx={{
@@ -487,6 +530,95 @@ export default function ElderlyDetailsSponsor() {
               width: "100%",
             }}
           >
+            {sponsorInfo ? (
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 4,
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+                }}
+              >
+                <Typography sx={cardTitleSx("#6a6a57")}>بيانات الكفيل</Typography>
+
+
+                <Box sx={{ mt: 1.5 }}>
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2.5,
+                          background: "#f7f7f3",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            color: "#777",
+                            fontWeight: 800,
+                          }}
+                        >
+                          اسم الكفيل
+                        </Typography>
+                        <Typography sx={{ fontWeight: 1000 }}>
+                          {sponsorInfo.sponsorName ?? "-"}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2.5,
+                          background: "#f7f7f3",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            color: "#777",
+                            fontWeight: 800,
+                          }}
+                        >
+                          صلة القرابة
+                        </Typography>
+                        <Typography sx={{ fontWeight: 1000 }}>
+                          {sponsorInfo.kinShip ?? "-"}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+
+                    <Grid size={{ xs: 12 , sm: 4 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2.5,
+                          background: "#f7f7f3",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            color: "#777",
+                            fontWeight: 800,
+                          }}
+                        >
+                          الدرجة
+                        </Typography>
+                        <Typography sx={{ fontWeight: 1000 }}>
+                          {sponsorInfo.degree ?? "-"}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Paper>
+            ) : null}
+
+
             {isActive ? (
               <Paper
                 sx={{
@@ -501,7 +633,6 @@ export default function ElderlyDetailsSponsor() {
                 {elderly.currentStay ? (
                   <Box sx={{ mt: 1.5 }}>
                     <Grid container spacing={2}>
-                      {/* تاريخ البداية */}
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <Box
                           sx={{
@@ -526,7 +657,6 @@ export default function ElderlyDetailsSponsor() {
                       </Grid>
 
 
-                      {/* تاريخ النهاية */}
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <Box
                           sx={{
@@ -556,7 +686,8 @@ export default function ElderlyDetailsSponsor() {
                           </Typography>
                         </Box>
                       </Grid>
-                      {/* الغرفة */}
+
+
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <Box
                           sx={{
@@ -599,8 +730,7 @@ export default function ElderlyDetailsSponsor() {
                                 flexWrap: "wrap",
                               }}
                             >
-                              رقم {elderly.currentStay.room?.roomNumber ?? "-"}{" "}
-                              —{" "}
+                              رقم {elderly.currentStay.room?.roomNumber ?? "-"} —{" "}
                               {elderly.currentStay.room?.roomTypeName ??
                                 elderly.currentStay.room?.roomType ??
                                 "-"}
@@ -629,7 +759,6 @@ export default function ElderlyDetailsSponsor() {
                       </Grid>
 
 
-                      {/* الحالة */}
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <Box
                           sx={{
@@ -688,7 +817,8 @@ export default function ElderlyDetailsSponsor() {
                 )}
               </Paper>
             ) : null}
-            {/* Medical Reports */}
+
+
             <Paper
               sx={{
                 p: 3,
@@ -783,7 +913,7 @@ export default function ElderlyDetailsSponsor() {
                             onClick={() =>
                               openFilePreview(
                                 selectedReport.diagnosisUrl,
-                                "عرض التشخيص",
+                                "عرض التشخيص"
                               )
                             }
                             startIcon={<PhotoLibraryOutlinedIcon />}
@@ -885,7 +1015,6 @@ export default function ElderlyDetailsSponsor() {
             </Paper>
 
 
-            {/* Files */}
             <Paper
               sx={{
                 p: 3,
@@ -928,10 +1057,7 @@ export default function ElderlyDetailsSponsor() {
                     {elderly.nationalIdImage ? (
                       <Button
                         onClick={() =>
-                          openFilePreview(
-                            elderly.nationalIdImage,
-                            "صورة الهوية",
-                          )
+                          openFilePreview(elderly.nationalIdImage, "صورة الهوية")
                         }
                         size="small"
                         variant="contained"
@@ -993,7 +1119,7 @@ export default function ElderlyDetailsSponsor() {
                         onClick={() =>
                           openFilePreview(
                             elderly.healthInsurance,
-                            "صورة التأمين الصحي",
+                            "صورة التأمين الصحي"
                           )
                         }
                         size="small"
@@ -1020,47 +1146,12 @@ export default function ElderlyDetailsSponsor() {
                   </Box>
                 </Grid>
               </Grid>
-
-
-              <Box sx={{ mt: 2 }}>
-                <Typography
-                  sx={{ fontSize: 12, color: "#777", fontWeight: 900, mb: 1 }}
-                >
-                  الفحص الشامل
-                </Typography>
-
-
-                {elderly.comprehensiveExamination ? (
-                  <Button
-                    onClick={() =>
-                      openFilePreview(
-                        elderly.comprehensiveExamination,
-                        "الفحص الشامل",
-                      )
-                    }
-                    variant="outlined"
-                    startIcon={<ArticleOutlinedIcon />}
-                    sx={{
-                      ...softBtnSx,
-                      gap: 1,
-                      borderColor: "rgba(106,106,87,0.45)",
-                      color: "#4a4a3d",
-                      "&:hover": { borderColor: "rgba(106,106,87,0.8)" },
-                    }}
-                  >
-                    فتح الصورة
-                  </Button>
-                ) : (
-                  <Chip label="غير متوفر" sx={{ fontWeight: 900 }} />
-                )}
-              </Box>
             </Paper>
           </Box>
         </Grid>
       </Grid>
 
 
-      {/* ✅ Dialog Preview */}
       <Dialog
         open={openPreview}
         onClose={closeFilePreview}
@@ -1170,7 +1261,8 @@ export default function ElderlyDetailsSponsor() {
           )}
         </DialogContent>
       </Dialog>
-      {/* ✅ Room Images Dialog */}
+
+
       <Dialog
         open={openRoomImages}
         onClose={closeRoomImagesDialog}
@@ -1245,7 +1337,6 @@ export default function ElderlyDetailsSponsor() {
         <DialogContent sx={{ p: 2.2, background: "transparent" }}>
           {roomImages.length > 0 ? (
             <Box>
-              {/* Main image */}
               <Box
                 sx={{
                   width: "100%",
@@ -1272,7 +1363,6 @@ export default function ElderlyDetailsSponsor() {
               </Box>
 
 
-              {/* Thumbnails */}
               <Box
                 sx={{
                   display: "flex",
@@ -1343,7 +1433,7 @@ export default function ElderlyDetailsSponsor() {
                   disabled={roomImageIndex === roomImages.length - 1}
                   onClick={() =>
                     setRoomImageIndex((i) =>
-                      Math.min(roomImages.length - 1, i + 1),
+                      Math.min(roomImages.length - 1, i + 1)
                     )
                   }
                   sx={{
@@ -1364,6 +1454,8 @@ export default function ElderlyDetailsSponsor() {
           )}
         </DialogContent>
       </Dialog>
+
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -1375,5 +1467,4 @@ export default function ElderlyDetailsSponsor() {
     </Box>
   );
 }
-
 
