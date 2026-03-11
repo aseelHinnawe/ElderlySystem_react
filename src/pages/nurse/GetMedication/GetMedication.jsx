@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -36,7 +36,6 @@ import {
 import { useTheme } from "@mui/material/styles";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 
 
@@ -48,7 +47,7 @@ import TodayIcon from "@mui/icons-material/Today";
 import PersonIcon from "@mui/icons-material/Person";
 
 
-// ========== styles (نفس الروح) ==========
+// ========== styles ==========
 const paperStyle = {
   p: { xs: 2.5, sm: 4 },
   width: "100%",
@@ -107,25 +106,28 @@ const dayNameAr = (dateStr) => {
 
 // ========== cell rendering ==========
 const getSummaryStyle = (cell) => {
-  if (!cell || !cell.inPlanPeriod)
+  if (!cell || !cell.inPlanPeriod) {
     return { bg: "rgba(0,0,0,0.04)", color: "#555" };
+  }
 
 
   const taken = Number(cell.takenCount || 0);
   const req = Number(cell.requiredCount || 0);
 
 
-  if (req > 0 && taken >= req)
-    return { bg: "rgba(46,125,50,0.12)", color: "#2E7D32" }; // done
-  if (taken > 0) return { bg: "rgba(141,110,99,0.12)", color: "#8D6E63" }; // partial
-  return { bg: "rgba(198,40,40,0.10)", color: "#C62828" }; // none
+  if (req > 0 && taken >= req) {
+    return { bg: "rgba(46,125,50,0.12)", color: "#2E7D32" };
+  }
+  if (taken > 0) {
+    return { bg: "rgba(141,110,99,0.12)", color: "#8D6E63" };
+  }
+  return { bg: "rgba(198,40,40,0.10)", color: "#C62828" };
 };
 
 
 const renderMedicationCell = (cell) => {
   if (!cell) return <Typography sx={{ opacity: 0.7 }}>-</Typography>;
-  if (!cell.inPlanPeriod)
-    return <Typography sx={{ opacity: 0.7 }}>-</Typography>;
+  if (!cell.inPlanPeriod) return <Typography sx={{ opacity: 0.7 }}>-</Typography>;
 
 
   const style = getSummaryStyle(cell);
@@ -236,6 +238,16 @@ export default function GetMedication() {
   const [offset, setOffset] = useState(0);
 
 
+  const [elderlies, setElderlies] = useState([]);
+  const [loadingElderlies, setLoadingElderlies] = useState(false);
+  const [elderliesError, setElderliesError] = useState(false);
+
+
+  const [weeklyData, setWeeklyData] = useState({ dates: [], rows: [] });
+  const [loadingWeekly, setLoadingWeekly] = useState(false);
+  const [weeklyError, setWeeklyError] = useState(false);
+
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     severity: "success",
@@ -249,41 +261,104 @@ export default function GetMedication() {
   };
 
 
-  // ====== 1) Fetch elderlies ======
-  const fetchElderlies = async () => {
-    const res = await AxiosUserInstance.get("/Nurse/Elderly");
-    return Array.isArray(res?.data?.elderlies) ? res.data.elderlies : [];
-  };
+  const fetchElderlies = useCallback(async () => {
+    setLoadingElderlies(true);
+    setElderliesError(false);
 
 
-  const elderliesQuery = useQuery({
-    queryKey: ["elderliesList"],
-    queryFn: fetchElderlies,
-    staleTime: 1000 * 60 * 5,
-    retry: 1,
-    onError: (err) => {
+    try {
+      const res = await AxiosUserInstance.get("/Nurse/Elderly");
+      const list = Array.isArray(res?.data?.elderlies) ? res.data.elderlies : [];
+
+
+      const mapped = list
+        .filter((x) => x?.elderlyId != null)
+        .map((x) => ({
+          id: String(x.elderlyId),
+          name: x.name || `مسن #${x.elderlyId}`,
+        }));
+
+
+      setElderlies(mapped);
+    } catch (err) {
       if (err?.response?.status === 401) {
         navigate("/login", { replace: true });
         return;
       }
+
+
+      setElderliesError(true);
       setSnackbar({
         open: true,
         severity: "error",
         message: "حدث خطأ أثناء جلب قائمة المسنين",
       });
+      setElderlies([]);
+    } finally {
+      setLoadingElderlies(false);
+    }
+  }, [navigate]);
+
+
+  const fetchWeekly = useCallback(
+    async (selectedElderlyId = elderlyId, selectedOffset = offset) => {
+      if (!selectedElderlyId) {
+        setWeeklyData({ dates: [], rows: [] });
+        setWeeklyError(false);
+        return;
+      }
+
+
+      setLoadingWeekly(true);
+      setWeeklyError(false);
+
+
+      try {
+        const res = await AxiosUserInstance.get(
+          `/Nurse/Medicine/elderly/${selectedElderlyId}/weekly`,
+          { params: { offset: selectedOffset } },
+        );
+
+
+        setWeeklyData(res?.data?.data || { dates: [], rows: [] });
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+
+        setWeeklyError(true);
+        setSnackbar({
+          open: true,
+          severity: "error",
+          message:
+            err?.response?.data?.message || "حدث خطأ أثناء جلب جدول الجرعات",
+        });
+        setWeeklyData({ dates: [], rows: [] });
+      } finally {
+        setLoadingWeekly(false);
+      }
     },
-  });
+    [elderlyId, offset, navigate],
+  );
 
 
-  const elderlies = useMemo(() => {
-    const list = elderliesQuery.data || [];
-    return list
-      .filter((x) => x?.elderlyId != null)
-      .map((x) => ({
-        id: String(x.elderlyId),
-        name: x.name || `مسن #${x.elderlyId}`,
-      }));
-  }, [elderliesQuery.data]);
+  useEffect(() => {
+    fetchElderlies();
+  }, [fetchElderlies]);
+
+
+  useEffect(() => {
+    if (!elderlyId) {
+      setWeeklyData({ dates: [], rows: [] });
+      setWeeklyError(false);
+      return;
+    }
+
+
+    fetchWeekly(elderlyId, offset);
+  }, [elderlyId, offset, fetchWeekly]);
 
 
   const elderlyName = useMemo(() => {
@@ -292,39 +367,8 @@ export default function GetMedication() {
   }, [elderlies, elderlyId]);
 
 
-  // ====== 2) Fetch weekly schedule (after choose elderly) ======
-  const fetchWeekly = async () => {
-    const res = await AxiosUserInstance.get(
-      `/Nurse/Medicine/elderly/${elderlyId}/weekly`,
-      { params: { offset } },
-    );
-    return res?.data?.data; // { dates, rows }
-  };
-
-
-  const weeklyQuery = useQuery({
-    queryKey: ["elderlyWeeklyMedication", elderlyId, offset],
-    queryFn: fetchWeekly,
-    enabled: !!elderlyId,
-    staleTime: 1000 * 30,
-    retry: 1,
-    onError: (err) => {
-      if (err?.response?.status === 401) {
-        navigate("/login", { replace: true });
-        return;
-      }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message:
-          err?.response?.data?.message || "حدث خطأ أثناء جلب جدول الجرعات",
-      });
-    },
-  });
-
-
-  const dates = weeklyQuery.data?.dates || [];
-  const rows = weeklyQuery.data?.rows || [];
+  const dates = weeklyData?.dates || [];
+  const rows = weeklyData?.rows || [];
 
 
   const onPrevWeek = () => setOffset((o) => o - 1);
@@ -332,9 +376,10 @@ export default function GetMedication() {
   const onCurrentWeek = () => setOffset(0);
 
 
-  // ====== helper: medicine header cell ======
   const renderMedicineHeader = (r) => {
     const times = Array.isArray(r?.scheduledTimes) ? r.scheduledTimes : [];
+
+
     return (
       <Box sx={{ minWidth: 220 }}>
         <Typography sx={{ fontWeight: 900, lineHeight: 1.2 }}>
@@ -456,7 +501,6 @@ export default function GetMedication() {
 
 
         <Paper elevation={0} sx={paperStyle}>
-          {/* اختيار المسنة + أزرار الأسبوع */}
           <Grid container spacing={1.5} alignItems="center">
             <Grid size={{ xs: 12 }}>
               <TextField
@@ -477,9 +521,7 @@ export default function GetMedication() {
                 }}
               >
                 <MenuItem value="">
-                  {elderliesQuery.isLoading
-                    ? "جارٍ تحميل المسنين..."
-                    : "اختر المسنة"}
+                  {loadingElderlies ? "جارٍ تحميل المسنين..." : "اختر المسنة"}
                 </MenuItem>
 
 
@@ -538,10 +580,26 @@ export default function GetMedication() {
             </Grid>
 
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Divider sx={{ my: 1, opacity: 0.6 }} />
             </Grid>
           </Grid>
+
+
+          {elderliesError && (
+            <Box sx={{ textAlign: "center", mb: 2 }}>
+              <Typography color="error" sx={{ fontWeight: 900 }}>
+                تعذر تحميل قائمة المسنين
+              </Typography>
+              <Button
+                onClick={fetchElderlies}
+                variant="outlined"
+                sx={{ mt: 1, borderRadius: 3 }}
+              >
+                إعادة المحاولة
+              </Button>
+            </Box>
+          )}
 
 
           {!elderlyId && (
@@ -554,20 +612,20 @@ export default function GetMedication() {
           )}
 
 
-          {weeklyQuery.isLoading && elderlyId && (
+          {loadingWeekly && elderlyId && (
             <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
               <CircularProgress />
             </Box>
           )}
 
 
-          {weeklyQuery.isError && !weeklyQuery.isLoading && elderlyId && (
+          {weeklyError && !loadingWeekly && elderlyId && (
             <Box sx={{ textAlign: "center", py: 3 }}>
               <Typography color="error" sx={{ fontWeight: 900 }}>
                 فشل تحميل جدول الجرعات
               </Typography>
               <Button
-                onClick={() => weeklyQuery.refetch()}
+                onClick={() => fetchWeekly(elderlyId, offset)}
                 variant="outlined"
                 sx={{ mt: 1, borderRadius: 3 }}
               >
@@ -577,8 +635,7 @@ export default function GetMedication() {
           )}
 
 
-          {/* Table / Mobile View */}
-          {!weeklyQuery.isLoading && !weeklyQuery.isError && elderlyId && (
+          {!loadingWeekly && !weeklyError && elderlyId && (
             <>
               {/* ========== DESKTOP ========== */}
               {!isMobile && (
@@ -664,7 +721,7 @@ export default function GetMedication() {
               )}
 
 
-              {/* ========== MOBILE: Accordion per day ========== */}
+              {/* ========== MOBILE ========== */}
               {isMobile && (
                 <Box>
                   {dates.map((d) => (
@@ -734,7 +791,6 @@ export default function GetMedication() {
                                     </Typography>
 
 
-                                    {/* Scheduled times */}
                                     {Array.isArray(r?.scheduledTimes) &&
                                       r.scheduledTimes.length > 0 && (
                                         <Stack
@@ -767,7 +823,6 @@ export default function GetMedication() {
                                 </Box>
 
 
-                                {/* taken details chips */}
                                 {cell?.inPlanPeriod && taken.length > 0 && (
                                   <Stack
                                     direction="column"
@@ -777,7 +832,7 @@ export default function GetMedication() {
                                     {taken.map((t, i) => (
                                       <Chip
                                         key={i}
-                                        label={`${t.time} — ${t.dose} — شفت ${t.shiftKey || "-"} `}
+                                        label={`${t.time} — ${t.dose} — شفت ${t.shiftKey || "-"}`}
                                         size="small"
                                         sx={{
                                           borderRadius: 2,
@@ -791,7 +846,6 @@ export default function GetMedication() {
                                     ))}
 
 
-                                    {/* أسماء الممرضات (كقائمة خفيفة) */}
                                     <Box sx={{ mt: 0.2 }}>
                                       {taken.map((t, i) =>
                                         t?.nurseName ? (
@@ -840,8 +894,4 @@ export default function GetMedication() {
     </Box>
   );
 }
-
-
-
-
 

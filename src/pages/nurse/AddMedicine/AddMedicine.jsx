@@ -14,10 +14,6 @@ import {
   Grid,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 
 
@@ -28,7 +24,7 @@ import {
 } from "@mui/icons-material";
 
 
-// ============= Styles (same spirit as your component) =============
+// ============= Styles =============
 const paperStyle = {
   p: { xs: 2.5, sm: 4 },
   maxWidth: 800,
@@ -81,7 +77,6 @@ const normalizeOptionalText = (v) => {
 
 
 const normalizeTimeToHHmmss = (t) => {
-  // accepts "HH:mm" or "HH:mm:ss"
   const v = normalizeText(t);
   if (!v) return "";
   if (v.length === 5) return `${v}:00`;
@@ -89,7 +84,7 @@ const normalizeTimeToHHmmss = (t) => {
 };
 
 
-// عدّل القيم حسب Enum عندك (مثال بسيط)
+// عدّلها حسب القيم الموجودة عندك في الـ Enum
 const MEDICINE_TYPES = [
   { value: 1, label: "حبوب" },
   { value: 2, label: "سائل" },
@@ -97,11 +92,21 @@ const MEDICINE_TYPES = [
 
 
 export default function AddMedicine() {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-
-
   const [loading, setLoading] = useState(false);
+
+
+  const [elderlies, setElderlies] = useState([]);
+  const [medicines, setMedicines] = useState([]);
+
+
+  const [loadingElderlies, setLoadingElderlies] = useState(false);
+  const [loadingMedicines, setLoadingMedicines] = useState(false);
+
+
+  const [elderliesError, setElderliesError] = useState(false);
+  const [medicinesError, setMedicinesError] = useState(false);
+
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     severity: "success",
@@ -119,7 +124,7 @@ export default function AddMedicine() {
       startDate: "",
       endDate: "",
       dailyIntake: 1,
-      times: [""], // dynamic length
+      times: [""],
       notes: "",
     },
     mode: "onTouched",
@@ -140,73 +145,63 @@ export default function AddMedicine() {
   } = form;
 
 
+  useEffect(() => {
+    const fetchElderlies = async () => {
+      setLoadingElderlies(true);
+      setElderliesError(false);
+      try {
+        const res = await AxiosUserInstance.get("/Nurse/Elderly");
+        setElderlies(res?.data?.elderlies || []);
+      } catch (err) {
+        setElderliesError(true);
+        setSnackbar({
+          open: true,
+          severity: "error",
+          message: "تعذر تحميل قائمة المسنين",
+        });
+      } finally {
+        setLoadingElderlies(false);
+      }
+    };
+
+
+    fetchElderlies();
+  }, []);
+
+
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      setLoadingMedicines(true);
+      setMedicinesError(false);
+      try {
+        const res = await AxiosUserInstance.get("/Nurse/Medicine");
+        setMedicines(res?.data?.medicines || res?.data?.data || []);
+      } catch (err) {
+        setMedicinesError(true);
+        setSnackbar({
+          open: true,
+          severity: "error",
+          message: "تعذر تحميل قائمة الأدوية",
+        });
+      } finally {
+        setLoadingMedicines(false);
+      }
+    };
+
+
+    fetchMedicines();
+  }, []);
+
+
   const closeSnackbar = (_, reason) => {
     if (reason === "clickaway") return;
     setSnackbar((s) => ({ ...s, open: false }));
   };
 
 
-  const fetchElderlies = async () => {
-    const res = await AxiosUserInstance.get("/Nurse/Elderly");
-    return res?.data?.data || res?.data?.elderlies || [];
-  };
-
-
-  const {
-    data: elderlies = [],
-    isLoading: loadingElderlies,
-    isError: elderliesError,
-    refetch: refetchElderlies,
-  } = useQuery({
-    queryKey: ["elderliesList"],
-    queryFn: fetchElderlies,
-    staleTime: 1000 * 60 * 5,
-    retry: 1,
-    onError: (err) => {
-      if (err?.response?.status === 401) {
-        navigate("/login", { replace: true });
-        return;
-      }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: "تعذر تحميل قائمة المسنين",
-      });
-    },
-  });
-
-
-  const fetchMedicines = async () => {
-    const res = await AxiosUserInstance.get("/Nurse/Medicine");
-    return res?.data?.data || res?.data?.medicines || [];
-  };
-
-
-  const {
-    data: medicines = [],
-    isLoading: loadingMedicines,
-    isError: medicinesError,
-    refetch: refetchMedicines,
-  } = useQuery({
-    queryKey: ["medicinesList"],
-    queryFn: fetchMedicines,
-    staleTime: 1000 * 60 * 5,
-    retry: 1,
-    onError: (err) => {
-      if (err?.response?.status === 401) {
-        navigate("/login", { replace: true });
-        return;
-      }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: "تعذر تحميل قائمة الأدوية",
-      });
-    },
-  });
-
-
   const dailyIntakeValue = watch("dailyIntake");
+
+
   useEffect(() => {
     const n = Number(dailyIntakeValue) || 0;
     if (n < 1) return;
@@ -226,8 +221,9 @@ export default function AddMedicine() {
   }, [dailyIntakeValue, getValues, setValue]);
 
 
-  // Clear fields when switching mode
   const medicineMode = watch("medicineMode");
+
+
   useEffect(() => {
     if (medicineMode === "new") {
       setValue("medicineId", "");
@@ -239,32 +235,27 @@ export default function AddMedicine() {
   }, [medicineMode, setValue, clearErrors]);
 
 
-  // For header subtitles
   const selectedElderlyId = watch("elderlyId");
   const selectedMedicineId = watch("medicineId");
 
 
   const selectedElderlyName = useMemo(() => {
     const x = elderlies.find(
-      (e) => String(e.elderlyId ?? e.id) === String(selectedElderlyId),
+      (e) => String(e.elderlyId) === String(selectedElderlyId)
     );
     return x?.name || "";
   }, [elderlies, selectedElderlyId]);
 
 
   const selectedMedicineLabel = useMemo(() => {
-    const x = medicines.find(
-      (m) => String(m.id) === String(selectedMedicineId),
-    );
+    const x = medicines.find((m) => String(m.id) === String(selectedMedicineId));
     if (!x) return "";
-    // if your API returns TypeName already:
     const typeName = x.typeName || "";
     return typeName ? `${x.name} — (${typeName})` : x.name;
   }, [medicines, selectedMedicineId]);
 
 
   const onSubmit = async (data) => {
-    // basic validations
     if (!data.elderlyId) {
       setError("elderlyId", { type: "manual", message: "يرجى اختيار المسن." });
       return;
@@ -281,12 +272,14 @@ export default function AddMedicine() {
 
 
     if (!data.endDate) {
-      setError("endDate", { type: "manual", message: "تاريخ النهاية مطلوب." });
+      setError("endDate", {
+        type: "manual",
+        message: "تاريخ النهاية مطلوب.",
+      });
       return;
     }
 
 
-    // compare dates (simple)
     if (new Date(data.endDate) < new Date(data.startDate)) {
       setError("endDate", {
         type: "manual",
@@ -307,6 +300,8 @@ export default function AddMedicine() {
 
 
     const times = (data.times || []).map(normalizeText);
+
+
     if (times.length !== di) {
       setSnackbar({
         open: true,
@@ -356,6 +351,8 @@ export default function AddMedicine() {
         });
         return;
       }
+
+
       payload.medicineId = Number(data.medicineId);
     } else {
       const name = normalizeText(data.newMedicineName);
@@ -369,6 +366,8 @@ export default function AddMedicine() {
         });
         return;
       }
+
+
       if (!type) {
         setError("newMedicineType", {
           type: "manual",
@@ -386,12 +385,11 @@ export default function AddMedicine() {
 
 
     clearErrors();
-
-
     setLoading(true);
+
+
     try {
       await AxiosUserInstance.post("/Nurse/Medicine/drug-plan", payload);
-      await queryClient.invalidateQueries({ queryKey: ["medicinesList"] });
 
 
       setSnackbar({
@@ -450,7 +448,6 @@ export default function AddMedicine() {
           alignItems: "center",
         }}
       >
-        {/* Header */}
         <Card sx={{ ...headerCardStyles, width: "100%" }}>
           <CardContent
             sx={{
@@ -519,7 +516,6 @@ export default function AddMedicine() {
         </Card>
 
 
-        {/* Form */}
         <Paper elevation={0} sx={{ ...paperStyle, mx: "auto" }}>
           <Typography
             variant="h5"
@@ -540,7 +536,6 @@ export default function AddMedicine() {
           </Typography>
 
 
-          {/* Loading states */}
           {anyListLoading && (
             <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
               <CircularProgress size={24} />
@@ -548,44 +543,17 @@ export default function AddMedicine() {
           )}
 
 
-          {/* Error states */}
           {anyListError && (
             <Box sx={{ textAlign: "center", mb: 2 }}>
               <Typography color="error" sx={{ fontWeight: 800 }}>
                 تعذر تحميل القوائم (المسنين/الأدوية)
               </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 1,
-                  justifyContent: "center",
-                  mt: 1,
-                }}
-              >
-                <Button
-                  type="button"
-                  variant="outlined"
-                  onClick={() => refetchElderlies()}
-                  sx={{ borderRadius: 3 }}
-                >
-                  إعادة تحميل المسنين
-                </Button>
-                <Button
-                  type="button"
-                  variant="outlined"
-                  onClick={() => refetchMedicines()}
-                  sx={{ borderRadius: 3 }}
-                >
-                  إعادة تحميل الأدوية
-                </Button>
-              </Box>
             </Box>
           )}
 
 
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={2.5}>
-              {/* Elderly */}
               <Grid size={{ xs: 12 }}>
                 <Controller
                   name="elderlyId"
@@ -615,8 +583,8 @@ export default function AddMedicine() {
 
                       {elderlies.map((elderly) => (
                         <MenuItem
-                          key={elderly.elderlyId ?? elderly.id}
-                          value={elderly.elderlyId ?? elderly.id}
+                          key={elderly.elderlyId}
+                          value={elderly.elderlyId}
                         >
                           {elderly.name}
                         </MenuItem>
@@ -627,7 +595,6 @@ export default function AddMedicine() {
               </Grid>
 
 
-              {/* Medicine Mode */}
               <Grid size={{ xs: 12 }}>
                 <Controller
                   name="medicineMode"
@@ -656,7 +623,6 @@ export default function AddMedicine() {
               </Grid>
 
 
-              {/* Existing medicine select */}
               {medicineMode === "existing" && (
                 <Grid size={{ xs: 12 }}>
                   <Controller
@@ -687,9 +653,7 @@ export default function AddMedicine() {
 
                         {medicines.map((m) => (
                           <MenuItem key={m.id} value={m.id}>
-                            {m.typeName
-                              ? `${m.name} — (${m.typeName})`
-                              : m.name}
+                            {m.typeName ? `${m.name} — (${m.typeName})` : m.name}
                           </MenuItem>
                         ))}
                       </TextField>
@@ -699,7 +663,6 @@ export default function AddMedicine() {
               )}
 
 
-              {/* New medicine inputs */}
               {medicineMode === "new" && (
                 <>
                   <Grid size={{ xs: 12 }}>
@@ -755,7 +718,6 @@ export default function AddMedicine() {
               )}
 
 
-              {/* Dates */}
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
@@ -784,7 +746,6 @@ export default function AddMedicine() {
               </Grid>
 
 
-              {/* Daily Intake */}
               <Grid size={{ xs: 12 }}>
                 <Controller
                   name="dailyIntake"
@@ -816,7 +777,6 @@ export default function AddMedicine() {
               </Grid>
 
 
-              {/* Times */}
               <Grid size={{ xs: 12 }}>
                 <Box
                   sx={{
@@ -846,7 +806,7 @@ export default function AddMedicine() {
                             type="time"
                             label={`وقت الجرعة #${idx + 1}`}
                             InputLabelProps={{ shrink: true }}
-                            inputProps={{ step: 60 }} // 1 min
+                            inputProps={{ step: 60 }}
                             sx={inputStyle}
                             fullWidth
                           />
@@ -858,7 +818,6 @@ export default function AddMedicine() {
               </Grid>
 
 
-              {/* Notes */}
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
@@ -915,6 +874,4 @@ export default function AddMedicine() {
     </Box>
   );
 }
-
-
 

@@ -14,8 +14,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 
 import AxiosUserInstance from "../../../api/AxiosUserInstance.jsx";
@@ -23,7 +21,7 @@ import MedicationOutlinedIcon from "@mui/icons-material/MedicationOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 
 
-// ===== styles (نفس الروح) =====
+// ===== styles =====
 const paperStyle = {
   p: { xs: 2.5, sm: 4 },
   maxWidth: 800,
@@ -69,16 +67,22 @@ const headerCardStyles = {
 
 
 const normalizeText = (v) => (typeof v === "string" ? v.trim() : "");
-const toHHmmss = (t) => {
-  const v = normalizeText(t);
-  if (!v) return "";
-  return v.length === 5 ? `${v}:00` : v;
-};
 
 
 export default function AddMediciation() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const [loading, setLoading] = useState(false);
+
+
+  const [elderlies, setElderlies] = useState([]);
+  const [medicineOptions, setMedicineOptions] = useState([]);
+
+
+  const [loadingElderlies, setLoadingElderlies] = useState(false);
+  const [loadingMedicines, setLoadingMedicines] = useState(false);
+
+
+  const [elderliesError, setElderliesError] = useState(false);
+  const [medicinesError, setMedicinesError] = useState(false);
 
 
   const [snackbar, setSnackbar] = useState({
@@ -86,6 +90,8 @@ export default function AddMediciation() {
     severity: "success",
     message: "",
   });
+
+
   const closeSnackbar = (_, reason) => {
     if (reason === "clickaway") return;
     setSnackbar((s) => ({ ...s, open: false }));
@@ -118,152 +124,110 @@ export default function AddMediciation() {
   const selectedElderlyId = watch("elderlyId");
 
 
-  // =========================
-  // ✅ GET Elderlies: /Nurse/Elderly
-  // shape: { elderlies: [{ elderlyId, name }] }
-  // =========================
-  const fetchElderlies = async () => {
-    const res = await AxiosUserInstance.get("/Nurse/Elderly");
-    return Array.isArray(res?.data?.elderlies) ? res.data.elderlies : [];
-  };
-
-
-  const elderliesQuery = useQuery({
-    queryKey: ["elderliesList"],
-    queryFn: fetchElderlies,
-    staleTime: 1000 * 60 * 5,
-    retry: 1,
-    onError: (err) => {
-      if (err?.response?.status === 401) {
-        navigate("/login", { replace: true });
-        return;
-      }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: "تعذر تحميل قائمة المسنين",
-      });
-    },
-  });
-
-
-  const elderlies = useMemo(() => {
-    return (elderliesQuery.data || []).map((e) => ({
-      id: e.elderlyId,
-      name: e.name || `مسن #${e.elderlyId}`,
-    }));
-  }, [elderliesQuery.data]);
-
-
   const selectedElderlyName = useMemo(() => {
     const x = elderlies.find((e) => String(e.id) === String(selectedElderlyId));
     return x?.name || "";
   }, [elderlies, selectedElderlyId]);
 
 
-  // =========================
-  // ✅ GET Active medicines for elderly (menu item 2)
-  // /Nurse/Medicine/elderly/{elderlyId}/Medicine
-  // expected: { data: [{ drugPlanId, medicineName, medicineTypeName, times, dailyIntake }] }
-  // =========================
-  const fetchElderlyMedicines = async ({ queryKey }) => {
-    const [, elderlyId] = queryKey;
-    if (!elderlyId) return [];
+  useEffect(() => {
+    const fetchElderlies = async () => {
+      setLoadingElderlies(true);
+      setElderliesError(false);
 
 
-    const res = await AxiosUserInstance.get(
-      `/Nurse/Medicine/elderly/${elderlyId}/Medicine`,
-    );
+      try {
+        const res = await AxiosUserInstance.get("/Nurse/Elderly");
+        const list = Array.isArray(res?.data?.elderlies) ? res.data.elderlies : [];
 
 
-    // support: { data: [...] } OR { medicines: [...] }
-    return Array.isArray(res?.data?.data)
-      ? res.data.data
-      : Array.isArray(res?.data?.medicines)
-        ? res.data.medicines
-        : [];
-  };
+        const mapped = list.map((e) => ({
+          id: e.elderlyId,
+          name: e.name || `مسن #${e.elderlyId}`,
+        }));
 
 
-  const medicinesQuery = useQuery({
-    queryKey: ["elderlyMedicines", selectedElderlyId],
-    queryFn: fetchElderlyMedicines,
-    enabled: !!selectedElderlyId,
-    staleTime: 1000 * 60 * 2,
-    retry: 1,
-    onError: (err) => {
-      if (err?.response?.status === 401) {
-        navigate("/login", { replace: true });
-        return;
+        setElderlies(mapped);
+      } catch (err) {
+        setElderliesError(true);
+        setSnackbar({
+          open: true,
+          severity: "error",
+          message: "تعذر تحميل قائمة المسنين",
+        });
+      } finally {
+        setLoadingElderlies(false);
       }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: "تعذر تحميل قائمة أدوية المسنة",
-      });
-    },
-  });
+    };
 
 
-  const medicineOptions = useMemo(() => {
-    const list = medicinesQuery.data || [];
-    return list.map((m) => ({
-      drugPlanId: m.drugPlanId ?? m.id, // احتياط
-      title: m.medicineTypeName
-        ? `${m.medicineName} — (${m.medicineTypeName})`
-        : m.medicineName || `خطة #${m.drugPlanId}`,
-      dailyIntake: m.dailyIntake,
-      times: Array.isArray(m.times) ? m.times : [],
-    }));
-  }, [medicinesQuery.data]);
+    fetchElderlies();
+  }, []);
 
 
   useEffect(() => {
+    const fetchElderlyMedicines = async () => {
+      if (!selectedElderlyId) {
+        setMedicineOptions([]);
+        setMedicinesError(false);
+        return;
+      }
+
+
+      setLoadingMedicines(true);
+      setMedicinesError(false);
+
+
+      try {
+        const res = await AxiosUserInstance.get(
+          `/Nurse/Medicine/elderly/${selectedElderlyId}/Medicine`,
+        );
+
+
+        const list = Array.isArray(res?.data?.data)
+          ? res.data.data
+          : Array.isArray(res?.data?.medicines)
+            ? res.data.medicines
+            : [];
+
+
+        const mapped = list.map((m) => ({
+          drugPlanId: m.drugPlanId ?? m.id,
+          title: m.medicineTypeName
+            ? `${m.medicineName} — (${m.medicineTypeName})`
+            : m.medicineName || `خطة #${m.drugPlanId}`,
+          dailyIntake: m.dailyIntake,
+          times: Array.isArray(m.times) ? m.times : [],
+        }));
+
+
+        setMedicineOptions(mapped);
+      } catch (err) {
+        setMedicinesError(true);
+        setMedicineOptions([]);
+        setSnackbar({
+          open: true,
+          severity: "error",
+          message: "تعذر تحميل قائمة أدوية المسنة",
+        });
+      } finally {
+        setLoadingMedicines(false);
+      }
+    };
+
+
+    fetchElderlyMedicines();
+
+
     reset((prev) => ({
       ...prev,
       drugPlanId: "",
     }));
     clearErrors(["drugPlanId"]);
-   
-  }, [selectedElderlyId]);
-
-
- 
-  const addMedicationMutation = useMutation({
-    mutationFn: async (payload) => {
-      await AxiosUserInstance.post("/Nurse/Medicine/Medication", payload);
-    },
-    onSuccess: async () => {
-      setSnackbar({
-        open: true,
-        severity: "success",
-        message: "تم تسجيل الجرعة بنجاح",
-      });
-
-
-      // تحديث أي بيانات مرتبطة إذا عندك صفحة عرض
-      await queryClient.invalidateQueries({ queryKey: ["elderlyMedicines"] });
-
-
-      reset({
-        elderlyId: "",
-        drugPlanId: "",
-        dateTime: "",
-        dose: "",
-      });
-    },
-    onError: (err) => {
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: err?.response?.data?.message || "حدث خطأ أثناء تسجيل الجرعة",
-      });
-    },
-  });
+  }, [selectedElderlyId, reset, clearErrors]);
 
 
   const onSubmit = async (data) => {
-    // validations بسيطة قبل الإرسال
     if (!data.elderlyId) {
       setError("elderlyId", { type: "manual", message: "يرجى اختيار المسنة." });
       return;
@@ -277,6 +241,8 @@ export default function AddMediciation() {
       });
       return;
     }
+
+
     const dose = normalizeText(data.dose);
     if (!dose) {
       setError("dose", { type: "manual", message: "الجرعة مطلوبة." });
@@ -285,6 +251,7 @@ export default function AddMediciation() {
 
 
     clearErrors();
+    setLoading(true);
 
 
     const payload = {
@@ -294,16 +261,36 @@ export default function AddMediciation() {
     };
 
 
-    addMedicationMutation.mutate(payload);
+    try {
+      await AxiosUserInstance.post("/Nurse/Medicine/Medication", payload);
+
+
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "تم تسجيل الجرعة بنجاح",
+      });
+
+
+      reset({
+        elderlyId: "",
+        drugPlanId: "",
+        dateTime: "",
+        dose: "",
+      });
+
+
+      setMedicineOptions([]);
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: err?.response?.data?.message || "حدث خطأ أثناء تسجيل الجرعة",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-
-
-  const loadingElderlies = elderliesQuery.isLoading;
-  const elderliesError = elderliesQuery.isError;
-
-
-  const loadingMedicines = medicinesQuery.isLoading;
-  const medicinesError = medicinesQuery.isError;
 
 
   return (
@@ -326,7 +313,6 @@ export default function AddMediciation() {
           alignItems: "center",
         }}
       >
-        {/* Header */}
         <Card sx={{ ...headerCardStyles, width: "100%" }}>
           <CardContent
             sx={{
@@ -392,7 +378,6 @@ export default function AddMediciation() {
         </Card>
 
 
-        {/* Form */}
         <Paper elevation={0} sx={{ ...paperStyle, mx: "auto" }}>
           <Typography
             variant="h5"
@@ -413,7 +398,6 @@ export default function AddMediciation() {
           </Typography>
 
 
-          {/* Loading states */}
           {loadingElderlies && (
             <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
               <CircularProgress size={24} />
@@ -426,39 +410,21 @@ export default function AddMediciation() {
               <Typography color="error" sx={{ fontWeight: 800 }}>
                 تعذر تحميل قائمة المسنين
               </Typography>
-              <Button
-                type="button"
-                variant="outlined"
-                onClick={() => elderliesQuery.refetch()}
-                sx={{ mt: 1, borderRadius: 3 }}
-              >
-                إعادة المحاولة
-              </Button>
             </Box>
           )}
 
 
-          {/* Medicines errors */}
           {selectedElderlyId && medicinesError && (
             <Box sx={{ textAlign: "center", mb: 2 }}>
               <Typography color="error" sx={{ fontWeight: 800 }}>
                 تعذر تحميل أدوية المسنة
               </Typography>
-              <Button
-                type="button"
-                variant="outlined"
-                onClick={() => medicinesQuery.refetch()}
-                sx={{ mt: 1, borderRadius: 3 }}
-              >
-                إعادة المحاولة
-              </Button>
             </Box>
           )}
 
 
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={2.5}>
-              {/* Elderly */}
               <Grid size={{ xs: 12 }}>
                 <Controller
                   name="elderlyId"
@@ -497,7 +463,6 @@ export default function AddMediciation() {
               </Grid>
 
 
-              {/* Medicine for selected elderly */}
               <Grid size={{ xs: 12 }}>
                 <Controller
                   name="drugPlanId"
@@ -544,7 +509,8 @@ export default function AddMediciation() {
                   )}
                 />
               </Grid>
-              {/* Dose */}
+
+
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
@@ -570,7 +536,7 @@ export default function AddMediciation() {
               variant="contained"
               fullWidth
               disabled={
-                addMedicationMutation.isPending ||
+                loading ||
                 loadingElderlies ||
                 elderliesError ||
                 (selectedElderlyId && medicinesError)
@@ -578,9 +544,7 @@ export default function AddMediciation() {
               sx={buttonStyle}
               startIcon={<MedicationOutlinedIcon />}
             >
-              {addMedicationMutation.isPending
-                ? "جارٍ الحفظ..."
-                : "تسجيل الجرعة"}
+              {loading ? "جارٍ الحفظ..." : "تسجيل الجرعة"}
             </Button>
           </Box>
         </Paper>
@@ -606,6 +570,4 @@ export default function AddMediciation() {
     </Box>
   );
 }
-
-
 

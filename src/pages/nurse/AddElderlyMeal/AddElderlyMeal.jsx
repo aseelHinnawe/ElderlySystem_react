@@ -1,21 +1,20 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
+  CircularProgress,
+  Grid,
   MenuItem,
   Paper,
   Snackbar,
   TextField,
   Typography,
-  CircularProgress,
-  Grid,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 
 
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
@@ -79,6 +78,11 @@ export default function AddElderlyMeal() {
 
 
   const [loading, setLoading] = useState(false);
+  const [elderlies, setElderlies] = useState([]);
+  const [loadingElderlies, setLoadingElderlies] = useState(false);
+  const [elderliesError, setElderliesError] = useState(false);
+
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     severity: "success",
@@ -116,37 +120,36 @@ export default function AddElderlyMeal() {
   };
 
 
-  // =========================
-  // ✅ Fetch Elderlies with React Query (same style you requested)
-  // =========================
-  const fetchElderlies = async () => {
-    const res = await AxiosUserInstance.get("/Nurse/Elderly");
-    return res?.data?.elderlies || [];
-  };
+  useEffect(() => {
+    const fetchElderlies = async () => {
+      setLoadingElderlies(true);
+      setElderliesError(false);
 
 
-  const {
-    data: elderlies = [],
-    isLoading: loadingElderlies,
-    isError: elderliesError,
-    refetch: refetchElderlies,
-  } = useQuery({
-    queryKey: ["elderliesList"],
-    queryFn: fetchElderlies,
-    staleTime: 1000 * 60 * 5,
-    retry: 1,
-    onError: (err) => {
-      if (err?.response?.status === 401) {
-        navigate("/login", { replace: true });
-        return;
+      try {
+        const res = await AxiosUserInstance.get("/Nurse/Elderly");
+        setElderlies(res?.data?.elderlies || []);
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+
+        setElderliesError(true);
+        setSnackbar({
+          open: true,
+          severity: "error",
+          message: "تعذر تحميل قائمة المسنين",
+        });
+      } finally {
+        setLoadingElderlies(false);
       }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: "تعذر تحميل قائمة المسنين",
-      });
-    },
-  });
+    };
+
+
+    fetchElderlies();
+  }, [navigate]);
 
 
   const selectedElderlyId = watch("elderlyId");
@@ -158,12 +161,40 @@ export default function AddElderlyMeal() {
   }, [elderlies, selectedElderlyId]);
 
 
+  const retryFetchElderlies = async () => {
+    setLoadingElderlies(true);
+    setElderliesError(false);
+
+
+    try {
+      const res = await AxiosUserInstance.get("/Nurse/Elderly");
+      setElderlies(res?.data?.elderlies || []);
+    } catch (err) {
+      if (err?.response?.status === 401) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+
+      setElderliesError(true);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: "تعذر تحميل قائمة المسنين",
+      });
+    } finally {
+      setLoadingElderlies(false);
+    }
+  };
+
+
   const onSubmit = async (data) => {
-    // basic front validations (simple & friendly)
     if (!data.elderlyId) {
       setError("elderlyId", { type: "manual", message: "يرجى اختيار المسن." });
       return;
     }
+
+
     if (!data.date) {
       setError("date", { type: "manual", message: "التاريخ مطلوب." });
       return;
@@ -186,10 +217,14 @@ export default function AddElderlyMeal() {
       });
       return;
     }
+
+
     if (!payload.lunch) {
       setError("lunch", { type: "manual", message: "تفاصيل الغداء مطلوبة." });
       return;
     }
+
+
     if (!payload.dinner) {
       setError("dinner", { type: "manual", message: "تفاصيل العشاء مطلوبة." });
       return;
@@ -250,7 +285,6 @@ export default function AddElderlyMeal() {
           alignItems: "center",
         }}
       >
-        {/* Header */}
         <Card sx={{ ...headerCardStyles, width: "100%" }}>
           <CardContent
             sx={{
@@ -316,7 +350,6 @@ export default function AddElderlyMeal() {
         </Card>
 
 
-        {/* Form */}
         <Paper elevation={0} sx={{ ...paperStyle, mx: "auto" }}>
           <Typography
             variant="h5"
@@ -337,7 +370,6 @@ export default function AddElderlyMeal() {
           </Typography>
 
 
-          {/* Elderlies load states */}
           {loadingElderlies && (
             <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
               <CircularProgress size={24} />
@@ -353,7 +385,7 @@ export default function AddElderlyMeal() {
               <Button
                 type="button"
                 variant="outlined"
-                onClick={() => refetchElderlies()}
+                onClick={retryFetchElderlies}
                 sx={{ mt: 1, borderRadius: 3 }}
               >
                 إعادة المحاولة
@@ -405,7 +437,6 @@ export default function AddElderlyMeal() {
               </Grid>
 
 
-              {/* Date */}
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
@@ -420,12 +451,11 @@ export default function AddElderlyMeal() {
               </Grid>
 
 
-              {/* Breakfast */}
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   label="تفاصيل الفطور"
-                  placeholder="مثال: عجة + جبنة "
+                  placeholder="مثال: عجة + جبنة"
                   {...register("breakfast")}
                   error={!!errors.breakfast}
                   helperText={errors.breakfast?.message}
@@ -438,23 +468,10 @@ export default function AddElderlyMeal() {
                       textAlign: "right",
                     },
                   }}
-                  InputProps={{
-                    startAdornment: (
-                      <Box
-                        sx={{
-                          pr: 1,
-                          display: "flex",
-                          alignItems: "center",
-                          opacity: 0.8,
-                        }}
-                      ></Box>
-                    ),
-                  }}
                 />
               </Grid>
 
 
-              {/* Lunch */}
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
@@ -472,23 +489,10 @@ export default function AddElderlyMeal() {
                       textAlign: "right",
                     },
                   }}
-                  InputProps={{
-                    startAdornment: (
-                      <Box
-                        sx={{
-                          pr: 1,
-                          display: "flex",
-                          alignItems: "center",
-                          opacity: 0.8,
-                        }}
-                      ></Box>
-                    ),
-                  }}
                 />
               </Grid>
 
 
-              {/* Dinner */}
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
@@ -505,18 +509,6 @@ export default function AddElderlyMeal() {
                       direction: "rtl",
                       textAlign: "right",
                     },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <Box
-                        sx={{
-                          pr: 1,
-                          display: "flex",
-                          alignItems: "center",
-                          opacity: 0.8,
-                        }}
-                      ></Box>
-                    ),
                   }}
                 />
               </Grid>

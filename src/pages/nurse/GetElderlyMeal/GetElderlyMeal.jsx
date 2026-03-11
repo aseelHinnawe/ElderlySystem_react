@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -29,7 +29,6 @@ import {
 import { useTheme } from "@mui/material/styles";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 
 
@@ -117,6 +116,18 @@ export default function GetElderlyMeal() {
 
   const [offset, setOffset] = useState(0);
   const [elderlyId, setElderlyId] = useState("");
+
+
+  const [elderlies, setElderlies] = useState([]);
+  const [loadingElderlies, setLoadingElderlies] = useState(false);
+  const [elderliesError, setElderliesError] = useState(false);
+
+
+  const [weeklyData, setWeeklyData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     severity: "success",
@@ -130,67 +141,98 @@ export default function GetElderlyMeal() {
   };
 
 
-  const fetchElderlies = async () => {
-    const res = await AxiosUserInstance.get("/Nurse/Elderly");
-    return res?.data?.elderlies || [];
-  };
+  const fetchElderlies = useCallback(async () => {
+    setLoadingElderlies(true);
+    setElderliesError(false);
 
 
-  const {
-    data: elderlies = [],
-    isLoading: loadingElderlies,
-    isError: elderliesError,
-    refetch: refetchElderlies,
-  } = useQuery({
-    queryKey: ["elderliesList"],
-    queryFn: fetchElderlies,
-    staleTime: 1000 * 60 * 5,
-    retry: 1,
-    onError: (err) => {
+    try {
+      const res = await AxiosUserInstance.get("/Nurse/Elderly");
+      setElderlies(res?.data?.elderlies || []);
+    } catch (err) {
       if (err?.response?.status === 401) {
         navigate("/login", { replace: true });
         return;
       }
+
+
+      setElderliesError(true);
       setSnackbar({
         open: true,
         severity: "error",
         message: "تعذر تحميل قائمة المسنين",
       });
-    },
-  });
+      setElderlies([]);
+    } finally {
+      setLoadingElderlies(false);
+    }
+  }, [navigate]);
 
 
-  // ===== 2) Get weekly meals for selected elderly =====
-  const fetchWeeklyMeals = async () => {
-    const res = await AxiosUserInstance.get("/Nurse/ElderMeal/weekly", {
-      params: { offset, elderlyId: Number(elderlyId) },
-    });
-    return res?.data?.data; // { dates:[], rows:[{ elderlyId, elderlyName, days: {date:{breakfast,lunch,dinner}}}] }
-  };
-
-
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["elderMealWeekly", offset, elderlyId],
-    queryFn: fetchWeeklyMeals,
-    enabled: !!elderlyId, // ✅ لا تجيب بيانات قبل اختيار المسن
-    staleTime: 1000 * 30,
-    retry: 1,
-    onError: (err) => {
-      if (err?.response?.status === 401) {
-        navigate("/login", { replace: true });
+  const fetchWeeklyMeals = useCallback(
+    async (selectedOffset = offset, selectedElderlyId = elderlyId) => {
+      if (!selectedElderlyId) {
+        setWeeklyData(null);
+        setIsError(false);
         return;
       }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: err?.response?.data?.message || "حدث خطأ أثناء جلب الوجبات",
-      });
+
+
+      setIsLoading(true);
+      setIsError(false);
+
+
+      try {
+        const res = await AxiosUserInstance.get("/Nurse/ElderMeal/weekly", {
+          params: {
+            offset: selectedOffset,
+            elderlyId: Number(selectedElderlyId),
+          },
+        });
+
+
+        setWeeklyData(res?.data?.data || null);
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+
+        setIsError(true);
+        setSnackbar({
+          open: true,
+          severity: "error",
+          message: err?.response?.data?.message || "حدث خطأ أثناء جلب الوجبات",
+        });
+        setWeeklyData(null);
+      } finally {
+        setIsLoading(false);
+      }
     },
-  });
+    [offset, elderlyId, navigate],
+  );
 
 
-  const dates = data?.dates || [];
-  const row = data?.rows?.[0];
+  useEffect(() => {
+    fetchElderlies();
+  }, [fetchElderlies]);
+
+
+  useEffect(() => {
+    if (!elderlyId) {
+      setWeeklyData(null);
+      setIsError(false);
+      return;
+    }
+
+
+    fetchWeeklyMeals(offset, elderlyId);
+  }, [offset, elderlyId, fetchWeeklyMeals]);
+
+
+  const dates = weeklyData?.dates || [];
+  const row = weeklyData?.rows?.[0];
   const daysMap = row?.days || {};
 
 
@@ -199,9 +241,12 @@ export default function GetElderlyMeal() {
   const onCurrentWeek = () => setOffset(0);
 
 
-  const selectedName =
-    elderlies.find((e) => String(e.elderlyId) === String(elderlyId))?.name ||
-    "";
+  const selectedName = useMemo(() => {
+    return (
+      elderlies.find((e) => String(e.elderlyId) === String(elderlyId))?.name ||
+      ""
+    );
+  }, [elderlies, elderlyId]);
 
 
   return (
@@ -217,7 +262,6 @@ export default function GetElderlyMeal() {
       }}
     >
       <Box sx={{ width: "100%", maxWidth: 1200 }}>
-        {/* Header */}
         <Card sx={{ ...headerCardStyles, width: "100%" }}>
           <CardContent
             sx={{
@@ -318,7 +362,7 @@ export default function GetElderlyMeal() {
                   <Button
                     type="button"
                     variant="outlined"
-                    onClick={() => refetchElderlies()}
+                    onClick={fetchElderlies}
                     sx={{ mt: 1, borderRadius: 3 }}
                   >
                     إعادة المحاولة
@@ -343,7 +387,6 @@ export default function GetElderlyMeal() {
           </Grid>
 
 
-          {/* Buttons (same idea as shifts) */}
           <Grid container spacing={1.5} alignItems="center">
             <Grid size={{ xs: 12, md: 4 }}>
               <Button
@@ -393,7 +436,6 @@ export default function GetElderlyMeal() {
           </Grid>
 
 
-          {/* If not selected */}
           {!elderlyId && (
             <Typography
               sx={{
@@ -408,7 +450,6 @@ export default function GetElderlyMeal() {
           )}
 
 
-          {/* Loading / Error */}
           {elderlyId && isLoading && (
             <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
               <CircularProgress />
@@ -422,7 +463,7 @@ export default function GetElderlyMeal() {
                 فشل تحميل جدول الوجبات
               </Typography>
               <Button
-                onClick={() => refetch()}
+                onClick={() => fetchWeeklyMeals(offset, elderlyId)}
                 variant="outlined"
                 sx={{ mt: 1, borderRadius: 3 }}
               >
@@ -432,10 +473,8 @@ export default function GetElderlyMeal() {
           )}
 
 
-          {/* Table / Mobile View */}
           {elderlyId && !isLoading && !isError && (
             <>
-              {/* ===== Desktop: same concept as shifts (dates columns) ===== */}
               {!isMobile && (
                 <TableContainer
                   sx={{
@@ -450,9 +489,9 @@ export default function GetElderlyMeal() {
                     stickyHeader
                     size="small"
                     sx={{
-  tableLayout: "fixed",
-  width: "100%",
-}}
+                      tableLayout: "fixed",
+                      width: "100%",
+                    }}
                   >
                     <TableHead>
                       <TableRow>
@@ -460,7 +499,6 @@ export default function GetElderlyMeal() {
                           sx={{
                             fontWeight: 900,
                             background: "rgba(106,106,87,0.18)",
-                           
                           }}
                         >
                           الوجبة
@@ -474,7 +512,6 @@ export default function GetElderlyMeal() {
                             sx={{
                               fontWeight: 900,
                               background: "rgba(106,106,87,0.18)",
-                              
                             }}
                           >
                             <Typography sx={{ fontWeight: 900, fontSize: 13 }}>
@@ -498,7 +535,6 @@ export default function GetElderlyMeal() {
                         </TableRow>
                       ) : (
                         <>
-                          {/* Breakfast row */}
                           <TableRow hover>
                             <TableCell
                               sx={{
@@ -521,7 +557,6 @@ export default function GetElderlyMeal() {
                           </TableRow>
 
 
-                          {/* Lunch row */}
                           <TableRow hover>
                             <TableCell
                               sx={{
@@ -544,7 +579,6 @@ export default function GetElderlyMeal() {
                           </TableRow>
 
 
-                          {/* Dinner row */}
                           <TableRow hover>
                             <TableCell
                               sx={{
@@ -573,7 +607,6 @@ export default function GetElderlyMeal() {
               )}
 
 
-              {/* ===== Mobile: accordion per day ===== */}
               {isMobile && (
                 <Box>
                   {dates.map((d) => {
@@ -709,6 +742,4 @@ export default function GetElderlyMeal() {
     </Box>
   );
 }
-
-
 

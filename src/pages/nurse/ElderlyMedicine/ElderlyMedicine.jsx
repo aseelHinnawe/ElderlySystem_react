@@ -27,7 +27,6 @@ import {
   DialogActions,
 } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosUserInstance from "../../../api/AxiosUserInstance.jsx";
 import {
   Accordion,
@@ -35,6 +34,7 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 
 import MedicationOutlinedIcon from "@mui/icons-material/MedicationOutlined";
 import LocalPharmacyOutlinedIcon from "@mui/icons-material/LocalPharmacyOutlined";
@@ -118,29 +118,39 @@ const detailBoxSx = {
 
 // ====== helpers for edit ======
 const normalizeText = (v) => (typeof v === "string" ? v.trim() : "");
+
+
 const timeToHHmmss = (t) => {
   const v = normalizeText(t);
   if (!v) return "";
-  if (v.length === 5) return `${v}:00`; // "HH:mm" -> "HH:mm:00"
-  return v; // "HH:mm:ss"
+  if (v.length === 5) return `${v}:00`;
+  return v;
 };
+
+
 const parseDateToInput = (dateStr) => {
-  // supports: "yyyy-MM-dd" OR "dd/MM/yyyy"
   const s = normalizeText(dateStr);
   if (!s) return "";
   if (s.includes("-") && s.length >= 10) return s.slice(0, 10);
   if (s.includes("/")) {
     const [dd, mm, yyyy] = s.split("/");
-    if (yyyy && mm && dd)
+    if (yyyy && mm && dd) {
       return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+    }
   }
   return "";
 };
 
 
+const parseTimeToInput = (timeStr) => {
+  const s = normalizeText(timeStr);
+  if (!s) return "";
+  return s.length >= 5 ? s.slice(0, 5) : s;
+};
+
+
 export default function ElderlyMedicine() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const queryClient = useQueryClient();
 
 
   const elderlyIdFromUrl = useMemo(
@@ -162,12 +172,33 @@ export default function ElderlyMedicine() {
   const [giveFilter, setGiveFilter] = useState("active");
 
 
+  // lists/state
+  const [elderlies, setElderlies] = useState([]);
+  const [plans, setPlans] = useState([]);
+
+
+  const [elderliesLoading, setElderliesLoading] = useState(false);
+  const [plansLoading, setPlansLoading] = useState(false);
+
+
+  const [elderliesErr, setElderliesErr] = useState("");
+  const [plansErr, setPlansErr] = useState("");
+
+
+  // saving states
+  const [savingQtyPlanId, setSavingQtyPlanId] = useState(null);
+  const [savingGivePlanId, setSavingGivePlanId] = useState(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+
+
   // snackbar
   const [snackbar, setSnackbar] = useState({
     open: false,
     severity: "success",
     message: "",
   });
+
+
   const closeSnackbar = (_, reason) => {
     if (reason === "clickaway") return;
     setSnackbar((s) => ({ ...s, open: false }));
@@ -200,7 +231,7 @@ export default function ElderlyMedicine() {
     const rowTimes = Array.isArray(row?.times) ? row.times : [];
     const initialTimes = Array.from(
       { length: di },
-      (_, i) => rowTimes[i] || "",
+      (_, i) => parseTimeToInput(rowTimes[i] || ""),
     );
 
 
@@ -227,15 +258,18 @@ export default function ElderlyMedicine() {
   // keep times length synced with dailyIntake in edit dialog
   useEffect(() => {
     if (!editDialogOpen) return;
+
+
     const di = Number(editForm.dailyIntake) || 1;
     setEditForm((prev) => {
       const curr = Array.isArray(prev.times) ? prev.times : [];
       if (curr.length === di) return prev;
-      if (curr.length < di)
+      if (curr.length < di) {
         return {
           ...prev,
           times: [...curr, ...Array(di - curr.length).fill("")],
         };
+      }
       return { ...prev, times: curr.slice(0, di) };
     });
   }, [editDialogOpen, editForm.dailyIntake]);
@@ -321,49 +355,94 @@ export default function ElderlyMedicine() {
   };
 
 
-  // ========= Queries =========
-  const fetchElderlies = async () => {
-    const res = await AxiosUserInstance.get("/Nurse/Elderly");
-    const list = Array.isArray(res?.data?.elderlies) ? res.data.elderlies : [];
-    return list
-      .filter((x) => x?.elderlyId != null)
-      .map((x) => ({
-        id: x.elderlyId,
-        name: x.name || `مسن #${x.elderlyId}`,
-      }));
-  };
+  // ========= Fetch functions =========
+  const fetchElderlies = useCallback(async () => {
+    setElderliesLoading(true);
+    setElderliesErr("");
 
 
-  const elderliesQuery = useQuery({
-    queryKey: ["elderliesList"],
-    queryFn: fetchElderlies,
-    staleTime: REFRESH_MS,
-    retry: 1,
-    refetchOnWindowFocus: false,
-  });
+    try {
+      const res = await AxiosUserInstance.get("/Nurse/Elderly");
+      const list = Array.isArray(res?.data?.elderlies) ? res.data.elderlies : [];
 
 
-  const fetchDrugPlans = async ({ queryKey }) => {
-    const [, elderlyId] = queryKey;
-    const res = await AxiosUserInstance.get(
-      `/Nurse/Medicine/elderly/${elderlyId}/drug-plans`,
-    );
-    return Array.isArray(res?.data?.data) ? res.data.data : [];
-  };
+      const mapped = list
+        .filter((x) => x?.elderlyId != null)
+        .map((x) => ({
+          id: x.elderlyId,
+          name: x.name || `مسن #${x.elderlyId}`,
+        }));
 
 
-  const drugPlansQuery = useQuery({
-    queryKey: ["drugPlans", elderlyIdFromUrl],
-    queryFn: fetchDrugPlans,
-    enabled: !!elderlyIdFromUrl,
-    staleTime: REFRESH_MS,
-    retry: 1,
-    refetchInterval: !!elderlyIdFromUrl ? REFRESH_MS : false,
-    refetchOnWindowFocus: false,
-  });
+      setElderlies(mapped);
+    } catch (err) {
+      setElderliesErr(
+        err?.response?.data?.message ||
+          err?.message ||
+          "حدث خطأ أثناء جلب قائمة المسنين",
+      );
+      setElderlies([]);
+    } finally {
+      setElderliesLoading(false);
+    }
+  }, []);
 
 
-  const plans = drugPlansQuery.data || [];
+  const fetchDrugPlans = useCallback(async (elderlyId, showLoader = true) => {
+    if (!elderlyId) {
+      setPlans([]);
+      setPlansErr("");
+      return;
+    }
+
+
+    if (showLoader) setPlansLoading(true);
+    setPlansErr("");
+
+
+    try {
+      const res = await AxiosUserInstance.get(
+        `/Nurse/Medicine/elderly/${elderlyId}/drug-plans`,
+      );
+
+
+      setPlans(Array.isArray(res?.data?.data) ? res.data.data : []);
+    } catch (err) {
+      setPlansErr(
+        err?.response?.data?.message ||
+          err?.message ||
+          "حدث خطأ أثناء جلب خطة الأدوية",
+      );
+      setPlans([]);
+    } finally {
+      if (showLoader) setPlansLoading(false);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    fetchElderlies();
+  }, [fetchElderlies]);
+
+
+  useEffect(() => {
+    if (!elderlyIdFromUrl) {
+      setPlans([]);
+      setPlansErr("");
+      return;
+    }
+
+
+    fetchDrugPlans(elderlyIdFromUrl, true);
+
+
+    const interval = setInterval(() => {
+      fetchDrugPlans(elderlyIdFromUrl, false);
+    }, REFRESH_MS);
+
+
+    return () => clearInterval(interval);
+  }, [elderlyIdFromUrl, fetchDrugPlans]);
 
 
   // ✅ فلترة Front-end حسب حالة إعطاء الدواء
@@ -377,150 +456,94 @@ export default function ElderlyMedicine() {
   }, [plans, giveFilter]);
 
 
-  // ========= Mutations (Optimistic Updates) =========
-  const updateQtyStatusMutation = useMutation({
-    mutationFn: async ({ drugPlanId, status }) => {
+  // ========= Update functions =========
+  const handleUpdateQtyStatus = async ({ drugPlanId, status }) => {
+    const previous = plans.map((p) => ({ ...p }));
+
+
+    setSavingQtyPlanId(drugPlanId);
+    setPlans((old) =>
+      old.map((p) => (p.drugPlanId === drugPlanId ? { ...p, status } : p)),
+    );
+
+
+    try {
       await AxiosUserInstance.put(
         `/Nurse/Medicine/drug-plan/${drugPlanId}/status`,
         null,
         { params: { status } },
       );
-      return { drugPlanId, status };
-    },
-    onMutate: async ({ drugPlanId, status }) => {
-      await queryClient.cancelQueries({
-        queryKey: ["drugPlans", elderlyIdFromUrl],
-      });
 
 
-      const previous = queryClient.getQueryData([
-        "drugPlans",
-        elderlyIdFromUrl,
-      ]);
-
-
-      queryClient.setQueryData(["drugPlans", elderlyIdFromUrl], (old = []) =>
-        old.map((p) => (p.drugPlanId === drugPlanId ? { ...p, status } : p)),
-      );
-
-
-      return { previous };
-    },
-    onError: (err, _vars, ctx) => {
-      if (ctx?.previous) {
-        queryClient.setQueryData(["drugPlans", elderlyIdFromUrl], ctx.previous);
-      }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: err?.response?.data?.message || "تعذر تحديث حالة كمية الدواء",
-      });
-    },
-    onSuccess: () => {
       setSnackbar({
         open: true,
         severity: "success",
         message: "تم تحديث حالة كمية الدواء بنجاح",
       });
+
+
       setEditingQtyPlanId(null);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["drugPlans", elderlyIdFromUrl],
+    } catch (err) {
+      setPlans(previous);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: err?.response?.data?.message || "تعذر تحديث حالة كمية الدواء",
       });
-    },
-  });
+    } finally {
+      setSavingQtyPlanId(null);
+      if (elderlyIdFromUrl) {
+        fetchDrugPlans(elderlyIdFromUrl, false);
+      }
+    }
+  };
 
 
-  const updateGiveStatusMutation = useMutation({
-    mutationFn: async ({ drugPlanId, medicineStatus }) => {
+  const handleUpdateGiveStatus = async ({ drugPlanId, medicineStatus }) => {
+    const previous = plans.map((p) => ({ ...p }));
+
+
+    setSavingGivePlanId(drugPlanId);
+    setPlans((old) =>
+      old.map((p) =>
+        p.drugPlanId === drugPlanId ? { ...p, medicineStatus } : p,
+      ),
+    );
+
+
+    try {
       await AxiosUserInstance.put(
         `/Nurse/Medicine/drug-plan/${drugPlanId}/medicine-status`,
         null,
         { params: { medicineStatus } },
       );
-      return { drugPlanId, medicineStatus };
-    },
-    onMutate: async ({ drugPlanId, medicineStatus }) => {
-      await queryClient.cancelQueries({
-        queryKey: ["drugPlans", elderlyIdFromUrl],
-      });
 
 
-      const previous = queryClient.getQueryData([
-        "drugPlans",
-        elderlyIdFromUrl,
-      ]);
-
-
-      queryClient.setQueryData(["drugPlans", elderlyIdFromUrl], (old = []) =>
-        old.map((p) =>
-          p.drugPlanId === drugPlanId ? { ...p, medicineStatus } : p,
-        ),
-      );
-
-
-      return { previous };
-    },
-    onError: (err, _vars, ctx) => {
-      if (ctx?.previous) {
-        queryClient.setQueryData(["drugPlans", elderlyIdFromUrl], ctx.previous);
-      }
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: err?.response?.data?.message || "تعذر تحديث حالة إعطاء الدواء",
-      });
-    },
-    onSuccess: () => {
       setSnackbar({
         open: true,
         severity: "success",
         message: "تم تحديث حالة إعطاء الدواء بنجاح",
       });
+
+
       setEditingGivePlanId(null);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["drugPlans", elderlyIdFromUrl],
-      });
-    },
-  });
-
-
-  // ✅ Update DrugPlan API
-  const updateDrugPlanMutation = useMutation({
-    mutationFn: async ({ drugPlanId, payload }) => {
-      await AxiosUserInstance.put(
-        `/Nurse/Medicine/drug-plan/${drugPlanId}`,
-        payload,
-      );
-      return { drugPlanId };
-    },
-    onSuccess: () => {
-      setSnackbar({
-        open: true,
-        severity: "success",
-        message: "تم تعديل خطة الدواء بنجاح",
-      });
-      closeEditDialog();
-    },
-    onError: (err) => {
+    } catch (err) {
+      setPlans(previous);
       setSnackbar({
         open: true,
         severity: "error",
-        message: err?.response?.data?.message || "تعذر تعديل خطة الدواء",
+        message: err?.response?.data?.message || "تعذر تحديث حالة إعطاء الدواء",
       });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["drugPlans", elderlyIdFromUrl],
-      });
-    },
-  });
+    } finally {
+      setSavingGivePlanId(null);
+      if (elderlyIdFromUrl) {
+        fetchDrugPlans(elderlyIdFromUrl, false);
+      }
+    }
+  };
 
 
-  const submitEdit = () => {
+  const submitEdit = async () => {
     const errs = {};
 
 
@@ -541,17 +564,21 @@ export default function ElderlyMedicine() {
 
 
     const times = Array.isArray(editForm.times) ? editForm.times : [];
-    if (times.length !== di)
+    if (times.length !== di) {
       errs.times = "عدد الأوقات يجب أن يساوي عدد الجرعات اليومية";
+    }
 
 
     const cleanedTimes = times.map((t) => normalizeText(t));
-    if (cleanedTimes.some((t) => !t)) errs.times = "يرجى إدخال جميع الأوقات";
+    if (cleanedTimes.some((t) => !t)) {
+      errs.times = "يرجى إدخال جميع الأوقات";
+    }
 
 
     const unique = new Set(cleanedTimes);
-    if (unique.size !== cleanedTimes.length)
+    if (unique.size !== cleanedTimes.length) {
       errs.times = "مواعيد الجرعات تحتوي على تكرار";
+    }
 
 
     setEditErrors(errs);
@@ -562,15 +589,41 @@ export default function ElderlyMedicine() {
       startDate,
       endDate,
       dailyIntake: di,
-      notes: editForm.notes ?? "", // لو بدك تمسح الملاحظات خليه ""
+      notes: editForm.notes ?? "",
       times: cleanedTimes.map(timeToHHmmss),
     };
 
 
-    updateDrugPlanMutation.mutate({
-      drugPlanId: editRow?.drugPlanId,
-      payload,
-    });
+    setSavingEdit(true);
+    try {
+      await AxiosUserInstance.put(
+        `/Nurse/Medicine/drug-plan/${editRow?.drugPlanId}`,
+        payload,
+      );
+
+
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "تم تعديل خطة الدواء بنجاح",
+      });
+
+
+      closeEditDialog();
+
+
+      if (elderlyIdFromUrl) {
+        fetchDrugPlans(elderlyIdFromUrl, false);
+      }
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: err?.response?.data?.message || "تعذر تعديل خطة الدواء",
+      });
+    } finally {
+      setSavingEdit(false);
+    }
   };
 
 
@@ -578,9 +631,7 @@ export default function ElderlyMedicine() {
   const renderQtyStatusWithPencil = (row, size = "desktop") => {
     const planId = row?.drugPlanId;
     const s = row?.status;
-    const isSaving =
-      updateQtyStatusMutation.isPending &&
-      updateQtyStatusMutation.variables?.drugPlanId === planId;
+    const isSaving = savingQtyPlanId === planId;
 
 
     if (editingQtyPlanId === planId) {
@@ -610,7 +661,7 @@ export default function ElderlyMedicine() {
                 fontWeight: 800,
               }}
               onClick={() =>
-                updateQtyStatusMutation.mutate({
+                handleUpdateQtyStatus({
                   drugPlanId: planId,
                   status: opt,
                 })
@@ -691,9 +742,7 @@ export default function ElderlyMedicine() {
   const renderGiveStatusWithPencil = (row, size = "desktop") => {
     const planId = row?.drugPlanId;
     const giveStatus = row?.medicineStatus ?? row?.MedicineStatus;
-    const isSaving =
-      updateGiveStatusMutation.isPending &&
-      updateGiveStatusMutation.variables?.drugPlanId === planId;
+    const isSaving = savingGivePlanId === planId;
     const colors = getGiveColors(giveStatus);
 
 
@@ -726,7 +775,7 @@ export default function ElderlyMedicine() {
                 fontWeight: 800,
               }}
               onClick={() =>
-                updateGiveStatusMutation.mutate({
+                handleUpdateGiveStatus({
                   drugPlanId: planId,
                   medicineStatus: opt,
                 })
@@ -802,23 +851,6 @@ export default function ElderlyMedicine() {
       </Box>
     );
   };
-
-
-  // ========= states for UI =========
-  const elderliesLoading = elderliesQuery.isLoading;
-  const elderliesErr = elderliesQuery.isError
-    ? elderliesQuery.error?.response?.data?.message ||
-      elderliesQuery.error?.message ||
-      "حدث خطأ أثناء جلب قائمة المسنين"
-    : "";
-
-
-  const plansLoading = drugPlansQuery.isLoading;
-  const plansErr = drugPlansQuery.isError
-    ? drugPlansQuery.error?.response?.data?.message ||
-      drugPlansQuery.error?.message ||
-      "حدث خطأ أثناء جلب خطة الأدوية"
-    : "";
 
 
   return (
@@ -930,7 +962,7 @@ export default function ElderlyMedicine() {
               </MenuItem>
 
 
-              {(elderliesQuery.data || []).map((elderly) => (
+              {elderlies.map((elderly) => (
                 <MenuItem key={elderly.id} value={elderly.id}>
                   {elderly.name}
                 </MenuItem>
@@ -1192,7 +1224,6 @@ export default function ElderlyMedicine() {
                                     </Box>
 
 
-                                    {/* ✅ Edit button */}
                                     <Box
                                       sx={{
                                         display: "flex",
@@ -1339,123 +1370,124 @@ export default function ElderlyMedicine() {
                   </Box>
 
 
-             <Accordion
-  disableGutters
-  elevation={0}
-  sx={{
-    borderRadius: 3,
-    background: "#f8f8f4",
-    border: "1px solid rgba(106,106,87,0.15)",
-    "&:before": { display: "none" },
-    mt: 1,
-  }}
->
- <AccordionSummary
-  expandIcon={<ExpandMoreIcon />}
-  sx={{
-    px: 2,
-    minHeight: 48,
-    "& .MuiAccordionSummary-content": {
-      margin: "8px 0",
-      justifyContent: "center",   // يخلي النص بالنص أفقياً
-    },
-  }}
->
-  <Typography
-    sx={{
-      fontWeight: 900,
-      fontSize: 14,
-      textAlign: "center",        // تأكيد توسيط النص
-      width: "100%",
-    }}
-  >
-    عرض التفاصيل/تعديل
-  </Typography>
-</AccordionSummary>
+                  <Accordion
+                    disableGutters
+                    elevation={0}
+                    sx={{
+                      borderRadius: 3,
+                      background: "#f8f8f4",
+                      border: "1px solid rgba(106,106,87,0.15)",
+                      "&:before": { display: "none" },
+                      mt: 1,
+                    }}
+                  >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      sx={{
+                        px: 2,
+                        minHeight: 48,
+                        "& .MuiAccordionSummary-content": {
+                          margin: "8px 0",
+                          justifyContent: "center",
+                        },
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 900,
+                          fontSize: 14,
+                          textAlign: "center",
+                          width: "100%",
+                        }}
+                      >
+                        عرض التفاصيل/تعديل
+                      </Typography>
+                    </AccordionSummary>
 
-  <AccordionDetails sx={{ px: 2, pb: 2 }}>
 
-    {/* ===== الأوقات ===== */}
-    <Box sx={{ ...detailBoxSx, alignItems: "center", mb: 1.5 }}>
-      <Typography
-        sx={{ fontSize: 14, mb: 1, color: "text.secondary" }}
-      >
-        الأوقات
-      </Typography>
+                    <AccordionDetails sx={{ px: 2, pb: 2 }}>
+                      <Box sx={{ ...detailBoxSx, alignItems: "center", mb: 1.5 }}>
+                        <Typography
+                          sx={{ fontSize: 14, mb: 1, color: "text.secondary" }}
+                        >
+                          الأوقات
+                        </Typography>
 
-      {Array.isArray(row?.times) && row.times.length > 0 ? (
-        <Stack
-          direction="row"
-          gap={1}
-          flexWrap="wrap"
-          justifyContent="center"
-        >
-          {row.times.map((t, i) => (
-            <Chip
-              key={i}
-              label={formatTimeWithPeriod(t)}
-              size="small"
-            />
-          ))}
-        </Stack>
-      ) : (
-        <Typography sx={{ fontWeight: 800, color: "#2f2f27" }}>
-          -
-        </Typography>
-      )}
-    </Box>
 
-    {/* ===== الملاحظات ===== */}
-    <Box
-      sx={{
-        ...detailBoxSx,
-        alignItems: "flex-start",
-        textAlign: "right",
-        mb: 1.5,
-      }}
-    >
-      <Typography
-        sx={{ fontSize: 14, mb: 0.8, color: "text.secondary" }}
-      >
-        ملاحظات
-      </Typography>
+                        {Array.isArray(row?.times) && row.times.length > 0 ? (
+                          <Stack
+                            direction="row"
+                            gap={1}
+                            flexWrap="wrap"
+                            justifyContent="center"
+                          >
+                            {row.times.map((t, i) => (
+                              <Chip
+                                key={i}
+                                label={formatTimeWithPeriod(t)}
+                                size="small"
+                              />
+                            ))}
+                          </Stack>
+                        ) : (
+                          <Typography sx={{ fontWeight: 800, color: "#2f2f27" }}>
+                            -
+                          </Typography>
+                        )}
+                      </Box>
 
-      <Typography
-        sx={{
-          fontWeight: 800,
-          color: "#2f2f27",
-          whiteSpace: "pre-wrap",
-          width: "100%",
-        }}
-      >
-        {row?.notes ?? "-"}
-      </Typography>
-    </Box>
 
-    {/* ===== زر التعديل ===== */}
-    <Button
-      fullWidth
-      variant="outlined"
-      startIcon={<EditOutlinedIcon />}
-      onClick={() => openEditDialog(row)}
-      sx={{
-        borderRadius: 3,
-        textTransform: "none",
-        fontWeight: 900,
-        color: "#6a6a57",
-        borderColor: "rgba(106,106,87,0.35)",
-        backgroundColor: "#fff",
-        "&:hover": {
-          borderColor: "#6a6a57",
-          backgroundColor: "rgba(106,106,87,0.06)",
-        },
-        gap: 1,
-      }}
-    >
-      تعديل الخطة
-    </Button>
-  </AccordionDetails>
-</Accordion>
+                      <Box
+                        sx={{
+                          ...detailBoxSx,
+                          alignItems: "flex-start",
+                          textAlign: "right",
+                          mb: 1.5,
+                        }}
+                      >
+                        <Typography
+                          sx={{ fontSize: 14, mb: 0.8, color: "text.secondary" }}
+                        >
+                          ملاحظات
+                        </Typography>
+
+
+                        <Typography
+                          sx={{
+                            fontWeight: 800,
+                            color: "#2f2f27",
+                            whiteSpace: "pre-wrap",
+                            width: "100%",
+                          }}
+                        >
+                          {row?.notes ?? "-"}
+                        </Typography>
+                      </Box>
+
+
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        startIcon={<EditOutlinedIcon />}
+                        onClick={() => openEditDialog(row)}
+                        sx={{
+                          borderRadius: 3,
+                          textTransform: "none",
+                          fontWeight: 900,
+                          color: "#6a6a57",
+                          borderColor: "rgba(106,106,87,0.35)",
+                          backgroundColor: "#fff",
+                          "&:hover": {
+                            borderColor: "#6a6a57",
+                            backgroundColor: "rgba(106,106,87,0.06)",
+                          },
+                          gap: 1,
+                        }}
+                      >
+                        تعديل الخطة
+                      </Button>
+                    </AccordionDetails>
+                  </Accordion>
                 </CardContent>
               </Card>
             ))}
@@ -1467,7 +1499,7 @@ export default function ElderlyMedicine() {
       {/* ===== Edit Dialog ===== */}
       <Dialog
         open={editDialogOpen}
-        onClose={updateDrugPlanMutation.isPending ? undefined : closeEditDialog}
+        onClose={savingEdit ? undefined : closeEditDialog}
         fullWidth
         maxWidth="sm"
       >
@@ -1606,7 +1638,7 @@ export default function ElderlyMedicine() {
         <DialogActions sx={{ direction: "rtl", px: 3, pb: 2, gap: 1 }}>
           <Button
             onClick={closeEditDialog}
-            disabled={updateDrugPlanMutation.isPending}
+            disabled={savingEdit}
             variant="outlined"
             color="error"
             sx={{ borderRadius: 2, fontWeight: 900 }}
@@ -1617,7 +1649,7 @@ export default function ElderlyMedicine() {
 
           <Button
             onClick={submitEdit}
-            disabled={updateDrugPlanMutation.isPending}
+            disabled={savingEdit}
             variant="contained"
             sx={{
               borderRadius: 2,
@@ -1625,7 +1657,7 @@ export default function ElderlyMedicine() {
               background: "linear-gradient(135deg, #6a6a57, #8a8a76)",
             }}
           >
-            {updateDrugPlanMutation.isPending ? "جارٍ الحفظ..." : "حفظ التعديل"}
+            {savingEdit ? "جارٍ الحفظ..." : "حفظ التعديل"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1650,6 +1682,4 @@ export default function ElderlyMedicine() {
     </Box>
   );
 }
-
-
 
