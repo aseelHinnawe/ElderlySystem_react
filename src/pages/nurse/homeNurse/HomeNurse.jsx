@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -29,11 +28,7 @@ import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 
 
-
-
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
-
-
 
 
 // ✅ Theme palette (colors only)
@@ -53,8 +48,6 @@ const COLORS = {
 };
 
 
-
-
 const arabicDayName = (date) => {
   const names = [
     "الأحد",
@@ -67,8 +60,6 @@ const arabicDayName = (date) => {
   ];
   return names[date.getDay()];
 };
-
-
 
 
 const shiftLabel = (k) => {
@@ -116,8 +107,6 @@ const StatCard = ({ icon, title, value, subtitle }) => {
           </Stack>
 
 
-
-
           <Box
             sx={{
               width: 44,
@@ -139,8 +128,6 @@ const StatCard = ({ icon, title, value, subtitle }) => {
 };
 
 
-
-
 const SectionCard = ({ title, icon, right, children, sx: sxProp }) => {
   return (
     <Card
@@ -150,9 +137,9 @@ const SectionCard = ({ title, icon, right, children, sx: sxProp }) => {
         border: `1px solid ${COLORS.border}`,
         overflow: "hidden",
         backgroundColor: COLORS.surface,
-        display: "flex",         // ← إضافة flex
+        display: "flex", // ← إضافة flex
         flexDirection: "column", // ← عمودي
-        ...sxProp,               // ← دمج أي sx من الخارج
+        ...sxProp, // ← دمج أي sx من الخارج
       }}
     >
       <Box sx={{ px: 2, py: 1.5, bgcolor: COLORS.soft2 }}>
@@ -171,14 +158,14 @@ const SectionCard = ({ title, icon, right, children, sx: sxProp }) => {
         </Stack>
       </Box>
       <Divider />
-      <CardContent sx={{ p: 2, flexGrow: 1 }}> {/* <- flexGrow يجعل المحتوى يتمدد */}
+      <CardContent sx={{ p: 2, flexGrow: 1 }}>
+        {" "}
+        {/* <- flexGrow يجعل المحتوى يتمدد */}
         {children}
       </CardContent>
     </Card>
   );
 };
-
-
 
 
 export default function HomeNurse() {
@@ -187,25 +174,17 @@ export default function HomeNurse() {
   const [data, setData] = useState(null);
 
 
-
-
   const fetchHome = useCallback(async () => {
     setLoading(true);
     setErr("");
-
-
 
 
     try {
       const res = await AxiosUserInstance.get("/Nurse/Nurse/home");
 
 
-
-
       const payload = res?.data?.data;
       if (!payload) throw new Error("Invalid response shape");
-
-
 
 
       setData(payload);
@@ -221,13 +200,9 @@ export default function HomeNurse() {
   }, []);
 
 
-
-
   useEffect(() => {
     fetchHome();
   }, [fetchHome]);
-
-
 
 
   const todayKey = useMemo(() => {
@@ -253,8 +228,6 @@ export default function HomeNurse() {
     overdueCount + expiringCount + stockCount + dueSoonCount;
 
 
-
-
   if (loading) {
     return (
       <Box sx={{ p: 3, display: "grid", placeItems: "center", minHeight: 420 }}>
@@ -267,8 +240,6 @@ export default function HomeNurse() {
       </Box>
     );
   }
-
-
 
 
   if (err) {
@@ -296,8 +267,6 @@ export default function HomeNurse() {
       </Box>
     );
   }
-
-
 
 
   return (
@@ -341,8 +310,6 @@ export default function HomeNurse() {
       </Paper>
 
 
-
-
       {/* Stats */}
       <Grid container spacing={2} sx={{ mb: 2.5 }}>
         <Grid size={{ xs: 12, md: 6 }}>
@@ -352,8 +319,6 @@ export default function HomeNurse() {
             value={data?.activeElderliesCount ?? 0}
           />
         </Grid>
-
-
 
 
         <Grid size={{ xs: 12, md: 6 }}>
@@ -368,9 +333,7 @@ export default function HomeNurse() {
       </Grid>
 
 
-
-
-      <Grid container spacing={2} >
+      <Grid container spacing={2}>
         {/* Weekly Shift */}
         <Grid size={{ xs: 12, lg: 8 }}>
           <SectionCard
@@ -400,16 +363,12 @@ export default function HomeNurse() {
                   const val = weeklyDays?.[k] ?? "-";
 
 
-
-
                   const nice = `${arabicDayName(dt)} • ${String(
                     dt.getDate(),
                   ).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(
                     2,
                     "0",
                   )}`;
-
-
 
 
                   return (
@@ -431,8 +390,6 @@ export default function HomeNurse() {
                         >
                           {nice}
                         </Typography>
-
-
 
 
                         <Stack
@@ -460,15 +417,15 @@ export default function HomeNurse() {
                 })}
               </Grid>
             )}
-          </SectionCard>    
+          </SectionCard>
         </Grid>
 
 
         {/* Team Today */}
         <Grid size={{ xs: 12, lg: 4 }}>
           <SectionCard
-            title="أسماء الممرضات بنفس شفت اليوم"
-            icon={<GroupOutlinedIcon sx={{ color: COLORS.main }} />}  
+            title="أسماء الممرضات في شفت اليوم"
+            icon={<GroupOutlinedIcon sx={{ color: COLORS.main }} />}
             sx={{ height: "100%" }}
           >
             {!data?.todayTeam?.length ? (
@@ -483,145 +440,162 @@ export default function HomeNurse() {
                   "& .MuiAlert-message": { width: "100%", textAlign: "center" },
                 }}
               >
-                لا يوجد فريق شفت اليوم أو لم يتم تعيين شفت لك اليوم.
+                لا يوجد ممرضات مجدولات اليوم.
               </Alert>
             ) : (
-              <Stack direction="row" flexWrap="wrap" gap={1}>
-                {data.todayTeam.map((n) => (
-                  <Chip
-                    key={n.id}
-                    label={n.fullName}
-                    variant="outlined"
-                    sx={{
-                      borderRadius: 2,
-                      fontWeight: 800,
-                      borderColor: COLORS.border,
-                      bgcolor: COLORS.soft2,
-                      color: COLORS.dark,
-                    }}
-                  />
-                ))}
+              <Stack gap={2}>
+                {["A", "B", "C"]
+                  .map((shift) => ({
+                    shift,
+                    nurses: data.todayTeam.filter((n) => n.shiftKey === shift),
+                  }))
+                  .filter((group) => group.nurses.length > 0)
+                  .map((group) => (
+                    <Box key={group.shift}>
+                      <Typography
+                        sx={{
+                          fontWeight: 900,
+                          color: COLORS.main,
+                          mb: 1,
+                          fontSize: "0.95rem",
+                        }}
+                      >
+                        شفت {group.shift} :
+                      </Typography>
+
+
+                      <Stack direction="row" flexWrap="wrap" gap={1}>
+  {group.nurses.map((n) => (
+    <Chip
+      key={n.id}
+      label={n.fullName}
+      variant="outlined"
+      sx={{
+        borderRadius: 2,
+        fontWeight: 800,
+        borderColor: COLORS.border,
+        bgcolor: COLORS.soft2,
+        color: COLORS.dark,
+
+        flexBasis: "48%",   
+        justifyContent: "center"
+      }}
+    />
+  ))}
+</Stack>
+                    </Box>
+                  ))}
               </Stack>
             )}
           </SectionCard>
-     
         </Grid>
 
 
-            <Grid size={{xs:12}} sx={{ mt: 2 }}>
-            <SectionCard          
-              title="نشاطات اليوم"
-              icon={<HistoryOutlinedIcon sx={{ color: COLORS.main }} />}
-             
-              right={
-                <Chip
-                  size="small"
-                  label={`${data?.todayActivity?.length ?? 0} نشاط`}
-                  variant="outlined"
-                  sx={{
-                    borderRadius: 2,
-                    fontWeight: 900,
-                    borderColor: COLORS.border,
-                    bgcolor: COLORS.soft2,
-                    color: COLORS.dark,
-                  }}
-                />
-              }
-             
-            >
-              {!data?.todayActivity?.length ? (
-                <Alert
-               
-                  icon={false}
-                  sx={{
-                    borderRadius: 3,
-                    border: `1px solid ${COLORS.border}`,
-                    background: COLORS.soft2,
-                    color: COLORS.dark,
-                    fontWeight: 900,
-                    "& .MuiAlert-message": {
-                      width: "100%",
-                      textAlign: "center",
-                    },
-                  }}
-                >
-                  لا يوجد نشاطات مسجلة اليوم.
-                </Alert>
-              ) : (
-                <List
-               
-                  sx={{
-                    borderRadius: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    overflow: "hidden",
-                  }}
-                >
-                  {data.todayActivity.map((a, idx) => (
-                    <ListItem key={`${a.drugPlanId}-${idx}`} divider>
-                      <ListItemAvatar>
-                        <Avatar
-                          sx={{
-                            bgcolor: COLORS.soft,
-                            color: COLORS.dark,
-                            border: `1px solid ${COLORS.border}`,
-                            fontWeight: 900,
-                          }}
-                        >
-                          {(a.nurseName || "?").slice(0, 1)}
-                        </Avatar>
-                      </ListItemAvatar>
+        <Grid size={{ xs: 12 }} sx={{ mt: 2 }}>
+          <SectionCard
+            title="نشاطات اليوم"
+            icon={<HistoryOutlinedIcon sx={{ color: COLORS.main }} />}
+            right={
+              <Chip
+                size="small"
+                label={`${data?.todayActivity?.length ?? 0} نشاط`}
+                variant="outlined"
+                sx={{
+                  borderRadius: 2,
+                  fontWeight: 900,
+                  borderColor: COLORS.border,
+                  bgcolor: COLORS.soft2,
+                  color: COLORS.dark,
+                }}
+              />
+            }
+          >
+            {!data?.todayActivity?.length ? (
+              <Alert
+                icon={false}
+                sx={{
+                  borderRadius: 3,
+                  border: `1px solid ${COLORS.border}`,
+                  background: COLORS.soft2,
+                  color: COLORS.dark,
+                  fontWeight: 900,
+                  "& .MuiAlert-message": {
+                    width: "100%",
+                    textAlign: "center",
+                  },
+                }}
+              >
+                لا يوجد نشاطات مسجلة اليوم.
+              </Alert>
+            ) : (
+              <List
+                sx={{
+                  borderRadius: 3,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  overflow: "hidden",
+                }}
+              >
+                {data.todayActivity.map((a, idx) => (
+                  <ListItem key={`${a.drugPlanId}-${idx}`} divider>
+                    <ListItemAvatar>
+                      <Avatar
+                        sx={{
+                          bgcolor: COLORS.soft,
+                          color: COLORS.dark,
+                          border: `1px solid ${COLORS.border}`,
+                          fontWeight: 900,
+                        }}
+                      >
+                        {(a.nurseName || "?").slice(0, 1)}
+                      </Avatar>
+                    </ListItemAvatar>
 
 
-
-
-                      <ListItemText
-                        primary={
-                          <Stack
+                    <ListItemText
+                      primary={
+                        <Stack
                           gap={1}
-                            direction={{ xs: "column", sm: "row" }}
-                            spacing={1}
-                            alignItems={{ xs: "flex-start", sm: "center" }}
-                          >
-                            <Typography sx={{ fontWeight: 900 }}>
-                              {a.action || "تم تسجيل جرعة"}
-                            </Typography>
-                            <Chip
-                              size="small"
-                              label={a.time}
-                              variant="outlined"
-                              sx={{
-                                borderRadius: 2,
-                                borderColor: COLORS.border,
-                                bgcolor: COLORS.soft2,
-                                color: COLORS.dark,
-                                fontWeight: 900,
-                               
-                              }}
-                            />
-                          </Stack>
-                        }
-                        secondary={
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ fontWeight: 900, textAlign: "right" }}
-                          >
-                            تم إعطاء جرعة من {a.medicineName} للمسنة{" "}
-                            {a.elderlyName} بواسطة الممرضة {a.nurseName} (شفت{" "}
-                            {a.shiftKey || "-"}).
+                          direction={{ xs: "column", sm: "row" }}
+                          spacing={1}
+                          alignItems={{ xs: "flex-start", sm: "center" }}
+                        >
+                          <Typography sx={{ fontWeight: 900 }}>
+                            {a.action || "تم تسجيل جرعة"}
                           </Typography>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </SectionCard>
-          </Grid>
+                          <Chip
+                            size="small"
+                            label={a.time}
+                            variant="outlined"
+                            sx={{
+                              borderRadius: 2,
+                              borderColor: COLORS.border,
+                              bgcolor: COLORS.soft2,
+                              color: COLORS.dark,
+                              fontWeight: 900,
+                            }}
+                          />
+                        </Stack>
+                      }
+                      secondary={
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontWeight: 900, textAlign: "right" }}
+                        >
+                          تم إعطاء جرعة من {a.medicineName} للمسنة{" "}
+                          {a.elderlyName} بواسطة الممرضة {a.nurseName} (شفت{" "}
+                          {a.shiftKey || "-"}).
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </SectionCard>
+        </Grid>
       </Grid>
     </Box>
   );
 }
-
-
