@@ -113,7 +113,7 @@ function MetricCard({ label, value, icon, color, bg }) {
         <Typography
           sx={{
             fontSize: 18,
-            fontWeight: 1100,
+            fontWeight: 700,
             color,
             lineHeight: 1.2,
             wordBreak: "break-word",
@@ -333,7 +333,7 @@ export default function DailyFollow() {
 
 
               <Box>
-                <Typography sx={{ fontWeight: 1100, color: "#1f1f1a" }}>
+                <Typography sx={{ fontWeight: 700, color: "#1f1f1a" }}>
                   سجلات المتابعة
                 </Typography>
                 <Typography
@@ -375,7 +375,7 @@ export default function DailyFollow() {
                 >
                   <FactCheckRoundedIcon />
                 </Avatar>
-                <Typography sx={{ color: "#4a4a3d", fontWeight: 1000, mb: 0.5 }}>
+                <Typography sx={{ color: "#4a4a3d", fontWeight: 700, mb: 0.5 }}>
                   لا يوجد سجلات متابعة لليوم
                 </Typography>
                 <Typography sx={{ color: "#777", fontWeight: 800, fontSize: 14 }}>
@@ -417,7 +417,7 @@ export default function DailyFollow() {
                                 height: 50,
                                 bgcolor: "rgba(106,106,87,0.12)",
                                 color: "#6a6a57",
-                                fontWeight: 1000,
+                                fontWeight: 700,
                               }}
                             >
                               <PersonRoundedIcon />
@@ -427,7 +427,7 @@ export default function DailyFollow() {
                             <Box>
                               <Typography
                                 sx={{
-                                  fontWeight: 1100,
+                                  fontWeight: 700,
                                   color: "#1f1f1a",
                                   lineHeight: 1.2,
                                 }}
@@ -509,12 +509,12 @@ export default function DailyFollow() {
                               />
                               <Typography
                                 sx={{
-                                  fontWeight: 1000,
+                                  fontWeight: 700,
                                   fontSize: 13,
                                   color: "#4a4a3d",
                                 }}
                               >
-                                ملاحظات
+                                ملاحظات الممرضة
                               </Typography>
                             </Stack>
 

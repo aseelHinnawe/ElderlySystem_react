@@ -491,26 +491,7 @@ export default function MedicineStatus() {
                   </Typography>
                 </Box>
               </Box>
-
-
-              <Button
-                onClick={fetchMedicinesPage}
-                variant="outlined"
-                sx={{
-                  borderRadius: 3,
-                  textTransform: "none",
-                  fontWeight: 900,
-                  color: "#6a6a57",
-                  borderColor: "rgba(106,106,87,0.35)",
-                  backgroundColor: "#fff",
-                  "&:hover": {
-                    borderColor: "#6a6a57",
-                    backgroundColor: "rgba(106,106,87,0.06)",
-                  },
-                }}
-              >
-                تحديث
-              </Button>
+           
             </Box>
 
 
