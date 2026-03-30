@@ -115,6 +115,8 @@ export default function Login() {
           navigate("/Sponsor");
         } else if (role === "Nurse") {
           navigate("/Nurse");
+        } else if (role === "Doctor") {
+          navigate("/Doctor");
         }
       }
     } catch (err) {

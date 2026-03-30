@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 
 
+
+
 import {
   Box,
   Typography,
@@ -24,8 +26,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import BadgeIcon from "@mui/icons-material/Badge";
 import WcIcon from "@mui/icons-material/Wc";
 import GroupIcon from "@mui/icons-material/Group";
-
-
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 const userDetailsButtonStyles = {
   borderRadius: 2,
@@ -41,6 +42,8 @@ export default function UserDetail() {
     message: "",
     severity: "error",
   });
+
+
 
 
   const fetchUser = async () => {
@@ -60,9 +63,13 @@ export default function UserDetail() {
   };
 
 
+
+
   useEffect(() => {
     fetchUser();
   }, [id]);
+
+
 
 
   if (loading) {
@@ -74,10 +81,16 @@ export default function UserDetail() {
   }
 
 
+
+
   if (!user) return null;
 
 
+
+
   const isActive = user.status === "نشط";
+
+
 
 
   // ✅ الحالة الاجتماعية لا تظهر للكفيل نهائياً
@@ -87,6 +100,8 @@ export default function UserDetail() {
     { label: "المدينة", value: user.city, icon: <LocationOnIcon /> },
     { label: "رقم الهوية", value: user.nationalId, icon: <BadgeIcon /> },
     { label: "الجنس", value: user.gender, icon: <WcIcon /> },
+
+
 
 
     ...(user.roleUser !== "كفيل أول" && user.roleUser !== "كفيل ثاني"
@@ -99,8 +114,6 @@ export default function UserDetail() {
         ]
       : []),
   ];
-
-
   const nurseAcademicFields = [
     { label: "المستوى التعليمي", value: user.educationLevel },
     { label: "التخصص", value: user.fieldOfStudy },
@@ -109,6 +122,17 @@ export default function UserDetail() {
   ];
 
 
+const doctorFields = [
+  { label: "البريد الإلكتروني", value: user.email, icon: <EmailIcon /> },
+  { label: "رقم الهاتف", value: user.phoneNumber, icon: <PhoneIcon /> },
+  { label: "المدينة", value: user.city, icon: <LocationOnIcon /> },
+  { label: "الجنس", value: user.gender, icon: <WcIcon /> },
+  {
+    label: "مكان العمل الحالي",
+    value: user.currentWorkPlace || "غير متوفر",
+    icon: <LocalHospitalIcon />,
+  },
+];
   return (
     <Box
       sx={{
@@ -152,6 +176,8 @@ export default function UserDetail() {
                     </Avatar>
 
 
+
+
                     <Chip
                       label={user.status}
                       size="small"
@@ -167,6 +193,8 @@ export default function UserDetail() {
                   </Box>
 
 
+
+
                   <Typography sx={{ mt: 2, fontSize: 28, fontWeight: 900 }}>
                     {user.fullName}
                   </Typography>
@@ -176,6 +204,8 @@ export default function UserDetail() {
                     {user.roleUser}
                   </Typography>
                 </Box>
+
+
 
 
                 {/* المعلومات الشخصية */}
@@ -191,6 +221,8 @@ export default function UserDetail() {
                   >
                     المعلومات الشخصية
                   </Typography>
+
+
 
 
                   <Box
@@ -228,6 +260,8 @@ export default function UserDetail() {
                         </Box>
 
 
+
+
                         <Typography sx={{ fontWeight: 700, fontSize: 14 }}>
                           {item.value}
                         </Typography>
@@ -237,6 +271,8 @@ export default function UserDetail() {
                 </Box>
               </Paper>
             </Grid>
+
+
 
 
             {/* ===== العمود الأيمن ===== */}
@@ -263,6 +299,8 @@ export default function UserDetail() {
                   </Typography>
 
 
+
+
                   <Grid container spacing={2}>
                     {nurseAcademicFields.map((item, index) => (
                       <Grid size={{ xs: 12, sm: 6 }} key={index}>
@@ -284,6 +322,8 @@ export default function UserDetail() {
                     ))}
                   </Grid>
                 </Paper>
+
+
 
 
                 {user.imageCertificate && (
@@ -310,6 +350,8 @@ export default function UserDetail() {
                     </Typography>
 
 
+
+
                     <Box
                       component="img"
                       src={user.imageCertificate}
@@ -330,6 +372,8 @@ export default function UserDetail() {
             </Grid>
 
 
+
+
             {user.workExperiences?.length > 0 && (
               <Grid size={{ xs: 12 }}>
                 <Paper sx={{ p: 3, borderRadius: 4 }}>
@@ -344,6 +388,8 @@ export default function UserDetail() {
                   >
                     الخبرات العملية
                   </Typography>
+
+
 
 
                   <Box
@@ -369,6 +415,8 @@ export default function UserDetail() {
                         </Typography>
 
 
+
+
                         <Typography
                           sx={{ fontSize: 14, color: "#777", fontWeight: 700 }}
                         >
@@ -382,6 +430,8 @@ export default function UserDetail() {
             )}
           </>
         )}
+
+
 
 
         {/* ================== حارس + عاملة نظافة ================== */}
@@ -417,6 +467,8 @@ export default function UserDetail() {
                   </Avatar>
 
 
+
+
                   <Chip
                     label={user.status}
                     size="small"
@@ -432,6 +484,8 @@ export default function UserDetail() {
                 </Grid>
 
 
+
+
                 <Grid>
                   <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
                     {user.fullName}
@@ -444,6 +498,8 @@ export default function UserDetail() {
                 </Grid>
               </Grid>
             </Paper>
+
+
 
 
             <Paper
@@ -488,9 +544,13 @@ export default function UserDetail() {
                   </Box>
 
 
+
+
                   <Typography sx={{ fontWeight: 800, color: "#555" }}>
                     {item.label}
                   </Typography>
+
+
 
 
                   <Typography
@@ -503,6 +563,8 @@ export default function UserDetail() {
             </Paper>
           </Box>
         )}
+
+
 
 
         {/* ================== محاسب + سكرتيرة + مسؤولة طبخ ================== */}
@@ -538,6 +600,8 @@ export default function UserDetail() {
                   </Avatar>
 
 
+
+
                   <Chip
                     label={user.status}
                     size="small"
@@ -553,6 +617,8 @@ export default function UserDetail() {
                 </Grid>
 
 
+
+
                 <Grid>
                   <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
                     {user.fullName}
@@ -565,6 +631,8 @@ export default function UserDetail() {
                 </Grid>
               </Grid>
             </Paper>
+
+
 
 
             <Paper
@@ -609,9 +677,13 @@ export default function UserDetail() {
                   </Box>
 
 
+
+
                   <Typography sx={{ fontWeight: 800, color: "#555" }}>
                     {item.label}
                   </Typography>
+
+
 
 
                   <Typography
@@ -622,6 +694,8 @@ export default function UserDetail() {
                 </Box>
               ))}
             </Paper>
+
+
 
 
             <Paper sx={{ p: 3, mt: 3, borderRadius: 4, background: "#fff" }}>
@@ -636,6 +710,8 @@ export default function UserDetail() {
               >
                 المعلومات الأكاديمية
               </Typography>
+
+
 
 
               <Grid container spacing={2}>
@@ -661,6 +737,8 @@ export default function UserDetail() {
             </Paper>
 
 
+
+
             {user.workExperiences?.length > 0 && (
               <Paper sx={{ p: 3, mt: 3, borderRadius: 4, background: "#fff" }}>
                 <Typography
@@ -674,6 +752,8 @@ export default function UserDetail() {
                 >
                   الخبرات العملية
                 </Typography>
+
+
 
 
                 <Box
@@ -697,6 +777,8 @@ export default function UserDetail() {
                       </Typography>
 
 
+
+
                       <Typography
                         sx={{ fontSize: 14, color: "#777", fontWeight: 700 }}
                       >
@@ -709,6 +791,8 @@ export default function UserDetail() {
             )}
           </Box>
         )}
+
+
 
 
         {/* ================== كفيل ================== */}
@@ -745,6 +829,8 @@ export default function UserDetail() {
                   </Avatar>
 
 
+
+
                   <Chip
                     label={user.status}
                     size="small"
@@ -760,6 +846,8 @@ export default function UserDetail() {
                 </Grid>
 
 
+
+
                 <Grid>
                   <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
                     {user.fullName}
@@ -772,6 +860,8 @@ export default function UserDetail() {
                 </Grid>
               </Grid>
             </Paper>
+
+
 
 
             {/* ===== مربعات البيانات ===== */}
@@ -813,6 +903,8 @@ export default function UserDetail() {
                       </Box>
 
 
+
+
                       <Typography
                         sx={{
                           fontWeight: 800,
@@ -822,6 +914,8 @@ export default function UserDetail() {
                       >
                         {item.label}
                       </Typography>
+
+
 
 
                       <Typography
@@ -839,6 +933,8 @@ export default function UserDetail() {
                 ))}
               </Grid>
             </Paper>
+
+
 
 
             {/* ===== أسماء المسنين ===== */}
@@ -861,6 +957,8 @@ export default function UserDetail() {
               >
                 المسنّون المرتبطون بالكفيل
               </Typography>
+
+
 
 
               {Array.isArray(user.elderlyList) &&
@@ -886,6 +984,8 @@ export default function UserDetail() {
                         </Grid>
 
 
+
+
                         {/* الاسم */}
                         <Grid size={{ xs: 11, sm: 7 }}>
                           <Typography
@@ -902,6 +1002,8 @@ export default function UserDetail() {
                             {e.name}
                           </Typography>
                         </Grid>
+
+
 
 
                         {/* الزر */}
@@ -952,7 +1054,143 @@ export default function UserDetail() {
             </Paper>
           </Box>
         )}
+        {/* ================== طبيب ================== */}
+{(user.roleUser === "طبيب") && (
+  <Box sx={{ mb: 4, width: "100%" }}>
+    {/* ===== Header ===== */}
+    <Paper
+      elevation={6}
+      sx={{
+        py: 3,
+        px: 3,
+        mb: 3,
+        borderRadius: 5,
+        background:
+          "linear-gradient(135deg, rgb(106,106,87), rgb(160,160,120))",
+        color: "#fff",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <Grid container spacing={2} alignItems="center">
+        <Grid sx={{ position: "relative" }}>
+          <Avatar
+            src={user.image}
+            sx={{
+              width: 120,
+              height: 120,
+              fontSize: 50,
+              border: "4px solid #fff",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+            }}
+          >
+            {user.fullName?.charAt(0)}
+          </Avatar>
+
+
+          <Chip
+            label={user.status}
+            size="small"
+            sx={{
+              position: "absolute",
+              bottom: 6,
+              right: -8,
+              fontWeight: 800,
+              backgroundColor: isActive ? "#4CAF50" : "#D32F2F",
+              color: "#fff",
+            }}
+          />
+        </Grid>
+
+
+        <Grid>
+          <Typography sx={{ fontSize: 28, fontWeight: 900 }}>
+            {user.fullName}
+          </Typography>
+          <Typography
+            sx={{ fontSize: 18, fontWeight: 700, opacity: 0.9 }}
+          >
+            {user.roleUser}
+          </Typography>
+        </Grid>
       </Grid>
+    </Paper>
+
+
+    {/* ===== مربعات البيانات ===== */}
+    <Paper
+      sx={{
+        p: 3,
+        borderRadius: 4,
+        background: "#fff",
+      }}
+    >
+      <Grid container spacing={2}>
+        {doctorFields.map((item, i) => (
+          <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={i}>
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                background: "#f9f9f9",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "100%",
+                minHeight: 150,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 55,
+                  height: 55,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#7e7e67",
+                  color: "#fff",
+                  mb: 1,
+                }}
+              >
+                {item.icon}
+              </Box>
+
+
+              <Typography
+                sx={{
+                  fontWeight: 800,
+                  color: "#555",
+                  textAlign: "center",
+                  mb: 0.5,
+                }}
+              >
+                {item.label}
+              </Typography>
+
+
+              <Typography
+                sx={{
+                  fontWeight: 900,
+                  fontSize: 17,
+                  color: "#222",
+                  textAlign: "center",
+                  wordBreak: "break-word",
+                }}
+              >
+                {item.value || "غير متوفر"}
+              </Typography>
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
+    </Paper>
+  </Box>
+)}
+      </Grid>
+
+
 
 
       <Snackbar
@@ -966,6 +1204,12 @@ export default function UserDetail() {
     </Box>
   );
 }
+
+
+
+
+
+
 
 
 

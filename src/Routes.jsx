@@ -48,6 +48,9 @@ import ElderlyDetailsSponsor from "./pages/sponsor/ElderlyDetailsSponsor/Elderly
 import SponsorProfile from "./pages/sponsor/SponsorProfile/SponsorProfile.jsx";
 import MedicineStatus from "./pages/sponsor/MedicineStatus/MedicineStatus.jsx";
 import DailyFollow from "./pages/sponsor/DailyFollow/DailyFollow.jsx";
+import DoctorLayout from "./layout/DoctorLayout.jsx";
+import ElderlyDoctor from "./pages/Doctor/ElderlyDoctor/ElderlyDoctor.jsx";
+import DoctorProfile from "./pages/Doctor/DoctorProfile/DoctorProfile.jsx";
 
 const router = createBrowserRouter([
   {
@@ -276,6 +279,24 @@ const router = createBrowserRouter([
       },
     ]
     
+  },
+  {
+    path: "/Doctor",
+    element: (
+      <ProtectedRouter>
+        <DoctorLayout />
+      </ProtectedRouter>
+    ),
+    children: [
+      {
+        index: true,
+        element: <ElderlyDoctor />,
+      },
+      {
+        path: "Doctor-Profile",
+        element: <DoctorProfile />,
+      },
+    ],
   },
 ]);
 

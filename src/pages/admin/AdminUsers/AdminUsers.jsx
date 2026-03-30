@@ -214,6 +214,7 @@ export default function AdminUsers() {
               <MenuItem value="">الكل</MenuItem>
               <MenuItem value="Nurse">ممرض</MenuItem>
               <MenuItem value="Sponsor">كفيل</MenuItem>
+              <MenuItem value="Doctor">دكتور</MenuItem>
             </Select>
           </FormControl>
         </Grid>

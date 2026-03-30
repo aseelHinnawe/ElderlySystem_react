@@ -17,9 +17,13 @@ import {
   TextField,
   Typography,
   Grid,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Divider,
+  Stack,
 } from "@mui/material";
-
-
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -28,15 +32,15 @@ import style from "./Auth.module.css";
 import { Controller, useForm } from "react-hook-form";
 import axios from "axios";
 
-
 import RegisterEmpSchema from "../../validations/RegisterEmpSchema";
 import registerSchema from "../../validations/RegisterSchema";
+import RegisterDoctorSchema from "../../validations/RegisterDoctorSchema";
 import { useNavigate } from "react-router";
-
 
 const API_SPONSOR = "https://localhost:7160/api/Identity/Account/register";
 const API_NURSE = "https://localhost:7160/api/Identity/Account/register-staff";
-
+const API_DOCTOR =
+  "https://localhost:7160/api/Identity/Account/register-doctor";
 
 const paperStyle = {
   p: 4,
@@ -50,14 +54,25 @@ const paperStyle = {
   boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
 };
 
-
 const passwordInputStyles = {
   direction: "ltr",
   "& input": { textAlign: "left", paddingRight: "48px" },
   "& .MuiInputAdornment-root": { position: "absolute", right: 8 },
 };
+const sectionCardStyle = {
+  p: 2,
+  borderRadius: "16px",
+  border: "1px solid rgba(106,106,87,0.15)",
+  background: "rgba(255,255,255,0.18)",
+};
 
-
+const accordionStyle = {
+  borderRadius: "16px !important",
+  background: "rgba(255,255,255,0.16)",
+  border: "1px solid rgba(106,106,87,0.15)",
+  boxShadow: "none",
+  "&:before": { display: "none" },
+};
 export const buttonStyle = {
   mt: 2,
   py: 1.2,
@@ -81,7 +96,6 @@ export const backButtonStyle = {
     borderColor: "#6a6a57",
   },
 };
-
 
 function PasswordField({
   label = "كلمة المرور",
@@ -115,8 +129,20 @@ function PasswordField({
     </FormControl>
   );
 }
-
-
+function SectionTitle({ title, subtitle = "" }) {
+  return (
+    <Box sx={{ mb: 1 }}>
+      <Typography sx={{ fontWeight: 800, fontSize: "1rem" }}>
+        {title}
+      </Typography>
+      {!!subtitle && (
+        <Typography sx={{ fontSize: "0.82rem", color: "rgba(0,0,0,0.55)" }}>
+          {subtitle}
+        </Typography>
+      )}
+    </Box>
+  );
+}
 function FileButton({ control, name, label, error, onName }) {
   return (
     <>
@@ -163,34 +189,199 @@ function FileButton({ control, name, label, error, onName }) {
     </>
   );
 }
+function ArrayTextList({
+  title,
+  values,
+  fieldName,
+  register,
+  errors,
+  onAdd,
+  onRemove,
+  itemLabel,
+  optionalNote = "",
+}) {
+  return (
+    <>
+      <Grid size={{ xs: 12 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
+          <Typography sx={{ fontWeight: 700 }}>
+            {title}{" "}
+            {!!optionalNote && (
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: "0.75rem",
+                  fontWeight: 300,
+                  color: "rgba(0,0,0,0.5)",
+                }}
+              >
+                {optionalNote}
+              </Typography>
+            )}
+          </Typography>
 
+          <Button variant="outlined" onClick={onAdd}>
+            + إضافة
+          </Button>
+        </Box>
+      </Grid>
 
+      {values.map((_, i) => (
+        <Grid key={`${fieldName}-${i}`} size={{ xs: 12 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              borderRadius: "14px",
+              border: "1px solid rgba(106,106,87,0.15)",
+              background: "rgba(255,255,255,0.15)",
+            }}
+          >
+            <Grid container spacing={2} alignItems="center">
+              <Grid size={{ xs: 12, sm: 9 }}>
+                <TextField
+                  fullWidth
+                  label={`${itemLabel} ${i + 1}`}
+                  {...register(`${fieldName}.${i}`)}
+                  className={style.glassInput}
+                  error={!!errors?.[fieldName]?.[i]}
+                  helperText={errors?.[fieldName]?.[i]?.message}
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 3 }}>
+                <Button
+                  color="error"
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => onRemove(i)}
+                  disabled={values.length === 1}
+                >
+                  حذف
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+      ))}
+    </>
+  );
+}
+
+function UniversitiesList({ values, register, errors, onAdd, onRemove }) {
+  return (
+    <>
+      <Grid size={{ xs: 12 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
+          <Typography sx={{ fontWeight: 700 }}>الجامعات</Typography>
+          <Button variant="outlined" onClick={onAdd}>
+            + إضافة جامعة
+          </Button>
+        </Box>
+      </Grid>
+
+      {values.map((_, i) => (
+        <Grid key={`universities-${i}`} size={{ xs: 12 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              borderRadius: "14px",
+              border: "1px solid rgba(106,106,87,0.15)",
+              background: "rgba(255,255,255,0.15)",
+            }}
+          >
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 7 }}>
+                <TextField
+                  fullWidth
+                  label="اسم الجامعة"
+                  {...register(`universities.${i}.universityName`)}
+                  className={style.glassInput}
+                  error={!!errors?.universities?.[i]?.universityName}
+                  helperText={
+                    errors?.universities?.[i]?.universityName?.message
+                  }
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 3 }}>
+                <TextField
+                  select
+                  fullWidth
+                  label="الدرجة"
+                  defaultValue={1}
+                  {...register(`universities.${i}.degree`)}
+                  className={style.glassInput}
+                  error={!!errors?.universities?.[i]?.degree}
+                  helperText={errors?.universities?.[i]?.degree?.message}
+                >
+                  <MenuItem value={1}>بكالوريوس</MenuItem>
+                  <MenuItem value={2}>ماجستير</MenuItem>
+                  <MenuItem value={3}>دكتوراه</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 2 }}>
+                <Button
+                  color="error"
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => onRemove(i)}
+                  disabled={values.length === 1}
+                  sx={{ height: "100%" }}
+                >
+                  حذف
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+      ))}
+    </>
+  );
+}
 export default function Register() {
   const [userType, setUserType] = useState(""); // employee | sponsor
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-
   const [error, setError] = useState("");
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackMsg, setSnackMsg] = useState("");
 
-
   const [certName, setCertName] = useState("");
   const [nidImgName, setNidImgName] = useState("");
   const [insName, setInsName] = useState("");
-  const [diagName, setDiagName] = useState("");
-
 
   const navigate = useNavigate();
 
-
   const resolver = useMemo(() => {
     if (!userType) return undefined;
-    const schema = userType === "employee" ? RegisterEmpSchema : registerSchema;
+
+    const schema =
+      userType === "employee"
+        ? RegisterEmpSchema
+        : userType === "doctor"
+          ? RegisterDoctorSchema
+          : registerSchema;
+
     return yupResolver(schema);
   }, [userType]);
-
 
   const form = useForm({
     resolver,
@@ -205,15 +396,12 @@ export default function Register() {
       city: "",
       password: "",
 
-
       // employee
       gender: "",
-
 
       // sponsor
       genderSponsor: "",
       sponsorDegree: "",
-
 
       // ===== nurse page 2 =====
       certificate: null,
@@ -224,12 +412,10 @@ export default function Register() {
       yearOfGraduation: "",
       workExperiences: [],
 
-
       // ===== sponsor page2 common =====
       nationalIdElderly: "",
       kinShip: "",
       degree: "",
-
 
       // ===== sponsor FIRST only =====
       name: "",
@@ -243,14 +429,23 @@ export default function Register() {
       diseases: [""],
       nationalIdImage: null,
       healthInsurance: null,
-      doctorName: "",
-      workPlace: "",
-      doctorPhone: "",
-      reportDate: "",
-      diagnosisFile: null,
+
+      // doctor
+      genderDoctor: "",
+      medicalRank: "",
+      yearsOfExperience: "",
+      numberOfOperations: "",
+      doctorBDate: "",
+      specializations: [],
+      diseasesDoctor: [],
+      workPlaces: [],
+      operationTypes: [],
+      medicalProcedures: [],
+      diagnosticTests: [],
+      previousWorkPlaces: [],
+      universities: [],
     },
   });
-
 
   const {
     register,
@@ -264,11 +459,16 @@ export default function Register() {
     formState: { errors },
   } = form;
 
-
   const sponsorDegree = watch("sponsorDegree");
   const workExperiences = watch("workExperiences") || [];
   const diseases = watch("diseases") || [];
-
+  const specializations = watch("specializations") || [];
+  const workPlaces = watch("workPlaces") || [];
+  const operationTypes = watch("operationTypes") || [];
+  const medicalProcedures = watch("medicalProcedures") || [];
+  const diagnosticTests = watch("diagnosticTests") || [];
+  const previousWorkPlaces = watch("previousWorkPlaces") || [];
+  const universities = watch("universities") || [];
 
   // ✅ تعبئة degree تلقائياً حسب sponsorDegree
   useEffect(() => {
@@ -281,10 +481,8 @@ export default function Register() {
     setValue("degree", val, { shouldValidate: true, shouldDirty: true });
   }, [sponsorDegree, setValue]);
 
-
   const addDisease = () =>
     setValue("diseases", [...diseases, ""], { shouldValidate: true });
-
 
   const removeDisease = (idx) =>
     setValue(
@@ -293,7 +491,6 @@ export default function Register() {
       { shouldValidate: true },
     );
 
-
   const handleUserTypeChange = (e) => {
     setUserType(e.target.value);
     setStep(1);
@@ -301,14 +498,11 @@ export default function Register() {
     setCertName("");
     setNidImgName("");
     setInsName("");
-    setDiagName("");
     reset();
   };
 
-
   const goStep2 = async () => {
     setError("");
-
 
     const page1Fields =
       userType === "employee"
@@ -321,28 +515,33 @@ export default function Register() {
             "gender",
             "password",
           ]
-        : [
-            "fullName",
-            "email",
-            "phoneNumber",
-            "nationalId",
-            "city",
-            "genderSponsor",
-            "sponsorDegree",
-            "password",
-          ];
-
-
+        : userType === "doctor"
+          ? [
+              "fullName",
+              "email",
+              "phoneNumber",
+              "nationalId",
+              "city",
+              "genderDoctor",
+              "password",
+            ]
+          : [
+              "fullName",
+              "email",
+              "phoneNumber",
+              "nationalId",
+              "city",
+              "genderSponsor",
+              "sponsorDegree",
+              "password",
+            ];
     const ok = await trigger(page1Fields);
     if (!ok) return;
-
 
     setStep(2);
   };
 
-
   const backStep1 = () => setStep(1);
-
 
   const addWorkExp = () => {
     const current = getValues("workExperiences") || [];
@@ -353,7 +552,6 @@ export default function Register() {
     );
   };
 
-
   const removeWorkExp = (idx) => {
     const current = getValues("workExperiences") || [];
     setValue(
@@ -362,7 +560,29 @@ export default function Register() {
       { shouldValidate: true },
     );
   };
+  const addStringItem = (fieldName, current) =>
+    setValue(fieldName, [...current, ""], { shouldValidate: true });
 
+  const removeStringItem = (fieldName, current, idx) =>
+    setValue(
+      fieldName,
+      current.filter((_, i) => i !== idx),
+      { shouldValidate: true },
+    );
+
+  const addUniversity = () =>
+    setValue(
+      "universities",
+      [...universities, { universityName: "", degree: 1 }],
+      { shouldValidate: true },
+    );
+
+  const removeUniversity = (idx) =>
+    setValue(
+      "universities",
+      universities.filter((_, i) => i !== idx),
+      { shouldValidate: true },
+    );
 
   const buildNurseFD = (d) => {
     const fd = new FormData();
@@ -374,16 +594,13 @@ export default function Register() {
     fd.append("Gender", d.gender || "");
     fd.append("Password", d.password || "");
 
-
     if (d.certificate?.[0]) fd.append("Certificate", d.certificate[0]);
-
 
     fd.append("EducationLevel", d.educationLevel || "");
     fd.append("MaritalStatus", d.nurseMaritalStatus || ""); // ✅ هنا
     fd.append("FieldOfStudy", d.fieldOfStudy || "");
     fd.append("YearsOfStudy", String(d.yearsOfStudy ?? ""));
     fd.append("YearOfGraduation", d.yearOfGraduation || "");
-
 
     if (Array.isArray(d.workExperiences)) {
       d.workExperiences.forEach((we, i) => {
@@ -393,14 +610,11 @@ export default function Register() {
       });
     }
 
-
     return fd;
   };
 
-
   const buildSponsorFD = (d) => {
     const fd = new FormData();
-
 
     fd.append("FullName", d.fullName || "");
     fd.append("Email", d.email || "");
@@ -409,15 +623,12 @@ export default function Register() {
     fd.append("NationalId", d.nationalId || "");
     fd.append("Password", d.password || "");
 
-
     fd.append("GenderSponsor", d.genderSponsor || "");
     fd.append("SponsorDegree", d.sponsorDegree || "");
-
 
     fd.append("NationalIdElderly", d.nationalIdElderly || "");
     fd.append("KinShip", d.kinShip || "");
     fd.append("Degree", d.degree || "");
-
 
     if (d.sponsorDegree === "First") {
       fd.append("Name", d.name || "");
@@ -429,43 +640,62 @@ export default function Register() {
       fd.append("BDate", d.bDate || "");
       fd.append("ReasonRegister", d.reasonRegister || "");
 
-
       (d.diseases || [])
         .map((x) => (x || "").trim())
         .filter(Boolean)
         .forEach((x) => fd.append("Diseases", x));
 
-
       if (d.nationalIdImage?.[0])
         fd.append("NationalIdImage", d.nationalIdImage[0]);
       if (d.healthInsurance?.[0])
         fd.append("HealthInsurance", d.healthInsurance[0]);
-
-
-      fd.append("DoctorName", d.doctorName || "");
-      fd.append("WorkPlace", d.workPlace || "");
-      fd.append("DoctorPhone", d.doctorPhone || "");
-      fd.append("ReportDate", d.reportDate || "");
-
-
-      if (d.diagnosisFile?.[0]) fd.append("DiagnosisFile", d.diagnosisFile[0]);
     }
-
 
     return fd;
   };
+  const cleanArray = (arr) =>
+    (arr || []).map((x) => (x || "").trim()).filter(Boolean);
 
-
+  const buildDoctorPayload = (d) => ({
+    fullName: d.fullName?.trim() || "",
+    email: d.email?.trim() || "",
+    phoneNumber: d.phoneNumber?.trim() || "",
+    nationalId: d.nationalId?.trim() || "",
+    city: d.city?.trim() || "",
+    genderDoctor: d.genderDoctor,
+    password: d.password || "",
+    medicalRank: d.medicalRank?.trim() || "",
+    yearsOfExperience: d.yearsOfExperience?.trim() || "",
+    numberOfOperations: Number(d.numberOfOperations || 0),
+    bDate: d.doctorBDate || "",
+    specializations: cleanArray(d.specializations),
+    diseasesDoctor: cleanArray(d.diseases),
+    workPlaces: cleanArray(d.workPlaces),
+    operationTypes: cleanArray(d.operationTypes),
+    medicalProcedures: cleanArray(d.medicalProcedures),
+    diagnosticTests: cleanArray(d.diagnosticTests),
+    previousWorkPlaces: cleanArray(d.previousWorkPlaces),
+    universities: (d.universities || [])
+      .map((u) => ({
+        universityName: u?.universityName?.trim() || "",
+        degree: Number(u?.degree),
+      }))
+      .filter((u) => u.universityName),
+  });
   const finalSubmit = async (data) => {
     setLoading(true);
     setError("");
-
 
     try {
       if (userType === "employee") {
         const fd = buildNurseFD(data);
         await axios.post(API_NURSE, fd, {
           headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else if (userType === "doctor") {
+        const payload = buildDoctorPayload(data);
+        await axios.post(API_DOCTOR, payload, {
+          headers: { "Content-Type": "application/json" },
         });
       } else {
         const fd = buildSponsorFD(data);
@@ -474,11 +704,9 @@ export default function Register() {
         });
       }
 
-
       setSnackMsg("تم إنشاء الحساب بنجاح");
       setSnackOpen(true);
       setTimeout(() => navigate("/login"), 1200);
-
 
       reset();
       setUserType("");
@@ -486,22 +714,19 @@ export default function Register() {
       setCertName("");
       setNidImgName("");
       setInsName("");
-      setDiagName("");
     } catch (err) {
       const resp = err?.response?.data;
       const msg =
         resp?.message ||
         (resp?.errors ? Object.values(resp.errors).flat().join(" | ") : null) ||
         "حدث خطأ";
+
       setError(msg);
-
-
       console.log("API ERROR:", err?.response?.status, resp, err);
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <Box className={style.authWrapper}>
@@ -509,7 +734,6 @@ export default function Register() {
         <Typography variant="h5" textAlign="center" mb={2}>
           إنشاء حساب جديد
         </Typography>
-
 
         <Typography
           variant="body2"
@@ -519,7 +743,6 @@ export default function Register() {
           اختر نوع الحساب للمتابعة
         </Typography>
 
-
         <RadioGroup
           row
           value={userType}
@@ -528,8 +751,8 @@ export default function Register() {
         >
           <FormControlLabel value="employee" control={<Radio />} label="ممرض" />
           <FormControlLabel value="sponsor" control={<Radio />} label="كفيل" />
+          <FormControlLabel value="doctor" control={<Radio />} label="طبيب" />
         </RadioGroup>
-
 
         {userType && (
           <Box
@@ -539,7 +762,6 @@ export default function Register() {
             <Typography textAlign="center" sx={{ mb: 1, fontWeight: 700 }}>
               الخطوة {step} من 2
             </Typography>
-
 
             {/* ======================== NURSE STEP 1 ======================== */}
             {userType === "employee" && step === 1 && (
@@ -554,7 +776,6 @@ export default function Register() {
                     helperText={errors.fullName?.message}
                   />
                 </Grid>
-
 
                 <Grid size={{ xs: 12 }}>
                   <TextField
@@ -585,7 +806,6 @@ export default function Register() {
                   />
                 </Grid>
 
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     fullWidth
@@ -598,7 +818,6 @@ export default function Register() {
                   />
                 </Grid>
 
-
                 <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
@@ -609,7 +828,6 @@ export default function Register() {
                     helperText={errors.city?.message}
                   />
                 </Grid>
-
 
                 <Grid size={{ xs: 12 }}>
                   <Box
@@ -623,7 +841,6 @@ export default function Register() {
                     <Typography sx={{ fontWeight: 500, whiteSpace: "nowrap" }}>
                       الجنس:
                     </Typography>
-
 
                     <Controller
                       name="gender"
@@ -645,14 +862,12 @@ export default function Register() {
                     />
                   </Box>
 
-
                   {errors.gender && (
                     <FormHelperText error sx={{ mt: 0.5 }}>
                       {errors.gender.message}
                     </FormHelperText>
                   )}
                 </Grid>
-
 
                 {error && (
                   <Grid size={{ xs: 12 }}>
@@ -661,7 +876,6 @@ export default function Register() {
                     </Typography>
                   </Grid>
                 )}
-
 
                 <Grid size={{ xs: 12 }}>
                   <Button
@@ -675,7 +889,6 @@ export default function Register() {
                 </Grid>
               </Grid>
             )}
-
 
             {/* ======================== NURSE STEP 2 ======================== */}
             {userType === "employee" && step === 2 && (
@@ -701,7 +914,6 @@ export default function Register() {
                   </TextField>
                 </Grid>
 
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     select
@@ -720,7 +932,6 @@ export default function Register() {
                   </TextField>
                 </Grid>
 
-
                 <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
@@ -731,7 +942,6 @@ export default function Register() {
                     helperText={errors.fieldOfStudy?.message}
                   />
                 </Grid>
-
 
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
@@ -745,7 +955,6 @@ export default function Register() {
                   />
                 </Grid>
 
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     fullWidth
@@ -757,7 +966,6 @@ export default function Register() {
                     sx={{ input: { textAlign: "left", direction: "ltr" } }}
                   />
                 </Grid>
-
 
                 <Grid size={{ xs: 12 }}>
                   <FileButton
@@ -775,7 +983,6 @@ export default function Register() {
                     </Typography>
                   )}
                 </Grid>
-
 
                 <Grid size={{ xs: 12 }}>
                   <Box
@@ -805,7 +1012,6 @@ export default function Register() {
                   </Box>
                 </Grid>
 
-
                 {workExperiences.map((_, i) => (
                   <Grid key={i} size={{ xs: 12 }}>
                     <Paper
@@ -831,7 +1037,6 @@ export default function Register() {
                           />
                         </Grid>
 
-
                         <Grid size={{ xs: 12, sm: 4 }}>
                           <TextField
                             fullWidth
@@ -846,7 +1051,6 @@ export default function Register() {
                           />
                         </Grid>
 
-
                         <Grid size={{ xs: 12, sm: 4 }}>
                           <TextField
                             fullWidth
@@ -859,7 +1063,6 @@ export default function Register() {
                             }
                           />
                         </Grid>
-
 
                         <Grid size={{ xs: 12 }}>
                           <Button
@@ -875,7 +1078,6 @@ export default function Register() {
                   </Grid>
                 ))}
 
-
                 {error && (
                   <Grid size={{ xs: 12 }}>
                     <Typography color="error" textAlign="center">
@@ -883,7 +1085,6 @@ export default function Register() {
                     </Typography>
                   </Grid>
                 )}
-
 
                 <Grid size={{ xs: 12 }} sx={{ display: "flex", gap: 1 }}>
                   <Button
@@ -907,7 +1108,6 @@ export default function Register() {
               </Grid>
             )}
 
-
             {/* ======================== SPONSOR STEP 1 ======================== */}
             {userType === "sponsor" && step === 1 && (
               <Grid container spacing={2.5} sx={{ mt: 1 }}>
@@ -921,7 +1121,6 @@ export default function Register() {
                     helperText={errors.fullName?.message}
                   />
                 </Grid>
-
 
                 <Grid size={{ xs: 12 }}>
                   <TextField
@@ -952,7 +1151,6 @@ export default function Register() {
                   />
                 </Grid>
 
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     fullWidth
@@ -964,7 +1162,6 @@ export default function Register() {
                     sx={{ input: { textAlign: "left", direction: "ltr" } }}
                   />
                 </Grid>
-
 
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
@@ -1004,7 +1201,6 @@ export default function Register() {
                       الجنس:
                     </Typography>
 
-
                     <Controller
                       name="genderSponsor"
                       control={control}
@@ -1025,14 +1221,12 @@ export default function Register() {
                     />
                   </Box>
 
-
                   {errors.genderSponsor && (
                     <FormHelperText error sx={{ mt: 0.5 }}>
                       {errors.genderSponsor.message}
                     </FormHelperText>
                   )}
                 </Grid>
-
 
                 {error && (
                   <Grid size={{ xs: 12 }}>
@@ -1041,7 +1235,6 @@ export default function Register() {
                     </Typography>
                   </Grid>
                 )}
-
 
                 <Grid size={{ xs: 12 }}>
                   <Button
@@ -1055,7 +1248,6 @@ export default function Register() {
                 </Grid>
               </Grid>
             )}
-
 
             {/* ======================== SPONSOR STEP 2 ======================== */}
             {userType === "sponsor" && step === 2 && (
@@ -1346,91 +1538,412 @@ export default function Register() {
                         </Paper>
                       </Grid>
                     ))}
-
-                    <Grid size={{ xs: 12 }}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Typography sx={{ fontWeight: 800 }}>
-                          بيانات الطبيب
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontWeight: 400,
-                            fontSize: "0.85rem",
-                            color: "#555",
-                          }}
-                        >
-                          ( المتعلقة بآخر زيارة لطبيب المسنّة )
-                        </Typography>
-                      </Box>
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <TextField
-                        fullWidth
-                        label="اسم الطبيب"
-                        {...register("doctorName")}
-                        className={style.glassInput}
-                        error={!!errors.doctorName}
-                        helperText={errors.doctorName?.message}
-                      />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <TextField
-                        fullWidth
-                        label="مكان العمل"
-                        {...register("workPlace")}
-                        className={style.glassInput}
-                        error={!!errors.workPlace}
-                        helperText={errors.workPlace?.message}
-                      />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <TextField
-                        fullWidth
-                        label="هاتف الطبيب"
-                        {...register("doctorPhone")}
-                        className={style.glassInput}
-                        error={!!errors.doctorPhone}
-                        helperText={errors.doctorPhone?.message}
-                        sx={{ input: { textAlign: "left", direction: "ltr" } }}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <TextField
-                        fullWidth
-                        type="date"
-                        label="تاريخ التشخيص"
-                        {...register("reportDate")}
-                        className={style.glassInput}
-                        error={!!errors.reportDate}
-                        helperText={errors.reportDate?.message}
-                        InputLabelProps={{ shrink: true }}
-                        sx={{ input: { textAlign: "left", direction: "ltr" } }}
-                      />
-                    </Grid>
-
-                    <Grid size={{ xs: 12 }}>
-                      <FileButton
-                        control={control}
-                        name="diagnosisFile"
-                        label="رفع ملف التشخيص (JPG/PNG/PDF)"
-                        error={errors.diagnosisFile?.message}
-                        onName={setDiagName}
-                      />
-                      {!!diagName && (
-                        <Typography
-                          sx={{ mt: 1, fontSize: "0.9rem", color: "#555" }}
-                        >
-                          {diagName}
-                        </Typography>
-                      )}
-                    </Grid>
                   </>
                 )}
+
+                {error && (
+                  <Grid size={{ xs: 12 }}>
+                    <Typography color="error" textAlign="center">
+                      {error}
+                    </Typography>
+                  </Grid>
+                )}
+
+                <Grid size={{ xs: 12 }} sx={{ display: "flex", gap: 1 }}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    onClick={backStep1}
+                    sx={backButtonStyle}
+                  >
+                    رجوع
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    disabled={loading}
+                    sx={buttonStyle}
+                  >
+                    {loading ? "جارٍ الإرسال..." : "إنشاء الحساب"}
+                  </Button>
+                </Grid>
+              </Grid>
+            )}
+            {/* ======================== DOCTOR STEP 1 ======================== */}
+
+            {userType === "doctor" && step === 1 && (
+              <Grid container spacing={2.5} sx={{ mt: 1 }}>
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    fullWidth
+                    label="الاسم الكامل"
+                    {...register("fullName")}
+                    className={style.glassInput}
+                    error={!!errors.fullName}
+                    helperText={errors.fullName?.message}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    fullWidth
+                    label="البريد الإلكتروني"
+                    {...register("email")}
+                    className={style.glassInput}
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                    sx={{ input: { textAlign: "left", direction: "ltr" } }}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                  <PasswordField
+                    register={register}
+                    error={errors.password?.message}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="رقم الهاتف"
+                    {...register("phoneNumber")}
+                    className={style.glassInput}
+                    error={!!errors.phoneNumber}
+                    helperText={errors.phoneNumber?.message}
+                    sx={{ input: { textAlign: "left", direction: "ltr" } }}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="رقم الهوية"
+                    {...register("nationalId")}
+                    className={style.glassInput}
+                    error={!!errors.nationalId}
+                    helperText={errors.nationalId?.message}
+                    sx={{ input: { textAlign: "left", direction: "ltr" } }}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    fullWidth
+                    label="المدينة"
+                    {...register("city")}
+                    className={style.glassInput}
+                    error={!!errors.city}
+                    helperText={errors.city?.message}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 500, whiteSpace: "nowrap" }}>
+                      الجنس:
+                    </Typography>
+
+                    <Controller
+                      name="genderDoctor"
+                      control={control}
+                      render={({ field }) => (
+                        <RadioGroup row {...field}>
+                          <FormControlLabel
+                            value="Female"
+                            control={<Radio />}
+                            label="أنثى"
+                          />
+                          <FormControlLabel
+                            value="Male"
+                            control={<Radio />}
+                            label="ذكر"
+                          />
+                        </RadioGroup>
+                      )}
+                    />
+                  </Box>
+
+                  {errors.genderDoctor && (
+                    <FormHelperText error sx={{ mt: 0.5 }}>
+                      {errors.genderDoctor.message}
+                    </FormHelperText>
+                  )}
+                </Grid>
+
+                {error && (
+                  <Grid size={{ xs: 12 }}>
+                    <Typography color="error" textAlign="center">
+                      {error}
+                    </Typography>
+                  </Grid>
+                )}
+
+                <Grid size={{ xs: 12 }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={buttonStyle}
+                  >
+                    استكمال البيانات
+                  </Button>
+                </Grid>
+              </Grid>
+            )}
+            {/* ======================== DOCTOR STEP 2 ======================== */}
+            {userType === "doctor" && step === 2 && (
+              <Grid container spacing={2} sx={{ mt: 1 }}>
+                {/* المعلومات الأساسية */}
+                <Grid size={{ xs: 12 }}>
+                  <Paper elevation={0} sx={sectionCardStyle}>
+                    <SectionTitle
+                      title="المعلومات المهنية"
+                      subtitle="أدخل البيانات الأساسية الخاصة بالطبيب"
+                    />
+
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="الرتبة الطبية"
+                          {...register("medicalRank")}
+                          className={style.glassInput}
+                          error={!!errors.medicalRank}
+                          helperText={errors.medicalRank?.message}
+                        />
+                      </Grid>
+
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="سنوات الخبرة"
+                          {...register("yearsOfExperience")}
+                          className={style.glassInput}
+                          error={!!errors.yearsOfExperience}
+                          helperText={errors.yearsOfExperience?.message}
+                        />
+                      </Grid>
+
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="عدد العمليات"
+                          {...register("numberOfOperations")}
+                          className={style.glassInput}
+                          error={!!errors.numberOfOperations}
+                          helperText={errors.numberOfOperations?.message}
+                          sx={{
+                            input: { textAlign: "left", direction: "ltr" },
+                          }}
+                        />
+                      </Grid>
+
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          type="date"
+                          label="تاريخ الميلاد"
+                          {...register("doctorBDate")}
+                          className={style.glassInput}
+                          error={!!errors.bDate}
+                          helperText={errors.bDate?.message}
+                          InputLabelProps={{ shrink: true }}
+                          sx={{
+                            input: { textAlign: "left", direction: "ltr" },
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Grid>
+
+                {/* المجال الطبي */}
+                <Grid size={{ xs: 12 }}>
+                  <Accordion defaultExpanded sx={accordionStyle}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography sx={{ fontWeight: 700 }}>
+                        المجال الطبي
+                      </Typography>
+                    </AccordionSummary>
+
+                    <AccordionDetails>
+                      <Stack spacing={2}>
+                        <ArrayTextList
+                          title="التخصصات"
+                          values={specializations}
+                          fieldName="specializations"
+                          register={register}
+                          errors={errors}
+                          onAdd={() =>
+                            addStringItem("specializations", specializations)
+                          }
+                          onRemove={(i) =>
+                            removeStringItem(
+                              "specializations",
+                              specializations,
+                              i,
+                            )
+                          }
+                          itemLabel="التخصص"
+                        />
+
+                        <Divider />
+
+                        <ArrayTextList
+                          title="الأمراض التي يعالجها"
+                          values={diseases}
+                          fieldName="diseases"
+                          register={register}
+                          errors={errors}
+                          onAdd={() => addStringItem("diseases", diseases)}
+                          onRemove={(i) =>
+                            removeStringItem("diseases", diseases, i)
+                          }
+                          itemLabel="المرض"
+                        />
+
+                        <Divider />
+
+                        <ArrayTextList
+                          title="الإجراءات الطبية"
+                          values={medicalProcedures}
+                          fieldName="medicalProcedures"
+                          register={register}
+                          errors={errors}
+                          onAdd={() =>
+                            addStringItem(
+                              "medicalProcedures",
+                              medicalProcedures,
+                            )
+                          }
+                          onRemove={(i) =>
+                            removeStringItem(
+                              "medicalProcedures",
+                              medicalProcedures,
+                              i,
+                            )
+                          }
+                          itemLabel="الإجراء الطبي"
+                        />
+
+                        <Divider />
+
+                        <ArrayTextList
+                          title="الفحوصات الطبية"
+                          values={diagnosticTests}
+                          fieldName="diagnosticTests"
+                          register={register}
+                          errors={errors}
+                          onAdd={() =>
+                            addStringItem("diagnosticTests", diagnosticTests)
+                          }
+                          onRemove={(i) =>
+                            removeStringItem(
+                              "diagnosticTests",
+                              diagnosticTests,
+                              i,
+                            )
+                          }
+                          itemLabel="الفحص"
+                        />
+
+                        <Divider />
+
+                        <ArrayTextList
+                          title="أنواع العمليات"
+                          values={operationTypes}
+                          fieldName="operationTypes"
+                          register={register}
+                          errors={errors}
+                          onAdd={() =>
+                            addStringItem("operationTypes", operationTypes)
+                          }
+                          onRemove={(i) =>
+                            removeStringItem(
+                              "operationTypes",
+                              operationTypes,
+                              i,
+                            )
+                          }
+                          itemLabel="نوع العملية"
+                          optionalNote="(اختياري)"
+                        />
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
+                </Grid>
+
+                {/* العمل والتعليم */}
+                <Grid size={{ xs: 12 }}>
+                  <Accordion sx={accordionStyle}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography sx={{ fontWeight: 700 }}>
+                        الخبرة والتعليم
+                      </Typography>
+                    </AccordionSummary>
+
+                    <AccordionDetails>
+                      <Stack spacing={2}>
+                        <ArrayTextList
+                          title="أماكن العمل الحالية"
+                          values={workPlaces}
+                          fieldName="workPlaces"
+                          register={register}
+                          errors={errors}
+                          onAdd={() => addStringItem("workPlaces", workPlaces)}
+                          onRemove={(i) =>
+                            removeStringItem("workPlaces", workPlaces, i)
+                          }
+                          itemLabel="مكان العمل"
+                        />
+
+                        <Divider />
+
+                        <UniversitiesList
+                          values={universities}
+                          register={register}
+                          errors={errors}
+                          onAdd={addUniversity}
+                          onRemove={removeUniversity}
+                        />
+
+                        <Divider />
+
+                        <ArrayTextList
+                          title="أماكن العمل السابقة"
+                          values={previousWorkPlaces}
+                          fieldName="previousWorkPlaces"
+                          register={register}
+                          errors={errors}
+                          onAdd={() =>
+                            addStringItem(
+                              "previousWorkPlaces",
+                              previousWorkPlaces,
+                            )
+                          }
+                          onRemove={(i) =>
+                            removeStringItem(
+                              "previousWorkPlaces",
+                              previousWorkPlaces,
+                              i,
+                            )
+                          }
+                          itemLabel="مكان العمل السابق"
+                          optionalNote="(اختياري)"
+                        />
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
+                </Grid>
 
                 {error && (
                   <Grid size={{ xs: 12 }}>
@@ -1465,7 +1978,6 @@ export default function Register() {
         )}
       </Paper>
 
-
       <Snackbar
         open={snackOpen}
         autoHideDuration={2000}
@@ -1484,6 +1996,5 @@ export default function Register() {
     </Box>
   );
 }
-
 
 

@@ -14,9 +14,14 @@ export default function AuthProtectedRoute({ children }) {
       return <Navigate to={"/Sponsor"} replace />;
     } else if (role === "Nurse") {
       return <Navigate to={"/Nurse"} replace />;
+    } else if (role === "Doctor") {
+      return <Navigate to={"/Doctor"} replace />;
     }
   } catch (e) {
     localStorage.removeItem("token");
     return children;
   }
 }
+
+
+

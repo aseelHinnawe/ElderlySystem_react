@@ -147,29 +147,6 @@ export default function ElderlyDetail() {
   const [savingDiseases, setSavingDiseases] = useState(false);
 
 
-  const [doctors, setDoctors] = useState([]);
-  const [openAddReport, setOpenAddReport] = useState(false);
-  const reportFileRef = useRef(null);
-
-
-  const [reportDate, setReportDate] = useState("");
-  const [reportFile, setReportFile] = useState(null);
-
-
-  const [doctorMode, setDoctorMode] = useState("existing");
-  const [selectedDoctorId, setSelectedDoctorId] = useState("");
-
-
-  const [newDoctor, setNewDoctor] = useState({
-    name: "",
-    workPlace: "",
-    phone: "",
-  });
-
-
-  const [savingReport, setSavingReport] = useState(false);
-
-
   const isPdf = (url = "") => url.toLowerCase().includes(".pdf");
 
 
@@ -244,16 +221,6 @@ export default function ElderlyDetail() {
     const reportId = Number(e.target.value);
     setSelectedReportId(reportId);
     await fetchReportById(reportId);
-  };
-
-
-  const fetchDoctors = async () => {
-    try {
-      const res = await AxiosUserInstance.get(`/Nurse/Elderly/Doctor`);
-      setDoctors(res?.data?.doctors || []);
-    } catch (e) {
-      // silent
-    }
   };
 
 
@@ -395,142 +362,6 @@ export default function ElderlyDetail() {
   };
 
 
-  // ===== Add Medical Report =====
-  const openAddReportDialog = async () => {
-    await fetchDoctors();
-    setOpenAddReport(true);
-
-
-    // defaults
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-    setReportDate(`${yyyy}-${mm}-${dd}`);
-
-
-    setReportFile(null);
-    setDoctorMode("existing");
-    setSelectedDoctorId("");
-    setNewDoctor({ name: "", workPlace: "", phone: "" });
-  };
-
-
-  const closeAddReportDialog = () => {
-    setOpenAddReport(false);
-  };
-
-
-  const pickReportFile = () => reportFileRef.current?.click();
-
-
-  const onReportFileSelected = (e) => {
-    const f = e.target.files?.[0];
-    e.target.value = "";
-    if (!f) return;
-
-
-    const allowed = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
-    if (!allowed.includes(f.type)) {
-      setSnackbar({
-        open: true,
-        message: "ملف التشخيص يجب أن يكون صورة أو PDF.",
-        severity: "error",
-      });
-      return;
-    }
-    setReportFile(f);
-  };
-
-
-  const submitAddReport = async () => {
-    if (!reportDate) {
-      setSnackbar({
-        open: true,
-        message: "التاريخ مطلوب.",
-        severity: "error",
-      });
-      return;
-    }
-    if (!reportFile) {
-      setSnackbar({
-        open: true,
-        message: "ملف التشخيص مطلوب.",
-        severity: "error",
-      });
-      return;
-    }
-
-
-    // doctor validation
-    if (doctorMode === "existing") {
-      if (!selectedDoctorId) {
-        setSnackbar({
-          open: true,
-          message: "اختر الطبيب من القائمة أو اختر إضافة طبيب جديد.",
-          severity: "error",
-        });
-        return;
-      }
-    } else {
-      if (!newDoctor.name || !newDoctor.workPlace || !newDoctor.phone) {
-        setSnackbar({
-          open: true,
-          message: "أدخل بيانات الطبيب كاملة.",
-          severity: "error",
-        });
-        return;
-      }
-    }
-
-
-    const form = new FormData();
-    // مهم: أسماء الحقول لازم تطابق DTO (AddMedicalReportRequest)
-    form.append("Date", reportDate);
-    form.append("DiagnosisFile", reportFile);
-
-
-    if (doctorMode === "existing") {
-      form.append("DoctorId", String(selectedDoctorId));
-    } else {
-      form.append("DoctorName", newDoctor.name);
-      form.append("DoctorWorkPlace", newDoctor.workPlace);
-      form.append("DoctorPhone", newDoctor.phone);
-    }
-
-
-    setSavingReport(true);
-    try {
-      await AxiosUserInstance.post(
-        `/Nurse/Elderly/${id}/medical-reports`,
-        form,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
-
-
-      setSnackbar({
-        open: true,
-        message: "تم إضافة التشخيص بنجاح.",
-        severity: "success",
-      });
-
-
-      closeAddReportDialog();
-      await fetchElderly();
-    } catch {
-      setSnackbar({
-        open: true,
-        message: "فشل إضافة التشخيص.",
-        severity: "error",
-      });
-    } finally {
-      setSavingReport(false);
-    }
-  };
-
-
   // ===== Lifecycle =====
   useEffect(() => {
     fetchElderly();
@@ -625,22 +456,19 @@ export default function ElderlyDetail() {
 
 
             <Box sx={{ flexGrow: 1 }}>
-  <Typography sx={cardTitleSx("#6a6a57")}>
-    البيانات الأساسية
-  </Typography>
+              <Typography sx={cardTitleSx("#6a6a57")}>
+                البيانات الأساسية
+              </Typography>
 
-  <Grid container spacing={1.2} sx={{ mt: 1 }}>
-    {basicFields.map((f, i) => (
-      <Grid size={{ xs: 12, sm: 6 }} key={i}>
-        <FieldRow
-          icon={f.icon}
-          label={f.label}
-          value={f.value}
-        />
-      </Grid>
-    ))}
-  </Grid>
-</Box>
+
+              <Grid container spacing={1.2} sx={{ mt: 1 }}>
+                {basicFields.map((f, i) => (
+                  <Grid size={{ xs: 12, sm: 6 }} key={i}>
+                    <FieldRow icon={f.icon} label={f.label} value={f.value} />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
 
 
             {/* ===== Diseases ===== */}
@@ -849,24 +677,6 @@ export default function ElderlyDetail() {
                 <Typography sx={cardTitleSx("#417d44")}>
                   معلومات الطبيب
                 </Typography>
-
-
-                <Button
-                  onClick={openAddReportDialog}
-                  startIcon={<UploadFileOutlinedIcon />}
-                  variant="contained"
-                  sx={{
-                    ...softBtnSx,
-                    backgroundColor: "#417d44",
-                    "&:hover": { backgroundColor: "#356836" },
-                    "& .MuiButton-startIcon": {
-                      marginInlineEnd: "10px",
-                      marginInlineStart: 0,
-                    },
-                  }}
-                >
-                  إضافة تشخيص
-                </Button>
               </Box>
 
 
@@ -1272,179 +1082,6 @@ export default function ElderlyDetail() {
             </Box>
           )}
         </DialogContent>
-      </Dialog>
-
-
-      {/* ===== Add Medical Report Dialog ===== */}
-      <Dialog
-        open={openAddReport}
-        onClose={closeAddReportDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ fontWeight: 1000 }}>إضافة تشخيص جديد</DialogTitle>
-
-
-        <DialogContent dividers>
-          <Stack spacing={2}>
-            <TextField
-              label="التاريخ"
-              type="date"
-              value={reportDate}
-              onChange={(e) => setReportDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              size="small"
-              fullWidth
-            />
-
-
-            <input
-              ref={reportFileRef}
-              type="file"
-              hidden
-              accept="image/*,application/pdf"
-              onChange={onReportFileSelected}
-            />
-
-
-            <Box
-              sx={{
-                display: "flex",
-                gap: 1,
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <Button
-                onClick={pickReportFile}
-                variant="outlined"
-                startIcon={<UploadFileOutlinedIcon />}
-                sx={{ ...softBtnSx, gap: 1.5 }}
-              >
-                اختيار ملف التشخيص
-              </Button>
-              <Chip
-                label={reportFile ? reportFile.name : "لم يتم اختيار ملف"}
-                sx={{ fontWeight: 900 }}
-              />
-            </Box>
-
-
-            <Divider />
-
-
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-              <Button
-                onClick={() => setDoctorMode("existing")}
-                variant={doctorMode === "existing" ? "contained" : "outlined"}
-                sx={{
-                  ...softBtnSx,
-                  backgroundColor:
-                    doctorMode === "existing" ? "#417d44" : undefined,
-                  "&:hover":
-                    doctorMode === "existing"
-                      ? { backgroundColor: "#356836" }
-                      : undefined,
-                }}
-              >
-                اختيار طبيب
-              </Button>
-
-
-              <Button
-                onClick={() => setDoctorMode("new")}
-                startIcon={<PersonAddAltOutlinedIcon />}
-                variant={doctorMode === "new" ? "contained" : "outlined"}
-                sx={{
-                  ...softBtnSx,
-                  gap: 1.5,
-                  backgroundColor: doctorMode === "new" ? "#417d44" : undefined,
-                  "&:hover":
-                    doctorMode === "new"
-                      ? { backgroundColor: "#356836" }
-                      : undefined,
-                }}
-              >
-                إضافة طبيب جديد
-              </Button>
-            </Box>
-
-
-            {doctorMode === "existing" ? (
-              <FormControl fullWidth size="small">
-                <InputLabel id="doctor-label">الطبيب</InputLabel>
-                <Select
-                  labelId="doctor-label"
-                  label="الطبيب"
-                  value={selectedDoctorId}
-                  onChange={(e) => setSelectedDoctorId(e.target.value)}
-                  sx={{
-                    borderRadius: 3,
-                    background: "#f7f7f3",
-                    fontWeight: 900,
-                  }}
-                >
-                  {doctors.map((d) => (
-                    <MenuItem key={d.doctorId} value={d.doctorId}>
-                      {d.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            ) : (
-              <Stack spacing={1.2}>
-                <TextField
-                  label="اسم الطبيب"
-                  value={newDoctor.name}
-                  onChange={(e) =>
-                    setNewDoctor((p) => ({ ...p, name: e.target.value }))
-                  }
-                  size="small"
-                  fullWidth
-                />
-                <TextField
-                  label="مكان العمل"
-                  value={newDoctor.workPlace}
-                  onChange={(e) =>
-                    setNewDoctor((p) => ({ ...p, workPlace: e.target.value }))
-                  }
-                  size="small"
-                  fullWidth
-                />
-                <TextField
-                  label="رقم الهاتف"
-                  value={newDoctor.phone}
-                  onChange={(e) =>
-                    setNewDoctor((p) => ({ ...p, phone: e.target.value }))
-                  }
-                  size="small"
-                  fullWidth
-                />
-              </Stack>
-            )}
-          </Stack>
-        </DialogContent>
-
-
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={closeAddReportDialog} sx={softBtnSx}>
-            إلغاء
-          </Button>
-          <Button
-            onClick={submitAddReport}
-            variant="contained"
-            disabled={savingReport}
-            startIcon={<SaveOutlinedIcon />}
-            sx={{
-              ...softBtnSx,
-              backgroundColor: "#417d44",
-              gap: 1.5,
-              "&:hover": { backgroundColor: "#356836" },
-            }}
-          >
-            {savingReport ? "جاري الحفظ..." : "حفظ"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
 
