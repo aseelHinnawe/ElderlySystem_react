@@ -17,16 +17,20 @@ import ElderlyWomanIcon from "@mui/icons-material/ElderlyWoman";
 export default function SponsorNavbar() {
   const navigate = useNavigate();
 
+
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
+
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
 
   const handleMenuClick = (option) => {
     if (option === "تسجيل الخروج") {
@@ -34,17 +38,22 @@ export default function SponsorNavbar() {
       navigate("/login", { replace: true });
     }
 
+
     if (option === "الحساب الشخصي") {
       navigate("/Sponsor/Sponsor-Profile");
     }
 
+
     handleMenuClose();
   };
 
+
   const [anchorElNav, setAnchorElNav] = useState(null);
+
 
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
+
 
   return (
     <AppBar
@@ -79,6 +88,7 @@ export default function SponsorNavbar() {
           </Typography>
         </Box>
 
+
         {/* الروابط بالنص */}
         <Box
           sx={{
@@ -95,6 +105,7 @@ export default function SponsorNavbar() {
             معلومات المسن
           </Typography>
 
+
           <Typography
             sx={{ cursor: "pointer", fontWeight: 500 }}
             onClick={() => navigate("/Sponsor/MedicineStatus")}
@@ -102,13 +113,21 @@ export default function SponsorNavbar() {
             حالة الأدوية
           </Typography>
 
+
           <Typography
             sx={{ cursor: "pointer", fontWeight: 500 }}
             onClick={() => navigate("/Sponsor/DailyFollow")}
           >
             المتابعة اليومية
           </Typography>
+          <Typography
+            sx={{ cursor: "pointer", fontWeight: 500 }}
+            onClick={() => navigate("/Sponsor/Doctors")}
+          >
+            ترشيحات الأطباء
+          </Typography>
         </Box>
+
 
         {/* يمين الشاشة */}
         <Box
@@ -129,6 +148,7 @@ export default function SponsorNavbar() {
               <MenuIcon />
             </IconButton>
 
+
             <Menu
               anchorEl={anchorElNav}
               open={Boolean(anchorElNav)}
@@ -145,6 +165,7 @@ export default function SponsorNavbar() {
                 معلومات المسن
               </MenuItem>
 
+
               <MenuItem
                 onClick={() => {
                   navigate("/Sponsor/MedicineStatus");
@@ -154,6 +175,7 @@ export default function SponsorNavbar() {
                 حالة الأدوية
               </MenuItem>
 
+
               <MenuItem
                 onClick={() => {
                   navigate("/Sponsor/DailyFollow");
@@ -162,14 +184,24 @@ export default function SponsorNavbar() {
               >
                 المتابعة اليومية
               </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  navigate("/Sponsor/Doctors");
+                  handleCloseNavMenu();
+                }}
+              >
+                ترشيحات الأطباء
+              </MenuItem>
             </Menu>
           </Box>
+
 
           {/* ايقونة الحساب */}
           <IconButton color="inherit" onClick={handleMenuOpen}>
             <AccountCircle sx={{ fontSize: 40 }} />
           </IconButton>
         </Box>
+
 
         {/* قائمة الحساب */}
         <Menu
@@ -182,6 +214,7 @@ export default function SponsorNavbar() {
           <MenuItem onClick={() => handleMenuClick("الحساب الشخصي")}>
             الحساب الشخصي
           </MenuItem>
+
 
           <MenuItem onClick={() => handleMenuClick("تسجيل الخروج")}>
             تسجيل الخروج

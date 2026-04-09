@@ -675,7 +675,7 @@ export default function ElderlyDetail() {
                 }}
               >
                 <Typography sx={cardTitleSx("#417d44")}>
-                  معلومات الطبيب
+                  معلومات التشخيص والطبيب
                 </Typography>
               </Box>
 

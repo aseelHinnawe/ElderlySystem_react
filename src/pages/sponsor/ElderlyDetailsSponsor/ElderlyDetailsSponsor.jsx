@@ -1,5 +1,8 @@
+
 import { useEffect, useMemo, useState } from "react";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
+
+
 
 
 import {
@@ -37,12 +40,16 @@ import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 
+
+
 const chipStatusSx = (isActive) => ({
   fontWeight: 900,
   color: "#fff",
   backgroundColor: isActive ? "#2E7D32" : "#C62828",
   px: 1.5,
 });
+
+
 
 
 const cardTitleSx = (borderColor) => ({
@@ -54,6 +61,8 @@ const cardTitleSx = (borderColor) => ({
 });
 
 
+
+
 const infoRowSx = {
   display: "flex",
   alignItems: "center",
@@ -62,6 +71,8 @@ const infoRowSx = {
   borderRadius: 2.5,
   background: "#f7f7f3",
 };
+
+
 
 
 const iconCircleSx = {
@@ -77,11 +88,15 @@ const iconCircleSx = {
 };
 
 
+
+
 const softBtnSx = {
   borderRadius: 2,
   textTransform: "none",
   fontWeight: 900,
 };
+
+
 
 
 function FieldRow({ icon, label, value }) {
@@ -90,10 +105,14 @@ function FieldRow({ icon, label, value }) {
       <Box sx={iconCircleSx}>{icon}</Box>
 
 
+
+
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography sx={{ fontSize: 12, color: "#777", fontWeight: 800 }}>
           {label}
         </Typography>
+
+
 
 
         <Typography
@@ -115,6 +134,8 @@ function FieldRow({ icon, label, value }) {
 }
 
 
+
+
 export default function ElderlyDetailsSponsor() {
   const [elderly, setElderly] = useState(null);
   const [sponsorInfo, setSponsorInfo] = useState(null);
@@ -129,12 +150,16 @@ export default function ElderlyDetailsSponsor() {
   });
 
 
+
+
   const [openPreview, setOpenPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [openRoomImages, setOpenRoomImages] = useState(false);
   const [roomImages, setRoomImages] = useState([]);
   const [roomImageIndex, setRoomImageIndex] = useState(0);
+
+
 
 
   const openRoomImagesDialog = (images = []) => {
@@ -146,11 +171,15 @@ export default function ElderlyDetailsSponsor() {
   };
 
 
+
+
   const closeRoomImagesDialog = () => {
     setOpenRoomImages(false);
     setRoomImages([]);
     setRoomImageIndex(0);
   };
+
+
 
 
   const openFilePreview = (url, title) => {
@@ -161,11 +190,15 @@ export default function ElderlyDetailsSponsor() {
   };
 
 
+
+
   const closeFilePreview = () => {
     setOpenPreview(false);
     setPreviewUrl("");
     setPreviewTitle("");
   };
+
+
 
 
   const fetchElderly = async () => {
@@ -177,6 +210,8 @@ export default function ElderlyDetailsSponsor() {
       ]);
 
 
+
+
       const detailsData = detailsRes?.data?.data || null;
       const mineData = mineRes?.data?.data || null;
 
@@ -184,6 +219,8 @@ export default function ElderlyDetailsSponsor() {
       const sponsorData = Array.isArray(mineData)
         ? mineData[0]?.sponsor ?? null
         : mineData?.sponsor ?? null;
+
+
 
 
       setElderly(detailsData);
@@ -205,9 +242,13 @@ export default function ElderlyDetailsSponsor() {
   };
 
 
+
+
   useEffect(() => {
     fetchElderly();
   }, []);
+
+
 
 
   const handleReportChange = async (e) => {
@@ -215,6 +256,8 @@ export default function ElderlyDetailsSponsor() {
     setSelectedReportId(reportId);
     await fetchReportById(reportId);
   };
+
+
 
 
   const fetchReportById = async (reportId) => {
@@ -225,6 +268,9 @@ export default function ElderlyDetailsSponsor() {
         `/Sponsor/Elderly/medical-reports/${reportId}`
       );
       setSelectedReport(res?.data?.data || null);
+      console.log(res);
+
+
     } catch (err) {
       setSnackbar({
         open: true,
@@ -237,7 +283,11 @@ export default function ElderlyDetailsSponsor() {
   };
 
 
+
+
   const isActive = elderly?.status === "نشط";
+
+
 
 
   const basicFields = useMemo(() => {
@@ -272,6 +322,8 @@ export default function ElderlyDetailsSponsor() {
   }, [elderly]);
 
 
+
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
@@ -279,6 +331,8 @@ export default function ElderlyDetailsSponsor() {
       </Box>
     );
   }
+
+
 
 
   if (!elderly && !loading) {
@@ -289,6 +343,8 @@ export default function ElderlyDetailsSponsor() {
             لا توجد بيانات لعرضها
           </Typography>
         </Box>
+
+
 
 
         <Snackbar
@@ -304,6 +360,8 @@ export default function ElderlyDetailsSponsor() {
   }
 
 
+
+
   const roomImgs = elderly?.currentStay?.room?.images ?? [];
   const hasDiseases =
     Array.isArray(elderly.diseases) && elderly.diseases.length > 0;
@@ -312,7 +370,11 @@ export default function ElderlyDetailsSponsor() {
     elderly.medicalReportDates.length > 0;
 
 
+
+
   const isPdf = (url = "") => url.toLowerCase().includes(".pdf");
+
+
 
 
   return (
@@ -356,6 +418,8 @@ export default function ElderlyDetailsSponsor() {
                 </Avatar>
 
 
+
+
                 <Chip
                   label={isActive ? "نشط" : "غير نشط"}
                   size="small"
@@ -374,16 +438,22 @@ export default function ElderlyDetailsSponsor() {
               </Box>
 
 
+
+
               <Typography sx={{ mt: 2, fontSize: 26, fontWeight: 1000 }}>
                 {elderly.elderlyName}
               </Typography>
             </Box>
 
 
+
+
             <Box sx={{ flexGrow: 1 }}>
               <Typography sx={cardTitleSx("#6a6a57")}>
                 البيانات الأساسية
               </Typography>
+
+
 
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
@@ -399,8 +469,12 @@ export default function ElderlyDetailsSponsor() {
             </Box>
 
 
+
+
             <Box>
               <Typography sx={cardTitleSx("#417d44")}>الأمراض</Typography>
+
+
 
 
               {hasDiseases ? (
@@ -453,6 +527,8 @@ export default function ElderlyDetailsSponsor() {
                           </Box>
 
 
+
+
                           <Box sx={{ minWidth: 0 }}>
                             <Typography
                               sx={{
@@ -469,6 +545,8 @@ export default function ElderlyDetailsSponsor() {
                             </Typography>
 
 
+
+
                             <Typography
                               sx={{
                                 fontSize: 12,
@@ -480,6 +558,8 @@ export default function ElderlyDetailsSponsor() {
                             </Typography>
                           </Box>
                         </Box>
+
+
 
 
                         <Chip
@@ -520,6 +600,8 @@ export default function ElderlyDetailsSponsor() {
         </Grid>
 
 
+
+
         {/* ===== Right Column ===== */}
         <Grid size={{ xs: 12, lg: 7 }} sx={{ display: "flex" }}>
           <Box
@@ -539,6 +621,8 @@ export default function ElderlyDetailsSponsor() {
                 }}
               >
                 <Typography sx={cardTitleSx("#6a6a57")}>بيانات الكفيل</Typography>
+
+
 
 
                 <Box sx={{ mt: 1.5 }}>
@@ -567,6 +651,8 @@ export default function ElderlyDetailsSponsor() {
                     </Grid>
 
 
+
+
                     <Grid size={{ xs: 12, sm: 4 }}>
                       <Box
                         sx={{
@@ -589,6 +675,8 @@ export default function ElderlyDetailsSponsor() {
                         </Typography>
                       </Box>
                     </Grid>
+
+
 
 
                     <Grid size={{ xs: 12 , sm: 4 }}>
@@ -619,6 +707,8 @@ export default function ElderlyDetailsSponsor() {
             ) : null}
 
 
+
+
             {isActive ? (
               <Paper
                 sx={{
@@ -628,6 +718,8 @@ export default function ElderlyDetailsSponsor() {
                 }}
               >
                 <Typography sx={cardTitleSx("#0d0d0d")}>الإقامة</Typography>
+
+
 
 
                 {elderly.currentStay ? (
@@ -655,6 +747,8 @@ export default function ElderlyDetailsSponsor() {
                           </Typography>
                         </Box>
                       </Grid>
+
+
 
 
                       <Grid size={{ xs: 12, sm: 6 }}>
@@ -688,6 +782,8 @@ export default function ElderlyDetailsSponsor() {
                       </Grid>
 
 
+
+
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <Box
                           sx={{
@@ -705,6 +801,8 @@ export default function ElderlyDetailsSponsor() {
                           </Box>
 
 
+
+
                           <Box sx={{ minWidth: 0, flex: 1 }}>
                             <Typography
                               sx={{
@@ -719,6 +817,8 @@ export default function ElderlyDetailsSponsor() {
                             >
                               الغرفة
                             </Typography>
+
+
 
 
                             <Typography
@@ -759,6 +859,8 @@ export default function ElderlyDetailsSponsor() {
                       </Grid>
 
 
+
+
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <Box
                           sx={{
@@ -774,6 +876,8 @@ export default function ElderlyDetailsSponsor() {
                           <Box sx={iconCircleSx}>
                             <SwapHorizIcon />
                           </Box>
+
+
 
 
                           <Box sx={{ minWidth: 0 }}>
@@ -819,6 +923,8 @@ export default function ElderlyDetailsSponsor() {
             ) : null}
 
 
+
+
             <Paper
               sx={{
                 p: 3,
@@ -829,6 +935,8 @@ export default function ElderlyDetailsSponsor() {
               <Typography sx={cardTitleSx("#417d44")}>
                 معلومات الطبيب
               </Typography>
+
+
 
 
               {hasReports ? (
@@ -862,6 +970,8 @@ export default function ElderlyDetailsSponsor() {
                       ))}
                     </Select>
                   </FormControl>
+
+
 
 
                   {loadingReport ? (
@@ -908,6 +1018,8 @@ export default function ElderlyDetailsSponsor() {
                         </Box>
 
 
+
+
                         {selectedReport.diagnosisUrl && (
                           <Button
                             onClick={() =>
@@ -937,7 +1049,11 @@ export default function ElderlyDetailsSponsor() {
                       </Box>
 
 
+
+
                       <Divider sx={{ my: 2 }} />
+
+
 
 
                       <Grid container spacing={2}>
@@ -961,6 +1077,8 @@ export default function ElderlyDetailsSponsor() {
                         </Grid>
 
 
+
+
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <Box
                             sx={{ p: 2, borderRadius: 2.5, background: "#fff" }}
@@ -979,6 +1097,8 @@ export default function ElderlyDetailsSponsor() {
                             </Typography>
                           </Box>
                         </Grid>
+
+
 
 
                         <Grid size={{ xs: 12 }}>
@@ -1015,6 +1135,8 @@ export default function ElderlyDetailsSponsor() {
             </Paper>
 
 
+
+
             <Paper
               sx={{
                 p: 3,
@@ -1023,6 +1145,8 @@ export default function ElderlyDetailsSponsor() {
               }}
             >
               <Typography sx={cardTitleSx("#6a6a57")}>الملفات</Typography>
+
+
 
 
               <Grid container spacing={2}>
@@ -1052,6 +1176,8 @@ export default function ElderlyDetailsSponsor() {
                         </Typography>
                       </Box>
                     </Box>
+
+
 
 
                     {elderly.nationalIdImage ? (
@@ -1084,6 +1210,8 @@ export default function ElderlyDetailsSponsor() {
                 </Grid>
 
 
+
+
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Box
                     sx={{
@@ -1112,6 +1240,8 @@ export default function ElderlyDetailsSponsor() {
                         </Typography>
                       </Box>
                     </Box>
+
+
 
 
                     {elderly.healthInsurance ? (
@@ -1150,6 +1280,8 @@ export default function ElderlyDetailsSponsor() {
           </Box>
         </Grid>
       </Grid>
+
+
 
 
       <Dialog
@@ -1204,10 +1336,14 @@ export default function ElderlyDetailsSponsor() {
             </Box>
 
 
+
+
             <Typography sx={{ fontWeight: 1000, fontSize: 16 }}>
               {previewTitle}
             </Typography>
           </Box>
+
+
 
 
           <IconButton
@@ -1221,6 +1357,8 @@ export default function ElderlyDetailsSponsor() {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
+
+
 
 
         <DialogContent sx={{ p: 2.2, background: "transparent" }}>
@@ -1261,6 +1399,8 @@ export default function ElderlyDetailsSponsor() {
           )}
         </DialogContent>
       </Dialog>
+
+
 
 
       <Dialog
@@ -1315,10 +1455,14 @@ export default function ElderlyDetailsSponsor() {
             </Box>
 
 
+
+
             <Typography sx={{ fontWeight: 1000, fontSize: 16 }}>
               صور الغرفة
             </Typography>
           </Box>
+
+
 
 
           <IconButton
@@ -1332,6 +1476,8 @@ export default function ElderlyDetailsSponsor() {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
+
+
 
 
         <DialogContent sx={{ p: 2.2, background: "transparent" }}>
@@ -1361,6 +1507,8 @@ export default function ElderlyDetailsSponsor() {
                   }}
                 />
               </Box>
+
+
 
 
               <Box
@@ -1399,6 +1547,8 @@ export default function ElderlyDetailsSponsor() {
               </Box>
 
 
+
+
               <Box
                 sx={{
                   mt: 1.5,
@@ -1423,9 +1573,13 @@ export default function ElderlyDetailsSponsor() {
                 </Button>
 
 
+
+
                 <Typography sx={{ fontWeight: 900, color: "#6a6a57" }}>
                   {roomImageIndex + 1} / {roomImages.length}
                 </Typography>
+
+
 
 
                 <Button
@@ -1456,6 +1610,8 @@ export default function ElderlyDetailsSponsor() {
       </Dialog>
 
 
+
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -1467,4 +1623,5 @@ export default function ElderlyDetailsSponsor() {
     </Box>
   );
 }
+
 

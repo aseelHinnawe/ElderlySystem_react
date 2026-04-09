@@ -1711,16 +1711,25 @@ export default function Register() {
                     />
 
                     <Grid container spacing={2}>
+                      
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="الرتبة الطبية"
-                          {...register("medicalRank")}
-                          className={style.glassInput}
-                          error={!!errors.medicalRank}
-                          helperText={errors.medicalRank?.message}
-                        />
-                      </Grid>
+    <TextField
+      fullWidth
+      select
+      label="الرتبة الطبية"
+      defaultValue=""
+      {...register("medicalRank")}
+      className={style.glassInput}
+      error={!!errors.medicalRank}
+      helperText={errors.medicalRank?.message}
+    >
+      <MenuItem value="intern">امتياز</MenuItem>
+      <MenuItem value="general">عام</MenuItem>
+      <MenuItem value="resident">مقيم</MenuItem>
+      <MenuItem value="specialist">أخصائي</MenuItem>
+      <MenuItem value="consultant">استشاري</MenuItem>
+    </TextField>
+  </Grid>
 
                       <Grid size={{ xs: 12, md: 6 }}>
                         <TextField

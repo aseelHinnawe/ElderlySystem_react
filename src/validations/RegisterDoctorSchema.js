@@ -1,4 +1,7 @@
+
 import * as yup from "yup";
+
+
 
 
 const doctorUniversitySchema = yup.object({
@@ -7,6 +10,8 @@ const doctorUniversitySchema = yup.object({
         .trim()
         .required("اسم الجامعة مطلوب")
         .max(150, "اسم الجامعة طويل جدًا"),
+
+
 
 
     degree: yup
@@ -25,6 +30,8 @@ const doctorUniversitySchema = yup.object({
 });
 
 
+
+
 const requiredStringArray = (itemLabel) =>
     yup.array().when("$step", {
         is: 2,
@@ -40,6 +47,8 @@ const requiredStringArray = (itemLabel) =>
     });
 
 
+
+
 const optionalStringArray = (itemLabel) =>
     yup.array().when("$step", {
         is: 2,
@@ -52,11 +61,15 @@ const optionalStringArray = (itemLabel) =>
     });
 
 
+
+
 const RegisterDoctorSchema = yup.object({
     fullName: yup
         .string()
         .required("الاسم الكامل مطلوب")
         .max(200, "الاسم الكامل طويل جدًا"),
+
+
 
 
     email: yup
@@ -66,13 +79,19 @@ const RegisterDoctorSchema = yup.object({
         .max(256, "البريد الإلكتروني طويل جدًا"),
 
 
+
+
     phoneNumber: yup
         .string()
         .required("رقم الهاتف مطلوب")
         .matches(/^\d{10}$/, "رقم الهاتف يجب أن يتكون من 10 أرقام"),
 
 
+
+
     city: yup.string().required("المدينة مطلوبة").max(100, "اسم المدينة طويل جدًا"),
+
+
 
 
     nationalId: yup
@@ -81,10 +100,14 @@ const RegisterDoctorSchema = yup.object({
         .matches(/^\d{9}$/, "رقم الهوية يجب أن يتكون من 9 أرقام"),
 
 
+
+
     genderDoctor: yup
         .string()
         .required("الجنس مطلوب")
         .oneOf(["Male", "Female"], "الجنس مطلوب"),
+
+
 
 
     password: yup
@@ -98,6 +121,8 @@ const RegisterDoctorSchema = yup.object({
         ),
 
 
+
+
     medicalRank: yup.string().when("$step", {
         is: 2,
         then: (s) =>
@@ -106,12 +131,16 @@ const RegisterDoctorSchema = yup.object({
     }),
 
 
+
+
     yearsOfExperience: yup.string().when("$step", {
         is: 2,
         then: (s) =>
             s.required("سنوات الخبرة مطلوبة").max(50, "قيمة سنوات الخبرة طويلة جدًا"),
         otherwise: (s) => s.notRequired(),
     }),
+
+
 
 
     numberOfOperations: yup
@@ -136,7 +165,9 @@ const RegisterDoctorSchema = yup.object({
         }),
 
 
-    bDate: yup.string().when("$step", {
+
+
+    doctorBDate: yup.string().when("$step", {
         is: 2,
         then: (s) =>
             s
@@ -149,6 +180,8 @@ const RegisterDoctorSchema = yup.object({
     }),
 
 
+
+
     specializations: requiredStringArray("تخصص"),
     diseases: requiredStringArray("مرض"),
     workPlaces: requiredStringArray("مكان عمل"),
@@ -156,6 +189,8 @@ const RegisterDoctorSchema = yup.object({
     diagnosticTests: requiredStringArray("فحص"),
     operationTypes: optionalStringArray("نوع العملية"),
     previousWorkPlaces: optionalStringArray("مكان العمل السابق"),
+
+
 
 
     universities: yup.array().when("$step", {
@@ -171,5 +206,8 @@ const RegisterDoctorSchema = yup.object({
 });
 
 
+
+
 export default RegisterDoctorSchema;
+
 

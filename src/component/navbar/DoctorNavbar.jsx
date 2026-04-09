@@ -12,12 +12,23 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import ElderlyWomanIcon from "@mui/icons-material/ElderlyWoman";
+
+
 export default function DoctorNavbar() {
   const navigate = useNavigate();
 
 
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
+
+
+  const [anchorElNav, setAnchorElNav] = useState(null);
+
+
+  const navItems = [
+    { label: "المسنين", path: "/Doctor" },
+    { label: "طلبات المسنين", path: "/Doctor/ElderlyRequest" },
+  ];
 
 
   const handleMenuOpen = (event) => {
@@ -46,11 +57,10 @@ export default function DoctorNavbar() {
   };
 
 
-  const [anchorElNav, setAnchorElNav] = useState(null);
-
-
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
+
+
   return (
     <AppBar
       position="sticky"
@@ -85,7 +95,7 @@ export default function DoctorNavbar() {
         </Box>
 
 
-        {/* الروابط بالنص */}
+        {/* الروابط بالشاشة الكبيرة */}
         <Box
           sx={{
             display: { xs: "none", md: "flex" },
@@ -94,20 +104,15 @@ export default function DoctorNavbar() {
             gap: 5,
           }}
         >
-          <Typography
-            sx={{ cursor: "pointer", fontWeight: 500 }}
-            onClick={() => navigate("/Sponsor")}
-          >
-            المسنين
-          </Typography>
-
-
-          <Typography
-            sx={{ cursor: "pointer", fontWeight: 500 }}
-            onClick={() => navigate("/Sponsor/MedicineStatus")}
-          >
-            الربط مع المسنين
-          </Typography>
+          {navItems.map((item) => (
+            <Typography
+              key={item.path}
+              sx={{ cursor: "pointer", fontWeight: 500 }}
+              onClick={() => navigate(item.path)}
+            >
+              {item.label}
+            </Typography>
+          ))}
         </Box>
 
 
@@ -138,39 +143,22 @@ export default function DoctorNavbar() {
               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               transformOrigin={{ vertical: "top", horizontal: "right" }}
             >
-              <MenuItem
-                onClick={() => {
-                  navigate("/Sponsor/ElderInfo");
-                  handleCloseNavMenu();
-                }}
-              >
-                معلومات المسن
-              </MenuItem>
-
-
-              <MenuItem
-                onClick={() => {
-                  navigate("/Sponsor/MedicineStatus");
-                  handleCloseNavMenu();
-                }}
-              >
-                حالة الأدوية
-              </MenuItem>
-
-
-              <MenuItem
-                onClick={() => {
-                  navigate("/Sponsor/DailyFollow");
-                  handleCloseNavMenu();
-                }}
-              >
-                المتابعة اليومية
-              </MenuItem>
+              {navItems.map((item) => (
+                <MenuItem
+                  key={item.path}
+                  onClick={() => {
+                    navigate(item.path);
+                    handleCloseNavMenu();
+                  }}
+                >
+                  {item.label}
+                </MenuItem>
+              ))}
             </Menu>
           </Box>
 
 
-          {/* ايقونة الحساب */}
+          {/* أيقونة الحساب */}
           <IconButton color="inherit" onClick={handleMenuOpen}>
             <AccountCircle sx={{ fontSize: 40 }} />
           </IconButton>
@@ -198,6 +186,3 @@ export default function DoctorNavbar() {
     </AppBar>
   );
 }
-
-
-

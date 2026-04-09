@@ -1,3 +1,4 @@
+
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import Home from "./pages/home/Home";
@@ -51,6 +52,10 @@ import DailyFollow from "./pages/sponsor/DailyFollow/DailyFollow.jsx";
 import DoctorLayout from "./layout/DoctorLayout.jsx";
 import ElderlyDoctor from "./pages/Doctor/ElderlyDoctor/ElderlyDoctor.jsx";
 import DoctorProfile from "./pages/Doctor/DoctorProfile/DoctorProfile.jsx";
+import ElderlyDoctorDetails from "./pages/sponsor/ElderlyDoctorDetails/ElderlyDoctorDetails.jsx";
+import ElderlyRequest from "./pages/Doctor/ElderlyRequest/ElderlyRequest.jsx";
+import ElderlyDetailsDoctor from "./pages/Doctor/ElderlyDetailsDoctor/ElderlyDetailsDoctor.jsx";
+
 
 const router = createBrowserRouter([
   {
@@ -207,6 +212,7 @@ const router = createBrowserRouter([
         element: <RoomDetails />,
       },
 
+
       {
         path: "elderly/:id",
         element: <ElderlyDetails />,
@@ -277,8 +283,12 @@ const router = createBrowserRouter([
         path: "DailyFollow",
         element: <DailyFollow />,
       },
+      {
+        path: "Doctors",
+        element: <ElderlyDoctorDetails />,
+      }
     ]
-    
+   
   },
   {
     path: "/Doctor",
@@ -296,8 +306,22 @@ const router = createBrowserRouter([
         path: "Doctor-Profile",
         element: <DoctorProfile />,
       },
+      {
+        path: "ElderlyRequest",
+        element: <ElderlyRequest />,
+      },
+      {
+        path: "Elderly-Details",
+        element: <ElderlyDetailsDoctor />,
+      },
+      {
+        path: "Elderly-Details/:id",
+        element: <ElderlyDetailsDoctor />,
+      },
+    
     ],
   },
 ]);
 
 export default router;
+
