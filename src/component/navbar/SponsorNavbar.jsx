@@ -124,7 +124,7 @@ export default function SponsorNavbar() {
             sx={{ cursor: "pointer", fontWeight: 500 }}
             onClick={() => navigate("/Sponsor/Doctors")}
           >
-            ترشيحات الأطباء
+            اختيار الأطباء
           </Typography>
         </Box>
 

@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AxiosUserInstance from "../../../api/AxiosUserInstance";
 import {
   Box,
@@ -13,6 +12,8 @@ import {
   Alert,
   Button,
   Stack,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import MedicalServicesRoundedIcon from "@mui/icons-material/MedicalServicesRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
@@ -22,6 +23,13 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 import LocalHospitalRoundedIcon from "@mui/icons-material/LocalHospitalRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+
+
+const DOCTOR_ROW_HEIGHT = 78;
+const DOCTOR_LIST_GAP = 8;
+const DOCTOR_LIST_PADDING = 8;
+const VISIBLE_DOCTORS_COUNT = 2;
 
 
 const headerCardStyles = {
@@ -54,22 +62,45 @@ const infoRowSx = {
 };
 
 
-const doctorCardSx = (selected) => ({
+const compactDoctorRowSx = (selected) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 1.2,
+  p: 1.4,
+  minHeight: `${DOCTOR_ROW_HEIGHT}px`,
+  height: `${DOCTOR_ROW_HEIGHT}px`,
+  boxSizing: "border-box",
   borderRadius: 3,
+  cursor: "pointer",
   border: selected
-    ? "1px solid rgba(106,106,87,0.35)"
-    : "1px solid rgba(0,0,0,0.07)",
+    ? "1px solid rgba(106,106,87,0.32)"
+    : "1px solid rgba(0,0,0,0.06)",
   background: selected
-    ? "linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(244,245,239,1) 100%)"
+    ? "linear-gradient(135deg, rgba(106,106,87,0.09), rgba(160,160,120,0.08))"
     : "#fff",
   boxShadow: selected
-    ? "0 10px 24px rgba(106,106,87,0.12)"
-    : "0 6px 16px rgba(0,0,0,0.05)",
+    ? "0 8px 18px rgba(106,106,87,0.10)"
+    : "0 2px 8px rgba(0,0,0,0.03)",
   transition: "all 0.2s ease",
   "&:hover": {
-    transform: "translateY(-2px)",
-    boxShadow: "0 12px 24px rgba(0,0,0,0.08)",
+    transform: "translateY(-1px)",
+    boxShadow: "0 10px 18px rgba(0,0,0,0.07)",
+    borderColor: "rgba(106,106,87,0.24)",
   },
+});
+
+
+const radioLikeSx = (selected) => ({
+  width: 22,
+  height: 22,
+  minWidth: 22,
+  borderRadius: "50%",
+  border: selected
+    ? "6px solid rgb(106,106,87)"
+    : "2px solid rgba(106,106,87,0.38)",
+  backgroundColor: "#fff",
+  transition: "all 0.2s ease",
 });
 
 
@@ -79,6 +110,7 @@ export default function ElderlyDoctorDetails() {
   const [selectedDoctorId, setSelectedDoctorId] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
 
   const [snackbar, setSnackbar] = useState({
@@ -94,27 +126,29 @@ export default function ElderlyDoctorDetails() {
 
 
   const fetchData = async () => {
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const currentRes = await AxiosUserInstance.get("/Sponsor/Elderly/current-doctor");
-    setCurrentDoctor(currentRes?.data?.data ?? null);
-  } catch (error) {
-    setCurrentDoctor(null); 
-  }
 
-  try {
-    const doctorsRes = await AxiosUserInstance.get("/Sponsor/Elderly/available-doctors");
-    setAvailableDoctors(
-      Array.isArray(doctorsRes?.data?.data) ? doctorsRes.data.data : []
-    );
-  } catch (error) {
-    setAvailableDoctors([]);
-    showSnackbar("فشل تحميل قائمة الأطباء المتاحين");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const currentRes = await AxiosUserInstance.get("/Sponsor/Elderly/current-doctor");
+      setCurrentDoctor(currentRes?.data?.data ?? null);
+    } catch (error) {
+      setCurrentDoctor(null);
+    }
+
+
+    try {
+      const doctorsRes = await AxiosUserInstance.get("/Sponsor/Elderly/available-doctors");
+      setAvailableDoctors(
+        Array.isArray(doctorsRes?.data?.data) ? doctorsRes.data.data : []
+      );
+    } catch (error) {
+      setAvailableDoctors([]);
+      showSnackbar("فشل تحميل قائمة الأطباء المتاحين");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   useEffect(() => {
@@ -150,6 +184,21 @@ export default function ElderlyDoctorDetails() {
       setSubmitLoading(false);
     }
   };
+
+
+  const filteredDoctors = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return availableDoctors;
+
+
+    return availableDoctors.filter((doctor) =>
+      (doctor.name || "").toLowerCase().includes(q)
+    );
+  }, [availableDoctors, searchTerm]);
+
+
+  const selectedDoctor =
+    availableDoctors.find((doctor) => doctor.doctorId === selectedDoctorId) || null;
 
 
   if (loading) {
@@ -210,7 +259,7 @@ export default function ElderlyDoctorDetails() {
                 variant="h4"
                 sx={{ fontWeight: "bold", fontSize: { xs: 22, md: 28 } }}
               >
-                ترشيحات الأطباء
+                اختيار الأطباء
               </Typography>
               <Typography sx={{ opacity: 0.92, mt: 0.7, fontSize: 14 }}>
                 عرض الدكتور الحالي واختيار دكتور آخر لتقديم طلب التغيير
@@ -224,212 +273,280 @@ export default function ElderlyDoctorDetails() {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "420px minmax(0, 1fr)" },
+          gridTemplateColumns: { xs: "1fr", lg: "390px minmax(0, 1fr)" },
           gap: 3,
           alignItems: "stretch",
         }}
       >
-        {/* Current Doctor */}
         <Card sx={shellCardSx}>
-          <CardContent
+  <CardContent
+    sx={{
+      p: { xs: 2, md: 2.5 },
+      display: "flex",
+      flexDirection: "column",
+      gap: 2,
+      height: "100%",
+    }}
+  >
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+      <Avatar
+        sx={{
+          width: 48,
+          height: 48,
+          bgcolor: "rgba(106,106,87,0.12)",
+          color: "#4a4a3d",
+        }}
+      >
+        <LocalHospitalRoundedIcon />
+      </Avatar>
+
+
+      <Box>
+        <Typography sx={{ fontWeight: 800, color: "#1f1f1a", fontSize: 18 }}>
+          الدكتور الحالي
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: 12,
+            fontWeight: 900,
+            color: "#6a6a57",
+          }}
+        >
+          معلومات الطبيب المرتبط حاليًا
+        </Typography>
+      </Box>
+    </Box>
+
+
+    <Divider />
+
+
+    {!currentDoctor ? (
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: 4,
+          p: 3,
+          textAlign: "center",
+          background: "rgba(106,106,87,0.06)",
+          border: "1px dashed rgba(106,106,87,0.22)",
+        }}
+      >
+        <Box>
+          <Avatar
             sx={{
-              p: { xs: 2, md: 2.5 },
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              height: "100%",
+              mx: "auto",
+              mb: 1.5,
+              width: 60,
+              height: 60,
+              bgcolor: "rgba(106,106,87,0.12)",
+              color: "#6a6a57",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-              <Avatar
+            <PersonRoundedIcon />
+          </Avatar>
+          <Typography sx={{ fontWeight: 800, color: "#4a4a3d" }}>
+            لا يوجد دكتور حالي للمسنة
+          </Typography>
+        </Box>
+      </Box>
+    ) : (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          flex: 1,
+        }}
+      >
+        <Box
+          sx={{
+            position: "relative",
+            overflow: "hidden",
+            borderRadius: 5,
+            p: 2.2,
+            background:
+              "linear-gradient(135deg, rgba(106,106,87,0.12), rgba(160,160,120,0.08))",
+            border: "1px solid rgba(106,106,87,0.16)",
+          }}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              top: -30,
+              right: -30,
+              width: 100,
+              height: 100,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.18)",
+            }}
+          />
+
+
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Avatar
+              sx={{
+                width: 72,
+                height: 72,
+                bgcolor: "#fff",
+                color: "#6a6a57",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+              }}
+            >
+              <PersonRoundedIcon sx={{ fontSize: 34 }} />
+            </Avatar>
+
+
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
                 sx={{
-                  width: 48,
-                  height: 48,
-                  bgcolor: "rgba(106,106,87,0.12)",
-                  color: "#4a4a3d",
+                  fontWeight: 900,
+                  fontSize: 20,
+                  color: "#1f1f1a",
+                  lineHeight: 1.2,
                 }}
               >
-                <LocalHospitalRoundedIcon />
+                {currentDoctor.name || "-"}
+              </Typography>
+
+
+              <Typography
+                sx={{
+                  mt: 0.6,
+                  fontSize: 13,
+                  color: "#6a6a57",
+                  fontWeight: 700,
+                }}
+              >
+                الطبيب المسؤول الحالي
+              </Typography>
+
+
+              <Box
+                sx={{
+                  mt: 1.2,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.7,
+                  px: 1.2,
+                  py: 0.55,
+                  borderRadius: 999,
+                  bgcolor: "rgba(76,175,80,0.14)",
+                  color: "#2e7d32",
+                  border: "1px solid rgba(76,175,80,0.22)",
+                  fontSize: 12,
+                  fontWeight: 900,
+                }}
+              >
+                <CheckCircleRoundedIcon sx={{ fontSize: 16 }} />
+                مرتبط حاليًا
+              </Box>
+            </Box>
+          </Stack>
+        </Box>
+
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            gap: 1.4,
+          }}
+        >
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 3.5,
+              background: "#fff",
+              border: "1px solid rgba(106,106,87,0.12)",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
+            }}
+          >
+            <Stack direction="row" spacing={1.1} alignItems="center">
+              <Avatar
+                sx={{
+                  width: 42,
+                  height: 42,
+                  bgcolor: "rgba(33,150,243,0.12)",
+                  color: "#1565c0",
+                }}
+              >
+                <PhoneRoundedIcon />
               </Avatar>
 
 
-              <Box>
-                <Typography sx={{ fontWeight: 700, color: "#1f1f1a" }}>
-                  الدكتور الحالي
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  sx={{ fontSize: 12, fontWeight: 900, color: "#6a6a57" }}
+                >
+                  رقم الهاتف
                 </Typography>
                 <Typography
                   sx={{
-                    fontSize: 12,
-                    fontWeight: 900,
-                    color: "#6a6a57",
+                    fontWeight: 800,
+                    color: "#1f1f1a",
+                    mt: 0.2,
+                    wordBreak: "break-word",
                   }}
                 >
-                  معلومات الطبيب المرتبط حاليًا
+                  {currentDoctor.phone || "-"}
                 </Typography>
               </Box>
-            </Box>
+            </Stack>
+          </Box>
 
 
-            <Divider />
-
-
-            {!currentDoctor ? (
-              <Box
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 3.5,
+              background: "#fff",
+              border: "1px solid rgba(106,106,87,0.12)",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
+            }}
+          >
+            <Stack direction="row" spacing={1.1} alignItems="center">
+              <Avatar
                 sx={{
-                  flex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 4,
-                  p: 3,
-                  textAlign: "center",
-                  background: "rgba(106,106,87,0.06)",
-                  border: "1px dashed rgba(106,106,87,0.22)",
+                  width: 42,
+                  height: 42,
+                  bgcolor: "rgba(76,175,80,0.12)",
+                  color: "#2e7d32",
                 }}
               >
-                <Box>
-                  <Avatar
-                    sx={{
-                      mx: "auto",
-                      mb: 1.5,
-                      bgcolor: "rgba(106,106,87,0.12)",
-                      color: "#6a6a57",
-                    }}
-                  >
-                    <PersonRoundedIcon />
-                  </Avatar>
-                  <Typography sx={{ fontWeight: 700, color: "#4a4a3d" }}>
-                    لا يوجد دكتور حالي للمسنة
-                  </Typography>
-                </Box>
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                  flex: 1,
-                }}
-              >
-                <Box
+                <BusinessRoundedIcon />
+              </Avatar>
+
+
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  sx={{ fontSize: 12, fontWeight: 900, color: "#6a6a57" }}
+                >
+                  مكان العمل
+                </Typography>
+                <Typography
                   sx={{
-                    p: 2,
-                    borderRadius: 4,
-                    background:
-                      "linear-gradient(135deg, rgba(106,106,87,0.08), rgba(160,160,120,0.08))",
-                    border: "1px solid rgba(106,106,87,0.16)",
+                    fontWeight: 800,
+                    color: "#1f1f1a",
+                    mt: 0.2,
+                    wordBreak: "break-word",
                   }}
                 >
-                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{gap:1}}>
-                    <Avatar
-                      sx={{
-                        width: 58,
-                        height: 58,
-                        bgcolor: "rgba(106,106,87,0.14)",
-                        color: "#6a6a57",
-                      }}
-                    >
-                      <PersonRoundedIcon />
-                    </Avatar>
-
-
-                    <Box sx={{ flex: 1  }}>
-                      <Typography
-                        sx={{
-                          fontWeight: 800,
-                          fontSize: 18,
-                          color: "#1f1f1a",
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {currentDoctor.name || "-"}
-                      </Typography>
-
-
-                      <Box
-                        sx={{
-                          mt: 1,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 0.6,
-                          px: 1.1,
-                          py: 0.5,
-                          borderRadius: 999,
-                          bgcolor: "rgba(76,175,80,0.12)",
-                          color: "#2e7d32",
-                          border: "1px solid rgba(76,175,80,0.22)",
-                          fontSize: 12,
-                          fontWeight: 900,
-                        }}
-                      >
-                        <CheckCircleRoundedIcon sx={{ fontSize: 16 }} />
-                        الطبيب الحالي
-                      </Box>
-                    </Box>
-                  </Stack>
-                </Box>
-
-
-                <Box sx={{ display: "grid", gap: 1.4 }}>
-                  <Box sx={infoRowSx}>
-                    <Avatar
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        bgcolor: "rgba(33,150,243,0.12)",
-                        color: "#1565c0",
-                      }}
-                    >
-                      <PhoneRoundedIcon />
-                    </Avatar>
-
-
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: 12, fontWeight: 900, color: "#6a6a57" }}
-                      >
-                        رقم الهاتف
-                      </Typography>
-                      <Typography sx={{ fontWeight: 700, color: "#1f1f1a" }}>
-                        {currentDoctor.phone || "-"}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-
-                  <Box sx={infoRowSx}>
-                    <Avatar
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        bgcolor: "rgba(76,175,80,0.12)",
-                        color: "#2e7d32",
-                      }}
-                    >
-                      <BusinessRoundedIcon />
-                    </Avatar>
-
-
-                    <Box>
-                      <Typography
-                        sx={{ fontSize: 12, fontWeight: 900, color: "#6a6a57" }}
-                      >
-                        مكان العمل
-                      </Typography>
-                      <Typography sx={{ fontWeight: 700, color: "#1f1f1a" }}>
-                        {currentDoctor.workPlace || "-"}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
+                  {currentDoctor.workPlace || "-"}
+                </Typography>
               </Box>
-            )}
-          </CardContent>
-        </Card>
+            </Stack>
+          </Box>
+        </Box>
+      </Box>
+    )}
+  </CardContent>
+</Card>
 
 
-        {/* Available Doctors */}
         <Card sx={shellCardSx}>
           <CardContent
             sx={{
@@ -455,7 +572,7 @@ export default function ElderlyDoctorDetails() {
 
               <Box>
                 <Typography sx={{ fontWeight: 700, color: "#1f1f1a" }}>
-                 تقديم طلب تعيين دكتور
+                  تقديم طلب تعيين دكتور
                 </Typography>
                 <Typography
                   sx={{
@@ -464,7 +581,7 @@ export default function ElderlyDoctorDetails() {
                     color: "#6a6a57",
                   }}
                 >
-                  اختر دكتورًا من القائمة لتقديم الطلب
+                  اختر طبيبًا من القائمة بشكل سريع ومرتب
                 </Typography>
               </Box>
             </Box>
@@ -493,117 +610,183 @@ export default function ElderlyDoctorDetails() {
               </Box>
             ) : (
               <>
-                <Box
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="ابحث عن اسم الدكتور"
                   sx={{
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "1fr",
-                      sm: "repeat(2, minmax(0, 1fr))",
-                      xl: "repeat(3, minmax(0, 1fr))",
-                    },
-                    gap: 1.5,
-                    maxHeight: { xs: "auto", lg: "500px" },
-                    overflowY: { xs: "visible", lg: "auto" },
-                    pr: { xs: 0, lg: 0.5 },
-                    "&::-webkit-scrollbar": {
-                      width: "8px",
-                    },
-                    "&::-webkit-scrollbar-thumb": {
-                      background: "rgba(106,106,87,0.28)",
-                      borderRadius: "10px",
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 3,
+                      background: "#fff",
                     },
                   }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchRoundedIcon sx={{ color: "#6a6a57" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+
+                <Box
+                  sx={{
+                    p: 1.4,
+                    borderRadius: 3,
+                    background: "rgba(106,106,87,0.06)",
+                    border: "1px solid rgba(106,106,87,0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1.2,
+                    flexWrap: "wrap",
+                  }}
                 >
-                  {availableDoctors.map((doctor) => {
-                    const isSelected = selectedDoctorId === doctor.doctorId;
+                  <Box>
+                    <Typography
+                      sx={{ fontSize: 12, fontWeight: 900, color: "#6a6a57" }}
+                    >
+                      الاختيار الحالي
+                    </Typography>
+                    <Typography sx={{ fontWeight: 800, color: "#1f1f1a", mt: 0.3 }}>
+                      {selectedDoctor ? selectedDoctor.name : "لم يتم اختيار أي دكتور"}
+                    </Typography>
+                  </Box>
 
 
-                    return (
-                      <Card key={doctor.doctorId} sx={doctorCardSx(isSelected)}>
-                        <CardContent
-                          sx={{
-                            p: 1.6,
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 1.5,
-                            height: "100%",
-                          }}
-                        >
-                          <Stack direction="row" spacing={1.2} alignItems="center">
-                            <Avatar
-                              sx={{
-                                width: 46,
-                                height: 46,
-                                bgcolor: isSelected
-                                  ? "rgba(106,106,87,0.18)"
-                                  : "rgba(106,106,87,0.12)",
-                                color: "#6a6a57",
-                              }}
-                            >
-                              <PersonRoundedIcon />
-                            </Avatar>
+                  {selectedDoctor && (
+                    <Box
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.6,
+                        px: 1.1,
+                        py: 0.55,
+                        borderRadius: 999,
+                        bgcolor: "rgba(76,175,80,0.12)",
+                        color: "#2e7d32",
+                        border: "1px solid rgba(76,175,80,0.22)",
+                        fontSize: 12,
+                        fontWeight: 900,
+                      }}
+                    >
+                      <CheckCircleRoundedIcon sx={{ fontSize: 16 }} />
+                      تم الاختيار
+                    </Box>
+                  )}
+                </Box>
 
 
-                            <Box sx={{ minWidth: 0, flex: 1 }}>
-                              <Typography
-                                sx={{
-                                  fontWeight: 700,
-                                  color: "#1f1f1a",
-                                  lineHeight: 1.4,
-                                  wordBreak: "break-word",
-                                }}
-                              >
-                                {doctor.name}
-                              </Typography>
-                              <Typography
-                                sx={{
-                                  fontSize: 12,
-                                  fontWeight: 900,
-                                  color: "#6a6a57",
-                                  mt: 0.3,
-                                }}
-                              >
-                                دكتور متاح للاختيار
-                              </Typography>
-                            </Box>
-                          </Stack>
+                <Box
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid rgba(106,106,87,0.12)",
+                    background: "#fcfcf8",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      height:
+                        DOCTOR_ROW_HEIGHT * VISIBLE_DOCTORS_COUNT +
+                        DOCTOR_LIST_GAP * (VISIBLE_DOCTORS_COUNT - 1) +
+                        DOCTOR_LIST_PADDING * 2,
+                      overflowY: "auto",
+                      p: `${DOCTOR_LIST_PADDING}px`,
+                      display: "grid",
+                      gap: `${DOCTOR_LIST_GAP}px`,
+                      "&::-webkit-scrollbar": {
+                        width: "8px",
+                      },
+                      "&::-webkit-scrollbar-thumb": {
+                        background: "rgba(106,106,87,0.28)",
+                        borderRadius: "10px",
+                      },
+                    }}
+                  >
+                    {filteredDoctors.length === 0 ? (
+                      <Box
+                        sx={{
+                          p: 3,
+                          textAlign: "center",
+                          color: "#6a6a57",
+                          fontWeight: 700,
+                        }}
+                      >
+                        لا يوجد نتائج مطابقة
+                      </Box>
+                    ) : (
+                      filteredDoctors.map((doctor) => {
+                        const isSelected = selectedDoctorId === doctor.doctorId;
 
 
-                          <Button
-                            variant={isSelected ? "contained" : "outlined"}
-                            fullWidth
+                        return (
+                          <Box
+                            key={doctor.doctorId}
+                            sx={compactDoctorRowSx(isSelected)}
                             onClick={() =>
-                              setSelectedDoctorId(
-                                isSelected ? "" : doctor.doctorId
-                              )
+                              setSelectedDoctorId(isSelected ? "" : doctor.doctorId)
                             }
-                            sx={{
-                              borderRadius: 999,
-                              fontWeight: 900,
-                              py: 1,
-                              ...(isSelected
-                                ? {
-                                    background:
-                                      "linear-gradient(135deg, rgb(106,106,87), rgb(160,160,120))",
-                                    boxShadow:
-                                      "0 8px 18px rgba(106,106,87,0.18)",
-                                  }
-                                : {
-                                    borderColor: "rgba(106,106,87,0.28)",
-                                    color: "#6a6a57",
-                                    "&:hover": {
-                                      borderColor: "#6a6a57",
-                                      background: "rgba(106,106,87,0.04)",
-                                    },
-                                  }),
-                            }}
                           >
-                            {isSelected ? "تم الاختيار" : "اختيار"}
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                            <Stack
+                              direction="row"
+                              spacing={1.2}
+                              alignItems="center"
+                              sx={{ minWidth: 0, flex: 1 }}
+                            >
+                              <Avatar
+                                sx={{
+                                  width: 42,
+                                  height: 42,
+                                  bgcolor: isSelected
+                                    ? "rgba(106,106,87,0.18)"
+                                    : "rgba(106,106,87,0.12)",
+                                  color: "#6a6a57",
+                                }}
+                              >
+                                <PersonRoundedIcon />
+                              </Avatar>
+
+
+                              <Box sx={{ minWidth: 0, flex: 1 }}>
+                                <Typography
+                                  sx={{
+                                    fontWeight: 800,
+                                    color: "#1f1f1a",
+                                    lineHeight: 1.3,
+                                    fontSize: { xs: 14, sm: 15 },
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {doctor.name}
+                                </Typography>
+
+
+                                <Typography
+                                  sx={{
+                                    fontSize: 12,
+                                    fontWeight: 900,
+                                    color: "#6a6a57",
+                                    mt: 0.25,
+                                  }}
+                                >
+                                  {isSelected ? "محدد حاليًا" : "اضغط للاختيار"}
+                                </Typography>
+                              </Box>
+                            </Stack>
+
+
+                            <Box sx={radioLikeSx(isSelected)} />
+                          </Box>
+                        );
+                      })
+                    )}
+                  </Box>
                 </Box>
 
 
@@ -631,7 +814,8 @@ export default function ElderlyDoctorDetails() {
                       px: 2.8,
                       py: 1.1,
                       fontWeight: 900,
-                      gap:1,
+                      gap: 1,
+                      minWidth: { xs: "100%", sm: 220 },
                       background:
                         "linear-gradient(135deg, rgb(106,106,87), rgb(160,160,120))",
                       boxShadow: "0 8px 20px rgba(106,106,87,0.22)",
@@ -668,3 +852,4 @@ export default function ElderlyDoctorDetails() {
     </Box>
   );
 }
+

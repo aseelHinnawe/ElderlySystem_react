@@ -251,11 +251,12 @@ export default function ElderlyDetailsSponsor() {
 
 
 
-  const handleReportChange = async (e) => {
-    const reportId = e.target.value;
-    setSelectedReportId(reportId);
-    await fetchReportById(reportId);
-  };
+  const handleReportChange = (e) => {
+  const reportId = e.target.value;
+  setSelectedReportId(reportId);
+  fetchReportById(reportId);
+};
+
 
 
 

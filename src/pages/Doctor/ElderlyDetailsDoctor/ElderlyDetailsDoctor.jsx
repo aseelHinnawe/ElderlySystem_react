@@ -178,6 +178,7 @@ export default function ElderlyDetailsDoctor() {
     setSelectedReportId(reportId);
     await fetchReportById(reportId);
   };
+
   const fetchReportById = async (reportId) => {
     if (!reportId) return;
     setLoadingReport(true);
@@ -185,6 +186,7 @@ export default function ElderlyDetailsDoctor() {
       const res = await AxiosUserInstance.get(
         `/Doctor/medical-reports/${reportId}`,
       );
+      console.log("REPORT RESPONSE:", res?.data?.data);
       setSelectedReport(res?.data?.data || null);
     } catch (err) {
       setSnackbar({
