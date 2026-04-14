@@ -1404,15 +1404,21 @@ export default function Register() {
                     </Grid>
 
                     <Grid size={{ xs: 12, sm: 6 }}>
-                      <TextField
-                        fullWidth
-                        label="الحالة الصحية"
-                        {...register("healthStatus")}
-                        className={style.glassInput}
-                        error={!!errors.healthStatus}
-                        helperText={errors.healthStatus?.message}
-                      />
-                    </Grid>
+  <TextField
+    select
+    fullWidth
+    label="الحالة الصحية"
+    defaultValue=""
+    {...register("healthStatus")}
+    className={style.glassInput}
+    error={!!errors.healthStatus}
+    helperText={errors.healthStatus?.message}
+  >
+    <MenuItem value="مستقرة">مستقرة</MenuItem>
+    <MenuItem value="متوسطة">متوسطة</MenuItem>
+    <MenuItem value="حرجة">حرجة</MenuItem>
+  </TextField>
+</Grid>
 
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField
