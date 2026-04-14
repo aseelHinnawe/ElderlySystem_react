@@ -28,6 +28,7 @@ import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import CloseIcon from "@mui/icons-material/Close";
+import { useNavigate } from "react-router";
 
 
 const API_BASE = "/Doctor/doctor-change-requests";
@@ -214,7 +215,7 @@ export default function ElderlyRequest() {
     }
   };
 
-
+const navigate = useNavigate();
   useEffect(() => {
     fetchRequests();
   }, []);
@@ -326,14 +327,9 @@ export default function ElderlyRequest() {
                           اسم المسن
                         </TableCell>
 
-
-                       
-
-
-                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                          الفحص الشامل
-                        </TableCell>
-
+                      <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                          تفاصيل المسنة
+                      </TableCell>
 
                         <TableCell align="center" sx={{ fontWeight: "bold" }}>
                           الإجراءات
@@ -355,35 +351,19 @@ export default function ElderlyRequest() {
 
                            
 
+<TableCell align="center">
 
-                            <TableCell align="center">
-                              {item.comprehensiveExamination ? (
-                                <Button
-                                  size="small"
-                                  variant="contained"
-                                  startIcon={<PhotoLibraryOutlinedIcon />}
-                                  sx={{...previewBtnSx , gap:1}}
-                                  onClick={() =>
-                                    openFilePreview(
-                                      item.comprehensiveExamination,
-                                      `الفحص الشامل - ${item.elderlyName}`
-                                    )
-                                  }
-                                >
-                                  عرض الفحص
-                                </Button>
-                              ) : (
-                                <Typography
-                                  sx={{
-                                    fontSize: 13,
-                                    color: "#888",
-                                    fontWeight: 700,
-                                  }}
-                                >
-                                  غير متوفر
-                                </Typography>
-                              )}
-                            </TableCell>
+                              <Button
+  size="small"
+  variant="contained"
+  sx={{ ...previewBtnSx, gap: 1 }}
+  onClick={() =>
+    navigate(`/Doctor/Elderly-Details/${item.elderlyId}`)
+  }
+>
+  عرض التفاصيل
+</Button></TableCell>
+
 
 
                             <TableCell align="center">
@@ -476,29 +456,16 @@ export default function ElderlyRequest() {
 
 
                     <Box sx={{ mt: 1.5 }}>
-                      {item.comprehensiveExamination ? (
-                        <Button
-                          fullWidth
-                          variant="contained"
-                          startIcon={<PhotoLibraryOutlinedIcon />}
-                          sx={{...previewBtnSx , gap:1}}
-                          onClick={() =>
-                            openFilePreview(
-                              item.comprehensiveExamination,
-                              `الفحص الشامل - ${item.elderlyName}`
-                            )
-                          }
-                        >
-                          عرض الفحص الشامل
-                        </Button>
-                      ) : (
-                        <Typography
-                          align="center"
-                          sx={{ fontSize: 13, color: "#888", fontWeight: 700 }}
-                        >
-                          الفحص الشامل غير متوفر
-                        </Typography>
-                      )}
+                     <Button
+  fullWidth
+  variant="contained"
+  sx={{ ...previewBtnSx, gap: 1 }}
+  onClick={() =>
+    navigate(`/Doctor/Elderly-Details/${item.elderlyId}`)
+  }
+>
+  عرض التفاصيل
+</Button>
                     </Box>
 
 

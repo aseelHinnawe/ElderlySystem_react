@@ -358,8 +358,7 @@ export default function ElderlyDoctor() {
                               to={`/Doctor/Elderly-Details/${item.elderlyId}`}
                               sx={{ ...uploadBtnSx, gap: 1 }}
                             >
-                              تفاصيل المسنة
-                            </Button>
+عرض التفاصيل                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
