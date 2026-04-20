@@ -1729,11 +1729,11 @@ export default function Register() {
       error={!!errors.medicalRank}
       helperText={errors.medicalRank?.message}
     >
-      <MenuItem value="intern">امتياز</MenuItem>
-      <MenuItem value="general">عام</MenuItem>
-      <MenuItem value="resident">مقيم</MenuItem>
-      <MenuItem value="specialist">أخصائي</MenuItem>
-      <MenuItem value="consultant">استشاري</MenuItem>
+      <MenuItem value="امتياز">امتياز</MenuItem>
+      <MenuItem value="عام">عام</MenuItem>
+      <MenuItem value="مقيم">مقيم</MenuItem>
+      <MenuItem value="أخصائي">أخصائي</MenuItem>
+      <MenuItem value="استشاري">استشاري</MenuItem>
     </TextField>
   </Grid>
 

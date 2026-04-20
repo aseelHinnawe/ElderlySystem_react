@@ -196,14 +196,12 @@ const [err, setErr] = useState("");
       setLoading(true);
       setErr("");
  
- 
       try {
         const res = await AxiosUserInstance.get("/Nurse/Nurse/home");
  
  
         const payload = res?.data?.data;
         if (!payload) throw new Error("Invalid response shape");
- 
  
         setData(payload);
       } catch (e) {
@@ -215,58 +213,39 @@ const [err, setErr] = useState("");
       } finally {
         setLoading(false);
       }
-    }, []);
- 
+    }, []); 
  
     useEffect(() => {
       fetchHome();
     }, [fetchHome]);
 
 
-
-
   const [activePage, setActivePage] = useState("الرئيسية");
   const isMenuOpen = Boolean(anchorEl);
-
 
   const [notificationsAnchor, setNotificationsAnchor] = useState(null);
 const openNotifications = Boolean(notificationsAnchor);
 
-
 const handleNotificationsClick = (event) => setNotificationsAnchor(event.currentTarget);
 const handleNotificationsClose = () => setNotificationsAnchor(null);
-
-
-
 
   useEffect(() => {
     setOpen(!isSmallScreen);
   }, [isSmallScreen]);
 
 
-
-
   useEffect(() => {
     const path = location.pathname;
-
-
-
 
     if (path === "/Nurse" || path === "/Nurse/") {
       setActivePage("الرئيسية");
       return;
     }
 
-
-
-
     if (path.startsWith("/Nurse/profile")) {
       setActivePage("الحساب الشخصي");
       return;
     }
-
-
-
 
     if (path.startsWith("/Nurse/elderlies")) {
       setActivePage("المسنين");
@@ -280,8 +259,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
     }
 
 
-
-
     if (path.startsWith("/Nurse/elderly/checklist")) {
       setActivePage("عرض الفحوصات");
       setDailyChecksOpen(true);
@@ -292,9 +269,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
       setMedicinesOpen(true);
       return;
     }
-
-
-
 
     if (path.startsWith("/Nurse/Elderly-Medicine")) {
       setActivePage("عرض أدوية ");
@@ -312,9 +286,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
       return;
     }
 
-
-
-
     if (path.startsWith("/Nurse/MyShifts")) {
       setActivePage("مناوباتي الأسبوعية");
       return;
@@ -326,16 +297,12 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
     }
 
 
-
-
     if (path.startsWith("/Nurse/Elderly-Meal")) {
       setActivePage("عرض الوجبات");
       setMealsOpen(true);
       return;
     }
   }, [location.pathname]);
-
-
 
 
   const handleMenuClick = (option) => {
@@ -348,20 +315,11 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
       if (isSmallScreen) setOpen(false);
     }
 
-
-
-
     handleMenuClose();
   };
 
-
-
-
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
-
-
-
 
   const toggleElderlyFolder = () => {
     if (isSmallScreen && !open) {
@@ -401,17 +359,12 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
     if (isSmallScreen) setOpen(false);
   };
 
-
-
-
   const overdueCount = data?.overdueDoses?.length || 0;
   const expiringCount = data?.plansExpiringSoon?.length || 0;
   const dueSoonCount = data?.dueSoonDoses?.length || 0;
   const stockCount = data?.lowOrOutStock?.length || 0;
 
-
   const notificationsCount = overdueCount + expiringCount + stockCount + dueSoonCount;
-
 
   return (
     <Box
@@ -433,8 +386,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
           }}
         />
       )}
-
-
 
 
       <Box
@@ -469,9 +420,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                 لوحة الممرضين
               </Typography>
 
-
-
-
               {isSmallScreen && (
                 <IconButton
                   onClick={() => setOpen(false)}
@@ -482,15 +430,9 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
               )}
             </Box>
 
-
-
-
             <Divider sx={{ bgcolor: "rgba(255,255,255,0.25)", mb: 1.5 }} />
           </>
         )}
-
-
-
 
         <List sx={{ mt: 1 }}>
           {/* الرئيسية */}
@@ -505,9 +447,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
               {open && <ListItemText primary="الرئيسية" sx={navTextSx} />}
             </ListItemButton>
           </ListItem>
-
-
-
 
           {/* مناوباتي الأسبوعية */}
           <ListItem disablePadding>
@@ -530,18 +469,12 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
             </ListItemButton>
           </ListItem>
 
-
-
-
           {/* إدارة المسنين */}
           <ListItem disablePadding>
             <ListItemButton onClick={toggleElderlyFolder} sx={navBtnSx(open)}>
               <ListItemIcon sx={navIconSx}>
                 <ElderlyWoman />
               </ListItemIcon>
-
-
-
 
               {open && (
                 <Box
@@ -561,8 +494,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
               )}
             </ListItemButton>
           </ListItem>
-
-
 
 
           <Collapse in={elderlyFolderOpen} timeout="auto" unmountOnExit>
@@ -590,9 +521,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                 <FactCheck />
               </ListItemIcon>
 
-
-
-
               {open && (
                 <Box
                   sx={{
@@ -612,9 +540,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
             </ListItemButton>
           </ListItem>
 
-
-
-
           <Collapse in={dailyChecksOpen} timeout="auto" unmountOnExit>
             <Box sx={{ mt: 0.5 }}>
               <ListItem disablePadding>
@@ -630,9 +555,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                   {open && <ListItemText primary="إضافة فحص" sx={navTextSx} />}
                 </ListItemButton>
               </ListItem>
-
-
-
 
               <ListItem disablePadding>
                 <ListItemButton
@@ -656,9 +578,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                 <LocalPharmacy />
               </ListItemIcon>
 
-
-
-
               {open && (
                 <Box
                   sx={{
@@ -677,8 +596,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
               )}
             </ListItemButton>
           </ListItem>
-
-
 
 
           <Collapse in={medicinesOpen} timeout="auto" unmountOnExit>
@@ -753,8 +670,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
               </ListItemIcon>
 
 
-
-
               {open && (
                 <Box
                   sx={{
@@ -793,8 +708,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
               </ListItem>
 
 
-
-
               {/* عرض الوجبات */}
               <ListItem disablePadding>
                 <ListItemButton
@@ -813,9 +726,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
           </Collapse>
         </List>
       </Box>
-
-
-
 
       <Box
         sx={{

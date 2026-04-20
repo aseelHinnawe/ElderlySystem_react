@@ -14,6 +14,11 @@ import {
   Stack,
   TextField,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  LinearProgress,
 } from "@mui/material";
 import MedicalServicesRoundedIcon from "@mui/icons-material/MedicalServicesRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
@@ -24,7 +29,7 @@ import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 import LocalHospitalRoundedIcon from "@mui/icons-material/LocalHospitalRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 const DOCTOR_ROW_HEIGHT = 78;
 const DOCTOR_LIST_GAP = 8;
@@ -111,7 +116,17 @@ export default function ElderlyDoctorDetails() {
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [elderlyId, setElderlyId] = useState(null);
+  const [aiDoctors, setAiDoctors] = useState([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [selectedDoctorDetails, setSelectedDoctorDetails] = useState(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [currentDiseaseIndex, setCurrentDiseaseIndex] = useState(0);
+  const [aiRequested, setAiRequested] = useState(false);
 
+
+  const currentDisease = aiDoctors[currentDiseaseIndex];
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -124,83 +139,162 @@ export default function ElderlyDoctorDetails() {
     setSnackbar({ open: true, message, severity });
   };
 
-
+   // ===== FETCH MAIN DATA =====
   const fetchData = async () => {
     setLoading(true);
 
-
     try {
-      const currentRes = await AxiosUserInstance.get("/Sponsor/Elderly/current-doctor");
+      const currentRes = await AxiosUserInstance.get(
+        "/Sponsor/Elderly/current-doctor"
+      );
       setCurrentDoctor(currentRes?.data?.data ?? null);
-    } catch (error) {
+    } catch {
       setCurrentDoctor(null);
     }
 
-
     try {
-      const doctorsRes = await AxiosUserInstance.get("/Sponsor/Elderly/available-doctors");
-      setAvailableDoctors(
-        Array.isArray(doctorsRes?.data?.data) ? doctorsRes.data.data : []
+      const doctorsRes = await AxiosUserInstance.get(
+        "/Sponsor/Elderly/available-doctors"
       );
-    } catch (error) {
+
+      setAvailableDoctors(
+        Array.isArray(doctorsRes?.data?.data)
+          ? doctorsRes.data.data
+          : []
+      );
+    } catch {
       setAvailableDoctors([]);
-      showSnackbar("فشل تحميل قائمة الأطباء المتاحين");
+      showSnackbar("فشل تحميل قائمة الأطباء");
     } finally {
       setLoading(false);
     }
   };
 
-
+  // ===== FETCH ELDERLY ID =====
   useEffect(() => {
+    const fetchElderlyId = async () => {
+      try {
+        const res = await AxiosUserInstance.get(
+          "/Sponsor/Elderly/elderly-id"
+        );
+        console.log("ELDERLY ID:", res.data.elderlyId);
+        setElderlyId(res.data.elderlyId);
+      } catch {
+        showSnackbar("فشل جلب المسنة");
+      }
+    };
+
+    fetchElderlyId();
     fetchData();
   }, []);
 
-
+  // ===== SUBMIT DOCTOR REQUEST =====
   const handleSubmitRequest = async () => {
     if (!selectedDoctorId) {
       showSnackbar("يرجى اختيار دكتور أولاً");
       return;
     }
 
-
     setSubmitLoading(true);
+
     try {
       const res = await AxiosUserInstance.post(
         "/Sponsor/Elderly/doctor-change-request",
         { requestedDoctorId: selectedDoctorId }
       );
 
-
-      showSnackbar(
-        res?.data?.message || "تم إرسال طلب التغيير بنجاح",
-        "success"
-      );
+      showSnackbar(res?.data?.message || "تم إرسال الطلب", "success");
       setSelectedDoctorId("");
-    } catch (error) {
-      showSnackbar(
-        error?.response?.data?.message || "فشل إرسال طلب التغيير"
-      );
+    } catch {
+      showSnackbar("فشل إرسال الطلب");
     } finally {
       setSubmitLoading(false);
     }
   };
 
+  const handleOpenDoctorDetails = async (doctorId) => {
+  console.log("CLICKED DOCTOR ID:", doctorId);
 
+  setDetailsLoading(true);
+  setDetailsOpen(true);
+
+  try {
+    const res = await AxiosUserInstance.get(
+      `/Sponsor/Elderly/doctor/${doctorId}`
+    );
+
+    console.log("API RESPONSE:", res.data);
+
+    setSelectedDoctorDetails(res.data); // <-- المشكلة غالبًا هون
+  } catch (err) {
+    console.log("ERROR:", err.response?.data || err);
+    showSnackbar("فشل تحميل تفاصيل الدكتور");
+  } finally {
+    setDetailsLoading(false);
+  }
+};
+
+
+
+  // ===== AI DOCTORS =====
+  const handleGetAIDoctors = async () => {
+    if (!elderlyId) {
+      showSnackbar("لا يوجد مسنة مرتبطة");
+      return;
+    }
+
+    setAiLoading(true);
+
+    try {
+      const res = await AxiosUserInstance.get(
+        `/Sponsor/Matching/${elderlyId}`
+      );
+
+      setAiDoctors(res.data.resultsPerDisease);
+    } catch {
+      showSnackbar("فشل جلب توصيات الذكاء الاصطناعي");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // ===== FILTER DOCTORS =====
   const filteredDoctors = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return availableDoctors;
 
-
-    return availableDoctors.filter((doctor) =>
-      (doctor.name || "").toLowerCase().includes(q)
+    return availableDoctors.filter((d) =>
+      (d.name || "").toLowerCase().includes(q)
     );
   }, [availableDoctors, searchTerm]);
 
-
   const selectedDoctor =
-    availableDoctors.find((doctor) => doctor.doctorId === selectedDoctorId) || null;
+    availableDoctors.find(
+      (d) => d.doctorId === selectedDoctorId
+    ) || null;
 
+ const InfoRow = ({ label, value }) => (
+  <Box
+    sx={{
+      p: 1.5,
+      borderRadius: 3,
+      background: "#fff",
+      border: "1px solid rgba(106,106,87,0.12)",
+      display: "flex",
+      justifyContent: "space-between",
+    }}
+  >
+    <Typography sx={{ fontWeight: 800, color: "#6a6a57" }}>
+      {label}
+    </Typography>
 
+    <Typography sx={{ fontWeight: 700, color: "#1f1f1a" }}>
+      {value || "-"}
+    </Typography>
+  </Box>
+);
+
+  // ===== LOADING UI =====
   if (loading) {
     return (
       <Box
@@ -209,8 +303,6 @@ export default function ElderlyDoctorDetails() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background:
-            "linear-gradient(135deg, #f4f5ef 0%, #e6e7dc 50%, #d4d6c8 100%)",
         }}
       >
         <CircularProgress />
@@ -273,7 +365,9 @@ export default function ElderlyDoctorDetails() {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "390px minmax(0, 1fr)" },
+          gridTemplateColumns: { xs: "1fr", lg: "390px minmax(0, 1fr) 390px" },
+
+
           gap: 3,
           alignItems: "stretch",
         }}
@@ -836,6 +930,371 @@ export default function ElderlyDoctorDetails() {
             )}
           </CardContent>
         </Card>
+    <Card sx={shellCardSx}>
+  <CardContent
+  sx={{
+    p: { xs: 1.5, md: 2.5 },
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+    height: "100%",
+  }}
+>
+  {/* Header */}
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+    <Avatar
+      sx={{
+        width: 48,
+        height: 48,
+        bgcolor: "rgba(255,215,0,0.18)",
+        color: "#b8860b",
+      }}
+    >
+      🏆
+    </Avatar>
+
+    <Box>
+      <Typography sx={{ fontWeight: 800, color: "#1f1f1a" }}>
+        أفضل الأطباء (AI)
+      </Typography>
+      <Typography sx={{ fontSize: 12, color: "#6a6a57", fontWeight: 700 }}>
+        توصيات الذكاء الاصطناعي حسب حالة المسنة
+      </Typography>
+    </Box>
+  </Box>
+
+  <Divider />
+
+  {/* Button */}
+  <Button
+    variant="contained"
+    onClick={() => {
+      setAiRequested(true);
+      handleGetAIDoctors();
+    }}
+    disabled={aiLoading || !elderlyId}
+    sx={{
+      borderRadius: 999,
+      fontWeight: 900,
+      background: "linear-gradient(135deg, #6a6a57, #a0a078)",
+    }}
+  >
+    {aiLoading ? "جارٍ التحليل..." : "عرض أفضل الأطباء"}
+  </Button>
+
+  {/* RESULTS SECTION */}
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+
+    {/* قبل الضغط */}
+    {!aiRequested ? (
+      <Typography
+        sx={{
+          textAlign: "center",
+          fontWeight: 800,
+          color: "#6a6a57",
+          mt: 2,
+        }}
+      >
+        لا توجد نتائج بعد
+      </Typography>
+    ) : !currentDisease ? (
+      <Typography
+        sx={{
+          textAlign: "center",
+          fontWeight: 800,
+          color: "#6a6a57",
+          mt: 2,
+        }}
+      >
+        جارٍ تحميل النتائج...
+      </Typography>
+    ) : (
+      <>
+        {/* Header + Navigation */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Button
+            disabled={currentDiseaseIndex === 0}
+            onClick={() => setCurrentDiseaseIndex((p) => p - 1)}
+            sx={{ fontWeight: 900 }}
+          >
+            ⬅ السابق
+          </Button>
+
+          <Typography sx={{ fontWeight: 900, fontSize: 16 }}>
+            مرض {currentDiseaseIndex + 1} : {currentDisease?.disease}
+          </Typography>
+
+          <Button
+            disabled={currentDiseaseIndex === aiDoctors.length - 1}
+            onClick={() => setCurrentDiseaseIndex((p) => p + 1)}
+            sx={{ fontWeight: 900 }}
+          >
+            التالي ➡
+          </Button>
+        </Box>
+
+        {/* Top 3 Doctors */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          {currentDisease.ranking.slice(0, 3).map((doc) => (
+            <Box
+              key={doc.doctorId}
+              sx={{
+                p: 1,
+                borderRadius: 4,
+                background: "linear-gradient(135deg, #ffffff, #f8f8f2)",
+                border: "1px solid rgba(106,106,87,0.15)",
+                boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+                transition: "0.3s",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                },
+              }}
+            >
+              {/* Top row */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography sx={{ fontWeight: 900, fontSize: 15 }}>
+                  {doc.doctorName}
+                </Typography>
+
+                <Button
+                  size="small"
+                  onClick={() => handleOpenDoctorDetails(doc.doctorId)}
+                  sx={{
+                    fontSize: 12,
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 3,
+                    background: "rgba(255, 217, 0, 0.16)",
+                    color: "#6a6a57",
+                    fontWeight: 900,
+                    "&:hover": {
+                      background: "rgba(255,215,0,0.35)",
+                    },
+                  }}
+                >
+                  التفاصيل
+                </Button>
+              </Box>
+
+              {/* Progress */}
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#6a6a57",
+                    mb: 0.5,
+                  }}
+                >
+                  نسبة التوافق
+                </Typography>
+
+                <LinearProgress
+                  variant="determinate"
+                  value={doc.finalSuitability}
+                  sx={{
+                    height: 10,
+                    borderRadius: 10,
+                    backgroundColor: "rgba(0,0,0,0.05)",
+                    "& .MuiLinearProgress-bar": {
+                      background: "linear-gradient(90deg, #b8860b, #ffd700)",
+                    },
+                  }}
+                />
+
+                <Typography
+                  sx={{
+                    fontSize: 16,
+                    fontWeight: 900,
+                    color: "#b8860b",
+                    textAlign: "right",
+                    mt: 0.3,
+                  }}
+                >
+                  {doc.finalSuitability}%
+                </Typography>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      </>
+    )}
+  </Box>
+</CardContent>
+
+
+</Card>
+<Dialog
+  open={detailsOpen}
+  onClose={() => setDetailsOpen(false)}
+  disableRestoreFocus
+
+  fullWidth
+  maxWidth="sm"
+>
+  <DialogTitle
+  sx={{
+    fontWeight: 900,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  }}
+>
+  تفاصيل الطبيب
+
+  <IconButton
+    onClick={() => setDetailsOpen(false)}
+    size="small"
+    sx={{
+      color: "#6a6a57",
+      "&:hover": {
+        background: "rgba(106,106,87,0.1)",
+      },
+    }}
+  >
+    <CloseRoundedIcon />
+  </IconButton>
+</DialogTitle>
+
+
+  <DialogContent
+  sx={{
+    p: 3,
+    background: "linear-gradient(135deg, #f8f8f2, #ffffff)",
+  }}
+>
+  {detailsLoading ? (
+    <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+      <CircularProgress />
+    </Box>
+  ) : selectedDoctorDetails ? (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      
+      {/* Name Card */}
+      <Box
+        sx={{
+          p: 2,
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #6a6a57, #a0a078)",
+          color: "#fff",
+          boxShadow: "0 8px 20px rgba(106,106,87,0.25)",
+        }}
+      >
+        <Typography sx={{ fontWeight: 900, fontSize: 18 }}>
+          {selectedDoctorDetails.fullName}
+        </Typography>
+
+        <Typography sx={{ fontSize: 15, opacity: 0.9 }}>
+          {selectedDoctorDetails.medicalRank}
+        </Typography>
+      </Box>
+
+      {/* Info Cards */}
+      <Box sx={{ display: "grid", gap: 1.5 }}>
+
+        <InfoRow label="الإيميل" value={selectedDoctorDetails.email} />
+        <InfoRow label="الهاتف" value={selectedDoctorDetails.phoneNumber} />
+        <InfoRow label="المدينة" value={selectedDoctorDetails.city} />
+
+      </Box>
+
+{/* Specializations */}
+<Box>
+  <Typography sx={{ fontWeight: 900, mb: 1, color: "#6a6a57" }}>
+    التخصصات
+  </Typography>
+
+  <Box
+    sx={{
+      p: 1.5,
+      borderRadius: 3,
+      background: "#fff",
+      border: "1px solid rgba(106,106,87,0.12)",
+    }}
+  >
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+      {selectedDoctorDetails.specializations?.map((s, i) => (
+        <Box
+          key={i}
+          sx={{
+            px: 1.5,
+            py: 0.6,
+            borderRadius: 2,
+            background: "rgba(106,106,87,0.08)",
+            fontWeight: 700,
+            fontSize: 13,
+            color: "#1f1f1a",
+          }}
+        >
+          {s}
+        </Box>
+      ))}
+    </Box>
+  </Box>
+</Box>
+
+      {/* Workplaces */}
+      {/* Workplaces */}
+<Box>
+  <Typography sx={{ fontWeight: 900, mb: 1, color: "#6a6a57" }}>
+    أماكن العمل الحالية
+  </Typography>
+
+  <Box
+    sx={{
+      p: 1.5,
+      borderRadius: 3,
+      background: "#fff",
+      border: "1px solid rgba(106,106,87,0.12)",
+    }}
+  >
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+      {selectedDoctorDetails.currentWorkPlaces?.map((w, i) => (
+        <Box
+          key={i}
+          sx={{
+            px: 1.5,
+            py: 0.6,
+            borderRadius: 2,
+             background: "rgba(106,106,87,0.08)",
+            fontWeight: 700,
+            fontSize: 13,
+            color: "#1f1f1a",
+          }}
+        >
+          {w}
+        </Box>
+      ))}
+    </Box>
+  </Box>
+</Box>
+
+    </Box>
+  ) : (
+    <Typography>لا توجد بيانات</Typography>
+  )}
+</DialogContent>
+
+
+</Dialog>
+
+
       </Box>
 
 
