@@ -395,7 +395,6 @@ export default function Register() {
       nationalId: "",
       city: "",
       password: "",
-
       // employee
       gender: "",
 
@@ -406,7 +405,7 @@ export default function Register() {
       // ===== nurse page 2 =====
       certificate: null,
       educationLevel: "",
-      nurseMaritalStatus: "", // ✅ منفصلة عن maritalStatus تبع المسن
+      nurseMaritalStatus: "", 
       fieldOfStudy: "",
       yearsOfStudy: "",
       yearOfGraduation: "",
@@ -434,15 +433,10 @@ export default function Register() {
       genderDoctor: "",
       medicalRank: "",
       yearsOfExperience: "",
-      numberOfOperations: "",
       doctorBDate: "",
       specializations: [],
       diseasesDoctor: [],
       workPlaces: [],
-      operationTypes: [],
-      medicalProcedures: [],
-      diagnosticTests: [],
-      previousWorkPlaces: [],
       universities: [],
     },
   });
@@ -464,10 +458,6 @@ export default function Register() {
   const diseases = watch("diseases") || [];
   const specializations = watch("specializations") || [];
   const workPlaces = watch("workPlaces") || [];
-  const operationTypes = watch("operationTypes") || [];
-  const medicalProcedures = watch("medicalProcedures") || [];
-  const diagnosticTests = watch("diagnosticTests") || [];
-  const previousWorkPlaces = watch("previousWorkPlaces") || [];
   const universities = watch("universities") || [];
 
   // ✅ تعبئة degree تلقائياً حسب sponsorDegree
@@ -666,15 +656,10 @@ export default function Register() {
     password: d.password || "",
     medicalRank: d.medicalRank?.trim() || "",
     yearsOfExperience: d.yearsOfExperience?.trim() || "",
-    numberOfOperations: Number(d.numberOfOperations || 0),
     bDate: d.doctorBDate || "",
     specializations: cleanArray(d.specializations),
     diseasesDoctor: cleanArray(d.diseases),
     workPlaces: cleanArray(d.workPlaces),
-    operationTypes: cleanArray(d.operationTypes),
-    medicalProcedures: cleanArray(d.medicalProcedures),
-    diagnosticTests: cleanArray(d.diagnosticTests),
-    previousWorkPlaces: cleanArray(d.previousWorkPlaces),
     universities: (d.universities || [])
       .map((u) => ({
         universityName: u?.universityName?.trim() || "",
@@ -1748,21 +1733,9 @@ export default function Register() {
                         />
                       </Grid>
 
-                      <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="عدد العمليات"
-                          {...register("numberOfOperations")}
-                          className={style.glassInput}
-                          error={!!errors.numberOfOperations}
-                          helperText={errors.numberOfOperations?.message}
-                          sx={{
-                            input: { textAlign: "left", direction: "ltr" },
-                          }}
-                        />
-                      </Grid>
+                     
 
-                      <Grid size={{ xs: 12, md: 6 }}>
+                      <Grid size={{ xs: 12, md: 12 }}>
                         <TextField
                           fullWidth
                           type="date"
@@ -1828,70 +1801,9 @@ export default function Register() {
 
                         <Divider />
 
-                        <ArrayTextList
-                          title="الإجراءات الطبية"
-                          values={medicalProcedures}
-                          fieldName="medicalProcedures"
-                          register={register}
-                          errors={errors}
-                          onAdd={() =>
-                            addStringItem(
-                              "medicalProcedures",
-                              medicalProcedures,
-                            )
-                          }
-                          onRemove={(i) =>
-                            removeStringItem(
-                              "medicalProcedures",
-                              medicalProcedures,
-                              i,
-                            )
-                          }
-                          itemLabel="الإجراء الطبي"
-                        />
+                     
 
-                        <Divider />
-
-                        <ArrayTextList
-                          title="الفحوصات الطبية"
-                          values={diagnosticTests}
-                          fieldName="diagnosticTests"
-                          register={register}
-                          errors={errors}
-                          onAdd={() =>
-                            addStringItem("diagnosticTests", diagnosticTests)
-                          }
-                          onRemove={(i) =>
-                            removeStringItem(
-                              "diagnosticTests",
-                              diagnosticTests,
-                              i,
-                            )
-                          }
-                          itemLabel="الفحص"
-                        />
-
-                        <Divider />
-
-                        <ArrayTextList
-                          title="أنواع العمليات"
-                          values={operationTypes}
-                          fieldName="operationTypes"
-                          register={register}
-                          errors={errors}
-                          onAdd={() =>
-                            addStringItem("operationTypes", operationTypes)
-                          }
-                          onRemove={(i) =>
-                            removeStringItem(
-                              "operationTypes",
-                              operationTypes,
-                              i,
-                            )
-                          }
-                          itemLabel="نوع العملية"
-                          optionalNote="(اختياري)"
-                        />
+                   
                       </Stack>
                     </AccordionDetails>
                   </Accordion>
@@ -1931,30 +1843,7 @@ export default function Register() {
                           onRemove={removeUniversity}
                         />
 
-                        <Divider />
-
-                        <ArrayTextList
-                          title="أماكن العمل السابقة"
-                          values={previousWorkPlaces}
-                          fieldName="previousWorkPlaces"
-                          register={register}
-                          errors={errors}
-                          onAdd={() =>
-                            addStringItem(
-                              "previousWorkPlaces",
-                              previousWorkPlaces,
-                            )
-                          }
-                          onRemove={(i) =>
-                            removeStringItem(
-                              "previousWorkPlaces",
-                              previousWorkPlaces,
-                              i,
-                            )
-                          }
-                          itemLabel="مكان العمل السابق"
-                          optionalNote="(اختياري)"
-                        />
+                      
                       </Stack>
                     </AccordionDetails>
                   </Accordion>

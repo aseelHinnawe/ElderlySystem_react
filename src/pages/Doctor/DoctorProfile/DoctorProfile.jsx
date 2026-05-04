@@ -197,11 +197,7 @@ function InfoTagCard({ icon, title, subtitle, chipLabel }) {
 const createEditForm = (doctor) => ({
   medicalRank: doctor?.medicalRank || "",
   yearsOfExperience: doctor?.yearsOfExperience || "",
-  numberOfOperations:
-    doctor?.numberOfOperations !== null &&
-    doctor?.numberOfOperations !== undefined
-      ? String(doctor.numberOfOperations)
-      : "",
+  
   specializationsText: Array.isArray(doctor?.specializations)
     ? doctor.specializations.join("\n")
     : "",
@@ -209,15 +205,7 @@ const createEditForm = (doctor) => ({
     ? doctor.diseases.join("\n")
     : "",
   workPlace: Array.isArray(doctor?.workPlaces) ? doctor.workPlaces[0] || "" : "",
-  operationTypesText: Array.isArray(doctor?.operationTypes)
-    ? doctor.operationTypes.join("\n")
-    : "",
-  medicalProceduresText: Array.isArray(doctor?.medicalProcedures)
-    ? doctor.medicalProcedures.join("\n")
-    : "",
-  diagnosticTestsText: Array.isArray(doctor?.diagnosticTests)
-    ? doctor.diagnosticTests.join("\n")
-    : "",
+  
 });
 
 
@@ -296,35 +284,14 @@ export default function DoctorProfile() {
 
 
   const handleSaveProfile = async () => {
-    const parsedNumber =
-      editForm.numberOfOperations === ""
-        ? null
-        : Number(editForm.numberOfOperations);
-
-
-    if (
-      editForm.numberOfOperations !== "" &&
-      (Number.isNaN(parsedNumber) || parsedNumber < 0)
-    ) {
-      setSnackbar({
-        open: true,
-        message: "عدد العمليات يجب أن يكون رقمًا صحيحًا",
-        severity: "error",
-      });
-      return;
-    }
-
-
+   
     const payload = {
       medicalRank: editForm.medicalRank.trim() || null,
       yearsOfExperience: editForm.yearsOfExperience.trim() || null,
-      numberOfOperations: parsedNumber,
       specializations: splitTextToArray(editForm.specializationsText),
       diseases: splitTextToArray(editForm.diseasesText),
       workPlaces: editForm.workPlace.trim() ? [editForm.workPlace.trim()] : [],
-      operationTypes: splitTextToArray(editForm.operationTypesText),
-      medicalProcedures: splitTextToArray(editForm.medicalProceduresText),
-      diagnosticTests: splitTextToArray(editForm.diagnosticTestsText),
+     
     };
 
 
@@ -391,11 +358,7 @@ export default function DoctorProfile() {
         value: doctor.yearsOfExperience,
         icon: <WorkHistoryIcon />,
       },
-      {
-        label: "عدد العمليات",
-        value: doctor.numberOfOperations,
-        icon: <LocalHospitalIcon />,
-      },
+     
     ];
   }, [doctor]);
 
@@ -438,16 +401,6 @@ export default function DoctorProfile() {
     Array.isArray(doctor.diseases) && doctor.diseases.length > 0;
   const hasWorkPlaces =
     Array.isArray(doctor.workPlaces) && doctor.workPlaces.length > 0;
-  const hasPreviousWorkPlaces =
-    Array.isArray(doctor.previousWorkPlaces) &&
-    doctor.previousWorkPlaces.length > 0;
-  const hasOperationTypes =
-    Array.isArray(doctor.operationTypes) && doctor.operationTypes.length > 0;
-  const hasMedicalProcedures =
-    Array.isArray(doctor.medicalProcedures) &&
-    doctor.medicalProcedures.length > 0;
-  const hasDiagnosticTests =
-    Array.isArray(doctor.diagnosticTests) && doctor.diagnosticTests.length > 0;
   const hasUniversities =
     Array.isArray(doctor.universities) && doctor.universities.length > 0;
 
@@ -553,28 +506,6 @@ export default function DoctorProfile() {
               </Box>
             </Box>
 
-<Box>
-  <Typography sx={cardTitleSx("#6a6a57")}>
-    الجامعات والدرجات
-  </Typography>
-
-  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
-    {hasUniversities ? (
-      doctor.universities.map((item, idx) => (
-        <FieldRow
-          key={idx}
-          icon={<SchoolIcon />}
-          label={item.degree || "درجة علمية"}
-          value={item.universityName}
-        />
-      ))
-    ) : (
-      <Typography sx={{ fontWeight: 900, color: "#777", mt: 1 }}>
-        لا توجد جامعات مسجلة.
-      </Typography>
-    )}
-  </Box>
-</Box>
 
             <Box>
               <Typography sx={cardTitleSx("#417d44")}>
@@ -743,163 +674,54 @@ export default function DoctorProfile() {
                 </Typography>
               )}
             </Paper>
-
-
             <Paper
-              sx={{
-                p: 3,
-                borderRadius: 4,
-                boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Typography sx={cardTitleSx("#6a6a57")}>
-                أماكن العمل السابقة
-              </Typography>
+  sx={{
+    p: 3,
+    borderRadius: 4,
+    boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+  }}
+>
+  <Typography sx={cardTitleSx("#0d0d0d")}>
+    الجامعات والدرجات
+  </Typography>
+
+  {hasUniversities ? (
+    <Grid container spacing={1.5} sx={{ mt: 0.6 }}>
+      {doctor.universities.map((item, idx) => (
+        <Grid key={idx} size={{ xs: 12, sm: 6 }}>
+          <InfoTagCard
+            icon={<SchoolIcon />}
+            title={item.universityName}
+            subtitle={item.degree || "درجة علمية"}
+            chipLabel={idx + 1}
+          />
+        </Grid>
+      ))}
+    </Grid>
+  ) : (
+    <Box
+      sx={{
+        p: 2,
+        borderRadius: 3,
+        background: "rgba(106,106,87,0.08)",
+        border: "1px dashed rgba(106,106,87,0.35)",
+        display: "flex",
+        alignItems: "center",
+        gap: 1.2,
+        mt: 1.5,
+      }}
+    >
+      <Box sx={{ ...iconCircleSx, background: "#0d0d0d" }}>
+        <SchoolIcon />
+      </Box>
+      <Typography sx={{ fontWeight: 1000, color: "#6a6a57" }}>
+        لا توجد جامعات مسجلة.
+      </Typography>
+    </Box>
+  )}
+</Paper>
 
 
-              {hasPreviousWorkPlaces ? (
-                <Grid container spacing={1.5} sx={{ mt: 0.6 }}>
-                  {doctor.previousWorkPlaces.map((item, idx) => (
-                    <Grid key={`${item}-${idx}`} size={{ xs: 12, sm: 6 }}>
-                      <InfoTagCard
-                        icon={<WorkHistoryIcon />}
-                        title={item}
-                        subtitle="مكان عمل سابق"
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              ) : (
-                <Typography sx={{ fontWeight: 900, color: "#777", mt: 1.5 }}>
-                  لا توجد أماكن عمل سابقة مسجلة.
-                </Typography>
-              )}
-            </Paper>
-
-
-            <Paper
-              sx={{
-                p: 3,
-                borderRadius: 4,
-                boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Typography sx={cardTitleSx("#417d44")}>
-                العمليات والإجراءات
-              </Typography>
-
-
-              <Grid container spacing={2} sx={{ mt: 0.5 }}>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Box
-                    sx={{
-                      p: 2,
-                      borderRadius: 3,
-                      background: "#f7f7f3",
-                      height: "100%",
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: 1000, mb: 1.2 }}>
-                      أنواع العمليات
-                    </Typography>
-
-
-                    {hasOperationTypes ? (
-                      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                        {doctor.operationTypes.map((item, idx) => (
-                          <Chip
-                            key={`${item}-${idx}`}
-                            label={item}
-                            sx={{
-                              fontWeight: 900,
-                              bgcolor: "rgba(65,125,68,0.12)",
-                              color: "#2f5f33",
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    ) : (
-                      <Typography sx={{ fontWeight: 900, color: "#777" }}>
-                        لا توجد بيانات.
-                      </Typography>
-                    )}
-                  </Box>
-                </Grid>
-
-
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Box
-                    sx={{
-                      p: 2,
-                      borderRadius: 3,
-                      background: "#f7f7f3",
-                      height: "100%",
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: 1000, mb: 1.2 }}>
-                      الإجراءات الطبية
-                    </Typography>
-
-
-                    {hasMedicalProcedures ? (
-                      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                        {doctor.medicalProcedures.map((item, idx) => (
-                          <Chip
-                            key={`${item}-${idx}`}
-                            label={item}
-                            sx={{
-                              fontWeight: 900,
-                              bgcolor: "rgba(106,106,87,0.12)",
-                              color: "#4a4a3d",
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    ) : (
-                      <Typography sx={{ fontWeight: 900, color: "#777" }}>
-                        لا توجد بيانات.
-                      </Typography>
-                    )}
-                  </Box>
-                </Grid>
-              </Grid>
-            </Paper>
-
-
-            <Paper
-              sx={{
-                p: 3,
-                borderRadius: 4,
-                boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Typography sx={cardTitleSx("#417d44")}>
-                الفحوصات التشخيصية
-              </Typography>
-
-
-              {hasDiagnosticTests ? (
-                <Grid container spacing={1.5} sx={{ mt: 0.6 }}>
-                  {doctor.diagnosticTests.map((item, idx) => (
-                    <Grid key={`${item}-${idx}`} size={{ xs: 12, sm: 6 }}>
-                      <InfoTagCard
-                        icon={<ScienceIcon />}
-                        title={item}
-                        subtitle="فحص تشخيصي"
-                        chipLabel={idx + 1}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              ) : (
-                <Typography sx={{ fontWeight: 900, color: "#777", mt: 1.5 }}>
-                  لا توجد فحوصات تشخيصية مسجلة.
-                </Typography>
-              )}
-            </Paper>
-
-
-            
           </Box>
         </Grid>
       </Grid>
@@ -939,18 +761,6 @@ export default function DoctorProfile() {
               />
             </Grid>
 
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                type="number"
-                label="عدد العمليات"
-                value={editForm.numberOfOperations}
-                onChange={(e) =>
-                  handleEditChange("numberOfOperations", e.target.value)
-                }
-              />
-            </Grid>
 
 
             <Grid size={{ xs: 12, md: 6 }}>
@@ -993,50 +803,6 @@ export default function DoctorProfile() {
               />
             </Grid>
 
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                multiline
-                minRows={4}
-                label="أنواع العمليات"
-                value={editForm.operationTypesText}
-                onChange={(e) =>
-                  handleEditChange("operationTypesText", e.target.value)
-                }
-                helperText="كل عنصر في سطر أو مفصول بفاصلة"
-              />
-            </Grid>
-
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                multiline
-                minRows={4}
-                label="الإجراءات الطبية"
-                value={editForm.medicalProceduresText}
-                onChange={(e) =>
-                  handleEditChange("medicalProceduresText", e.target.value)
-                }
-                helperText="كل عنصر في سطر أو مفصول بفاصلة"
-              />
-            </Grid>
-
-
-            <Grid size={{ xs: 12 }}>
-              <TextField
-                fullWidth
-                multiline
-                minRows={4}
-                label="الفحوصات التشخيصية"
-                value={editForm.diagnosticTestsText}
-                onChange={(e) =>
-                  handleEditChange("diagnosticTestsText", e.target.value)
-                }
-                helperText="كل عنصر في سطر أو مفصول بفاصلة"
-              />
-            </Grid>
           </Grid>
         </DialogContent>
 

@@ -81,16 +81,10 @@ const navBtnSx = (open, isChild = false) => ({
   alignItems: "center",
   justifyContent: open ? "flex-start" : "center",
   gap: open ? 1 : 0,
-
-
-
-
   backgroundColor: "transparent",
   "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
   "&::before": { display: "none" },
 });
-
-
 
 
 const navIconSx = {
@@ -104,8 +98,6 @@ const navIconSx = {
   ml: 0,
   flexShrink: 0,
 };
-
-
 
 
 const navTextSx = {
@@ -177,10 +169,6 @@ export default function NurseLayout() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
-
-
-
-
   const [loading, setLoading] = useState(false);
 const [err, setErr] = useState("");
   const [open, setOpen] = useState(!isSmallScreen);
