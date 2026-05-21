@@ -435,7 +435,6 @@ export default function Register() {
       yearsOfExperience: "",
       doctorBDate: "",
       specializations: [],
-      diseasesDoctor: [],
       workPlaces: [],
       universities: [],
     },
@@ -658,7 +657,6 @@ export default function Register() {
     yearsOfExperience: d.yearsOfExperience?.trim() || "",
     bDate: d.doctorBDate || "",
     specializations: cleanArray(d.specializations),
-    diseasesDoctor: cleanArray(d.diseases),
     workPlaces: cleanArray(d.workPlaces),
     universities: (d.universities || [])
       .map((u) => ({
@@ -692,7 +690,7 @@ export default function Register() {
       setSnackMsg("تم إنشاء الحساب بنجاح");
       setSnackOpen(true);
       setTimeout(() => navigate("/login"), 1200);
-
+      
       reset();
       setUserType("");
       setStep(1);
@@ -1714,10 +1712,10 @@ export default function Register() {
       error={!!errors.medicalRank}
       helperText={errors.medicalRank?.message}
     >
-      <MenuItem value="امتياز">امتياز</MenuItem>
       <MenuItem value="عام">عام</MenuItem>
       <MenuItem value="مقيم">مقيم</MenuItem>
-      <MenuItem value="أخصائي">أخصائي</MenuItem>
+      <MenuItem value="اخصائي">اخصائي</MenuItem>
+      <MenuItem value="اخصائي اول">اخصائي اول</MenuItem>
       <MenuItem value="استشاري">استشاري</MenuItem>
     </TextField>
   </Grid>
@@ -1785,25 +1783,7 @@ export default function Register() {
                         />
 
                         <Divider />
-
-                        <ArrayTextList
-                          title="الأمراض التي يعالجها"
-                          values={diseases}
-                          fieldName="diseases"
-                          register={register}
-                          errors={errors}
-                          onAdd={() => addStringItem("diseases", diseases)}
-                          onRemove={(i) =>
-                            removeStringItem("diseases", diseases, i)
-                          }
-                          itemLabel="المرض"
-                        />
-
-                        <Divider />
-
-                     
-
-                   
+                
                       </Stack>
                     </AccordionDetails>
                   </Accordion>

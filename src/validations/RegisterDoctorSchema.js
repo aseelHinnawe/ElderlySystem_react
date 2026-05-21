@@ -135,7 +135,6 @@ const RegisterDoctorSchema = yup.object({
 
 
     specializations: requiredStringArray("تخصص"),
-    diseases: requiredStringArray("مرض"),
     workPlaces: requiredStringArray("مكان عمل"),
 
     universities: yup.array().when("$step", {

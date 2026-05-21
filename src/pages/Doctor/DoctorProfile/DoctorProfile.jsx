@@ -507,25 +507,6 @@ export default function DoctorProfile() {
             </Box>
 
 
-            <Box>
-              <Typography sx={cardTitleSx("#417d44")}>
-                المعلومات الطبية
-              </Typography>
-
-
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
-                {medicalFields.map((f, i) => (
-                  <FieldRow
-                    key={i}
-                    icon={f.icon}
-                    label={f.label}
-                    value={f.value}
-                  />
-                ))}
-              </Box>
-            </Box>
-
-
             <Button
               variant="contained"
               startIcon={<EditIcon />}
@@ -597,54 +578,6 @@ export default function DoctorProfile() {
                 </Box>
               )}
             </Paper>
-
-
-            <Paper
-              sx={{
-                p: 3,
-                borderRadius: 4,
-                boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Typography sx={cardTitleSx("#417d44")}>الأمراض </Typography>
-
-
-              {hasDiseases ? (
-                <Grid container spacing={1.5} sx={{ mt: 0.6 }}>
-                  {doctor.diseases.map((item, idx) => (
-                    <Grid key={`${item}-${idx}`} size={{ xs: 12, sm: 6 }}>
-                      <InfoTagCard
-                        icon={<VaccinesIcon />}
-                        title={item}
-                        subtitle="مرض ضمن خبرة الطبيب"
-                        chipLabel={idx + 1}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              ) : (
-                <Box
-                  sx={{
-                    p: 2,
-                    borderRadius: 3,
-                    background: "rgba(106,106,87,0.08)",
-                    border: "1px dashed rgba(106,106,87,0.35)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.2,
-                    mt: 1.5,
-                  }}
-                >
-                  <Box sx={{ ...iconCircleSx, background: "#417d44" }}>
-                    <VaccinesIcon />
-                  </Box>
-                  <Typography sx={{ fontWeight: 1000, color: "#6a6a57" }}>
-                    لا توجد أمراض مسجلة.
-                  </Typography>
-                </Box>
-              )}
-            </Paper>
-
 
             <Paper
               sx={{
@@ -721,6 +654,61 @@ export default function DoctorProfile() {
   )}
 </Paper>
 
+<Paper
+  sx={{
+    p: 3,
+    borderRadius: 4,
+    boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+  }}
+>
+  <Typography sx={cardTitleSx("#417d44")}>
+    المعلومات الطبية
+  </Typography>
+
+  {(doctor.medicalRank || doctor.yearsOfExperience) ? (
+    <Grid container spacing={1.5} sx={{ mt: 0.6 }}>
+      {doctor.medicalRank && (
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <InfoTagCard
+            icon={<WorkspacePremiumIcon />}
+            title={doctor.medicalRank}
+            subtitle="الرتبة الطبية"
+          />
+        </Grid>
+      )}
+
+      {doctor.yearsOfExperience && (
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <InfoTagCard
+            icon={<WorkHistoryIcon />}
+            title={doctor.yearsOfExperience}
+            subtitle="سنوات الخبرة"
+          />
+        </Grid>
+      )}
+    </Grid>
+  ) : (
+    <Box
+      sx={{
+        p: 2,
+        borderRadius: 3,
+        background: "rgba(106,106,87,0.08)",
+        border: "1px dashed rgba(106,106,87,0.35)",
+        display: "flex",
+        alignItems: "center",
+        gap: 1.2,
+        mt: 1.5,
+      }}
+    >
+      <Box sx={{ ...iconCircleSx, background: "#417d44" }}>
+        <WorkHistoryIcon />
+      </Box>
+      <Typography sx={{ fontWeight: 1000, color: "#6a6a57" }}>
+        لا توجد معلومات طبية.
+      </Typography>
+    </Box>
+  )}
+</Paper>
 
           </Box>
         </Grid>
@@ -783,21 +771,6 @@ export default function DoctorProfile() {
                 value={editForm.specializationsText}
                 onChange={(e) =>
                   handleEditChange("specializationsText", e.target.value)
-                }
-                helperText="كل عنصر في سطر أو مفصول بفاصلة"
-              />
-            </Grid>
-
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                multiline
-                minRows={4}
-                label="الأمراض"
-                value={editForm.diseasesText}
-                onChange={(e) =>
-                  handleEditChange("diseasesText", e.target.value)
                 }
                 helperText="كل عنصر في سطر أو مفصول بفاصلة"
               />

@@ -48,6 +48,7 @@ import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import LocalPharmacyOutlinedIcon from "@mui/icons-material/LocalPharmacyOutlined";
 import AxiosUserInstance from "../api/AxiosUserInstance";
+import * as signalR from "@microsoft/signalr";
 
 
 const COLORS = {
@@ -203,10 +204,9 @@ const [err, setErr] = useState("");
       }
     }, []); 
  
-    useEffect(() => {
-      fetchHome();
-    }, [fetchHome]);
-
+   useEffect(() => {
+  fetchHome();
+}, [fetchHome]);
 
   const [activePage, setActivePage] = useState("الرئيسية");
   const isMenuOpen = Boolean(anchorEl);
@@ -353,6 +353,28 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
   const stockCount = data?.lowOrOutStock?.length || 0;
 
   const notificationsCount = overdueCount + expiringCount + stockCount + dueSoonCount;
+
+  useEffect(() => {
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:5001/notificationsHub")
+    .withAutomaticReconnect()
+    .build();
+
+  connection.start().then(() => {
+    console.log("Connected ✅");
+
+    const nurseId = localStorage.getItem("nurseId");
+    connection.invoke("JoinGroup", nurseId);
+  });
+
+  connection.on("ReceiveNotification", (data) => {
+    console.log("🔥 Notification:", data);
+
+    fetchHome(); // تحديث البيانات
+  });
+
+  return () => connection.stop();
+}, []);
 
   return (
     <Box
@@ -1068,9 +1090,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                     />
                   </Stack>
 
-
-
-
                   {!stockCount ? (
                     <Typography variant="body2" color="text.secondary">
                       لا يوجد تنبيهات كمية.
@@ -1088,9 +1107,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                       {data.lowOrOutStock.slice(0, 8).map((a, idx) => {
                         const badge = stockBadge(a.stockStatus);
                         const isOut = a.stockStatus === 3;
-
-
-
 
                         return (
                           <ListItem key={`${a.drugPlanId}-${idx}`} divider>
@@ -1113,9 +1129,6 @@ const handleNotificationsClose = () => setNotificationsAnchor(null);
                                 )}
                               </Avatar>
                             </ListItemAvatar>
-
-
-
 
                             <ListItemText
                               primary={
