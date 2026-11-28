@@ -69,6 +69,6 @@ The frontend allows different users to interact with the system and access its f
 ### 5. Doctor Pages
 <img width="1617" height="773" alt="Doctor" src="https://github.com/user-attachments/assets/782cf0e9-620e-440f-8151-1b0e1419f0ed" />
 
-### 6. Sponsor Pages![Uploading Home.png…]()
-<img width="1611" height="775" alt="Sponsor" src="https://github.com/user-attachments/assets/73818e6f-d724-405b-b051-82b7f887e058" />
+### 6. Sponsor Pages (AI Doctor Recommendation)
+<img width="1611" height="775" alt="Sponsor" src="https://github.com/user-attachments/assets/2ffad026-583c-4601-ab17-2296c172d51c" />
 
