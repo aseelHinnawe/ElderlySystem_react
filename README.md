@@ -54,21 +54,14 @@ The frontend allows different users to interact with the system and access its f
 
 ## 📸 Screenshots
 
-### 1. Home Page
-<img width="1896" height="907" alt="Home" src="https://github.com/user-attachments/assets/7fbe6728-ac3d-4db5-a0c4-9886fc0ed4ae" />
+| Home Page | Register Page |
+|:---:|:---:|
+| <img width="400" alt="Home" src="https://github.com/user-attachments/assets/7fbe6728-ac3d-4db5-a0c4-9886fc0ed4ae" /> | <img width="400" alt="Register" src="https://github.com/user-attachments/assets/3239b3e6-67d7-4d7f-8b5c-a2f3da05eabe" /> |
 
-### 2. Register Page
-<img width="1900" height="910" alt="Register" src="https://github.com/user-attachments/assets/3239b3e6-67d7-4d7f-8b5c-a2f3da05eabe" />
+| Admin Dashboard | Nurse Dashboard |
+|:---:|:---:|
+| <img width="400" alt="Admin" src="https://github.com/user-attachments/assets/c7945803-f41a-43e3-984c-78e6e9730c41" /> | <img width="400" alt="Nurse" src="https://github.com/user-attachments/assets/2310bb63-47b2-420a-9577-0151b70617af" /> |
 
-### 3. Admin Dashboard
-<img width="1620" height="773" alt="Admin" src="https://github.com/user-attachments/assets/c7945803-f41a-43e3-984c-78e6e9730c41" />
-
-### 4. Nurse Dashboard
-<img width="1616" height="772" alt="Nurse" src="https://github.com/user-attachments/assets/2310bb63-47b2-420a-9577-0151b70617af" />
-
-### 5. Doctor Pages
-<img width="1617" height="773" alt="Doctor" src="https://github.com/user-attachments/assets/782cf0e9-620e-440f-8151-1b0e1419f0ed" />
-
-### 6. Sponsor Pages (AI Doctor Recommendation)
-<img width="1611" height="775" alt="Sponsor" src="https://github.com/user-attachments/assets/2ffad026-583c-4601-ab17-2296c172d51c" />
-
+| Doctor Pages | Sponsor Pages (AI Doctor Recommendation) |
+|:---:|:---:|
+| <img width="400" alt="Doctor" src="https://github.com/user-attachments/assets/782cf0e9-620e-440f-8151-1b0e1419f0ed" /> | <img width="400" alt="Sponsor" src="https://github.com/user-attachments/assets/2ffad026-583c-4601-ab17-2296c172d51c" /> |
