@@ -64,7 +64,7 @@ The frontend allows different users to interact with the system and access its f
 <img width="1620" height="773" alt="Admin" src="https://github.com/user-attachments/assets/c7945803-f41a-43e3-984c-78e6e9730c41" />
 
 ### 4. Nurse Dashboard
-<img width="1920" height="1080" alt="Nurse" src="https://github.com/user-attachments/assets/05e53543-e6d9-4fc8-a290-e73f6d581cd1" />
+<img width="1616" height="772" alt="Nurse" src="https://github.com/user-attachments/assets/2310bb63-47b2-420a-9577-0151b70617af" />
 
 ### 5. Doctor Pages
 <img width="1617" height="773" alt="Doctor" src="https://github.com/user-attachments/assets/782cf0e9-620e-440f-8151-1b0e1419f0ed" />
