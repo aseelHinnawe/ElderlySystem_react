@@ -1,16 +1,54 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 🖥️ Elderly Care Management System – Frontend
+A web-based frontend application for the Elderly Care Management System, designed to provide an intuitive and user-friendly interface for managing elderly care services.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📌 Project Overview
+The frontend allows different users to interact with the system and access its features based on their roles and permissions.
 
-## React Compiler
+### 📌 Main Functionalities
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+#### 🔐 Authentication
+- Login
+- Sign Up
 
-## Expanding the ESLint configuration
+#### 👑 Admin
+- Dashboard
+- Users Management
+- Residents Management
+- Residents' Rooms Management
+- Activities Management
+- Donations Management
+- Nurses Management
+- Messages Management
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+#### 🧑‍⚕️ Nurse
+- Residents Management
+- Daily Checkups Management
+- Medications Management
+- Meals Management
+
+#### 🩺 Doctor
+- Residents' Requests
+- Resident Follow-up
+
+#### 🤝 Sponsor
+- Medication Tracking
+- Daily Follow-up
+- Best Doctor Selection (AI-based recommendation)
+
+---
+
+## 🛠️ Technologies Used
+- **Library:** React.js
+- **Build Tool:** Vite
+- **UI Framework:** Material UI (MUI)
+- **Routing:** React Router DOM
+- **HTTP Client:** Axios
+- **Styling:** CSS Modules
+- **Authentication:** JWT
+
+---
+
+## 📸 Screenshots
